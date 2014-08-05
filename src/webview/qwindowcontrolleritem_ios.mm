@@ -34,45 +34,54 @@
 **
 ****************************************************************************/
 
-#ifndef QWINDOWCONTROLLERITEM_H
-#define QWINDOWCONTROLLERITEM_H
+#include "qwindowcontrolleritem_p.h"
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include <QtGui/QWindow>
+#include <QtQuick/QQuickWindow>
 
-#include <QtQuick/QQuickItem>
+#import <UiKit/UIView.h>
+#import <UiKit/UIWindow.h>
+#import <UiKit/UIViewController.h>
 
-#ifdef Q_OS_IOS
-Q_FORWARD_DECLARE_OBJC_CLASS(UIView);
-#endif
-
-class Q_DECL_EXPORT QWindowControllerItem : public QQuickItem
+static inline CGRect toCGRect(const QRectF &rect)
 {
-    Q_OBJECT
-public:
-    explicit QWindowControllerItem(QQuickItem *parent = 0);
-    void setNativeWindow(WId windowId);
-    void componentComplete();
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+    return CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
+}
 
-public slots:
-    void onWindowChanged(QQuickWindow* window);
-    void onVisibleChanged();
+QWindowControllerItem::QWindowControllerItem(QQuickItem *parent)
+    : QQuickItem(parent)
+    , m_controlledUIView(0)
+{
+    connect(this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(onWindowChanged(QQuickWindow*)));
+    connect(this, SIGNAL(visibleChanged()), this, SLOT(onVisibleChanged()));
+}
 
-private:
-#ifdef Q_OS_IOS
-    UIView *m_controlledUIView;
-#else
-    QWindow *m_controlledWindow;
-#endif
-};
+void QWindowControllerItem::setNativeWindow(WId windowId)
+{
+   m_controlledUIView = reinterpret_cast<UIView *>(windowId);
+}
 
-#endif // QTWINDOWCONTROLLERITEM_H
+void QWindowControllerItem::componentComplete()
+{
+   QQuickItem::componentComplete();
+}
+
+void QWindowControllerItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+    [m_controlledUIView setFrame:toCGRect(newGeometry)];
+}
+
+void QWindowControllerItem::onWindowChanged(QQuickWindow* window)
+{
+    if (!m_controlledUIView)
+        return;
+
+    UIView *parentView = reinterpret_cast<UIView *>(window->winId());
+    [parentView addSubview:m_controlledUIView];
+}
+
+void QWindowControllerItem::onVisibleChanged()
+{
+    [m_controlledUIView setHidden:isVisible()];
+}

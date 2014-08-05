@@ -17,6 +17,16 @@ android {
         qwebview_android_p.h \
         qwindowcontrolleritem_p.h
 
+} else:ios {
+    SOURCES += \
+        qwebview.cpp
+    OBJECTIVE_SOURCES += \
+        qwebview_ios.mm \
+        qwindowcontrolleritem_ios.mm
+    HEADERS += \
+        qwebview_ios_p.h \
+        qwindowcontrolleritem_p.h
+
 } else {
     qtHaveModule(webengine) {
         QT += webengine webengine-private

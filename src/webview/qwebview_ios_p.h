@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWINDOWCONTROLLERITEM_H
-#define QWINDOWCONTROLLERITEM_H
+#ifndef QWEBVIEW_IOS_P_H
+#define QWEBVIEW_IOS_P_H
 
 //
 //  W A R N I N G
@@ -48,31 +48,41 @@
 // We mean it.
 //
 
-#include <QtQuick/QQuickItem>
+#include <QtCore/qobject.h>
+#include <QtCore/qurl.h>
+#include <QtGui/qwindow.h>
 
-#ifdef Q_OS_IOS
-Q_FORWARD_DECLARE_OBJC_CLASS(UIView);
-#endif
+#include "qwebview_p.h"
 
-class Q_DECL_EXPORT QWindowControllerItem : public QQuickItem
+QT_BEGIN_NAMESPACE
+
+Q_FORWARD_DECLARE_OBJC_CLASS(UIWebView);
+
+class QIOSWebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
 public:
-    explicit QWindowControllerItem(QQuickItem *parent = 0);
-    void setNativeWindow(WId windowId);
-    void componentComplete();
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+    QIOSWebViewPrivate(QWebView *q);
+    virtual ~QIOSWebViewPrivate();
 
-public slots:
-    void onWindowChanged(QQuickWindow* window);
-    void onVisibleChanged();
+    QString getUrl() const;
+    bool canGoBack() const;
+    bool canGoForward() const;
+    QString getTitle() const;
 
-private:
-#ifdef Q_OS_IOS
-    UIView *m_controlledUIView;
-#else
-    QWindow *m_controlledWindow;
-#endif
+    void *nativeWebView() const;
+
+public Q_SLOTS:
+    void loadUrl(const QString &url);
+    void goBack() const;
+    void goForward() const;
+    void stopLoading() const;
+public:
+    UIWebView *uiWebView;
+    QString requestUrl;
+    int requestFrameCount;
 };
 
-#endif // QTWINDOWCONTROLLERITEM_H
+QT_END_NAMESPACE
+
+#endif // QWEBVIEW_IOS_P_H
