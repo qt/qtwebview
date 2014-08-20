@@ -1,0 +1,46 @@
+include($QT_INSTALL_DOCS/global/macros.qdocconf)
+include($QT_INSTALL_DOCS/global/qt-cpp-defines.qdocconf)
+include($QT_INSTALL_DOCS/global/compat.qdocconf)
+include($QT_INSTALL_DOCS/global/fileextensions.qdocconf)
+include($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)
+
+project                                            = QtWebView
+description                                        = Qt WebView Reference Documentation
+url                                                = http://qt-project.org/doc/qt-$QT_VER
+version                                            = $QT_VERSION
+
+qhp.projects                                       = QtWebView
+
+qhp.QtPurchasing.file                              = qtwebview.qhp
+qhp.QtPurchasing.namespace                         = org.qt-project.qtmultimedia.$QT_VERSION_TAG
+qhp.QtPurchasing.virtualFolder                     = qtwebview
+qhp.QtPurchasing.indexTitle                        = Qt WebView
+qhp.QtPurchasing.indexRoot                         =
+qhp.QtPurchasing.filterAttributes                  = qtwebview 1.0 qtrefdoc
+qhp.QtPurchasing.customFilters.Qt.name             = QtWebView 1.0
+qhp.QtPurchasing.customFilters.Qt.filterAttributes = qtwebview 1.0
+
+qhp.QtPurchasing.subprojects                       = qmltypes classes examples
+qhp.QtPurchasing.subprojects.qmltypes.title        = QML Types
+qhp.QtPurchasing.subprojects.qmltypes.indexTitle   = Qt WebView QML Types
+qhp.QtPurchasing.subprojects.qmltypes.selectors    = fake:qmlclass
+qhp.QtPurchasing.subprojects.qmltypes.sortPages    = true
+qhp.QtPurchasing.subprojects.examples.title        = Examples
+qhp.QtPurchasing.subprojects.examples.indexTitle   = Qt WebView Examples
+qhp.QtPurchasing.subprojects.examples.selectors    = fake:example
+
+indexes +=  $QT_INSTALL_DOCS/qtqml/qtqml.index \
+            $QT_INSTALL_DOCS/qtquick/qtquick.index \
+            $QT_INSTALL_DOCS/qtdoc/qtdoc.index \
+            $QT_INSTALL_DOCS/qtquickcontrols/qtquickcontrols.index
+
+headerdirs += ../ ../../imports/ ../
+sourcedirs += ../ ../../imports/ ../
+exampledirs += ../../../examples/webview
+imagedirs  += images
+
+examplesinstallpath = webview
+depends = qtcore qtdoc qtquick qtqml
+
+navigation.landingpage    = "Qt WebView"
+navigation.qmltypespage   = "Qt WebView QML Types"
