@@ -74,6 +74,14 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QGuiApplication::setApplicationDisplayName(QCoreApplication::translate("main",
                                                                            "QtWebView Example"));
+#ifdef Q_OS_OSX
+    // On OS X, correct WebView / QtQuick compositing and stacking requires running
+    // Qt in layer-backed mode, which again resuires rendering on the Gui thread.
+    qWarning("Setting QT_MAC_WANTS_LAYER=1 and QSG_RENDER_LOOP=basic");
+    qputenv("QT_MAC_WANTS_LAYER", "1");
+    qputenv("QSG_RENDER_LOOP", "basic");
+#endif
+
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
     QtWebEngine::initialize();
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND

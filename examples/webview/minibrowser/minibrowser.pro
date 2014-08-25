@@ -2,7 +2,7 @@ TEMPLATE = app
 
 QT += qml quick
 
-qtHaveModule(webengine) {
+!osx:qtHaveModule(webengine) {
         QT += webengine
         DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
 }

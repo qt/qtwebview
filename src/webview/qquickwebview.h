@@ -48,12 +48,12 @@
 // We mean it.
 //
 
-#include "qwebviewinterface_p.h"
+#include <QtWebView/private/qwebviewinterface_p.h>
 
 #if !defined(QT_WEBVIEW_WEBENGINE_BACKEND)
 
-#include "qwebview_p.h"
-#include "qquickviewcontroller_p.h"
+#include <QtWebView/private/qwebview_p.h>
+#include <QtWebView/private/qquickviewcontroller_p.h>
 
 QT_BEGIN_NAMESPACE
 

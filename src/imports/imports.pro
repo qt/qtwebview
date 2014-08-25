@@ -7,7 +7,7 @@ QT += qml quick webview webview-private
 SOURCES += \
     $$PWD/webview.cpp
 
-!android: qtHaveModule(webengine) {
+!android:!osx: qtHaveModule(webengine) {
     QT += webengine webengine-private
     DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
 }

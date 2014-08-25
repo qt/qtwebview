@@ -44,6 +44,16 @@ android {
         $$COMMON_HEADERS \
         qwebview_ios_p.h
 
+} else:osx {
+    LIBS_PRIVATE += -framework Cocoa -framework WebKit
+    SOURCES += \
+       $$COMMON_SOURCES
+    OBJECTIVE_SOURCES += \
+        qwebview_osx.mm
+    PRIVATE_HEADERS += \
+        $$COMMON_HEADERS \
+        qwebview_osx_p.h
+
 } else {
     qtHaveModule(webengine) {
         QT += webengine webengine-private
