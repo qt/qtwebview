@@ -41,8 +41,11 @@
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmap.h>
 #include <android/bitmap.h>
+#include <QtGui/qguiapplication.h>
 
 QT_BEGIN_NAMESPACE
+
+static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt5/android/view/QtAndroidWebViewController";
 
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
@@ -73,13 +76,15 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *q)
     : QWebViewPrivate(q)
     , m_id(reinterpret_cast<quintptr>(this))
 {
-    m_viewController = QAndroidJniObject("org/qtproject/qt5/android/view/QtAndroidWebViewController",
+    m_viewController = QAndroidJniObject(qtAndroidWebViewControllerClass,
                                          "(Landroid/app/Activity;J)V",
                                          QtAndroid::androidActivity().object(),
                                          m_id);
     m_webView = m_viewController.callObjectMethod("getWebView",
                                                   "()Landroid/webkit/WebView;");
     g_webViews->insert(m_id, this);
+    connect(qApp, &QGuiApplication::applicationStateChanged,
+            this, &QAndroidWebViewPrivate::onApplicationStateChanged);
 }
 
 QAndroidWebViewPrivate::~QAndroidWebViewPrivate()
@@ -132,6 +137,17 @@ void QAndroidWebViewPrivate::stopLoading() const
 void *QAndroidWebViewPrivate::nativeWebView() const
 {
     return m_webView.object();
+}
+
+void QAndroidWebViewPrivate::onApplicationStateChanged(Qt::ApplicationState state)
+{
+    if (QtAndroid::androidSdkVersion() < 11)
+        return;
+
+    if (state == Qt::ApplicationActive)
+        m_viewController.callMethod<void>("onResume");
+    else
+        m_viewController.callMethod<void>("onPause");
 }
 
 QT_END_NAMESPACE
@@ -243,7 +259,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
 
     JNIEnv *jniEnv = uenv.nativeEnvironment;
 
-    jclass clazz = jniEnv->FindClass("org/qtproject/qt5/android/view/QtAndroidWebViewController");
+    jclass clazz = jniEnv->FindClass(qtAndroidWebViewControllerClass);
     if (!clazz)
         return JNI_ERR;
 

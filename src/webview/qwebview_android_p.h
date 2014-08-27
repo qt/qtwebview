@@ -77,6 +77,9 @@ public Q_SLOTS:
     void goForward() const;
     void stopLoading() const;
 
+private Q_SLOTS:
+    void onApplicationStateChanged(Qt::ApplicationState state);
+
 private:
     quintptr m_id;
     QAndroidJniObject m_viewController;

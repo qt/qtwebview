@@ -47,6 +47,8 @@ import android.util.Log;
 import android.webkit.WebSettings.PluginState;
 import android.graphics.Bitmap;
 import java.util.concurrent.Semaphore;
+import java.lang.reflect.Method;
+import android.os.Build;
 
 public class QtAndroidWebViewController
 {
@@ -54,6 +56,11 @@ public class QtAndroidWebViewController
     private final long m_id;
     private WebView m_webView = null;
     private static final String TAG = "QtAndroidWebViewController";
+
+    // API 11 methods
+    private Method m_webViewOnResume = null;
+    private Method m_webViewOnPause = null;
+
     // Native callbacks
     private native void c_onPageFinished(long id, String url);
     private native void c_onPageStarted(long id, String url, Bitmap icon);
@@ -134,6 +141,13 @@ public class QtAndroidWebViewController
             sem.acquire();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (Build.VERSION.SDK_INT > 10) {
+            try {
+                m_webViewOnResume = m_webView.getClass().getMethod("onResume");
+                m_webViewOnPause = m_webView.getClass().getMethod("onPause");
+            } catch (Exception e) { /* Do nothing */ e.printStackTrace(); }
         }
     }
 
@@ -248,5 +262,27 @@ public class QtAndroidWebViewController
     public WebView getWebView()
     {
        return m_webView;
+    }
+
+    public void onPause()
+    {
+        if (m_webViewOnPause == null)
+            return;
+
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() { try { m_webViewOnPause.invoke(m_webView); } catch (Exception e) { e.printStackTrace(); } }
+        });
+    }
+
+    public void onResume()
+    {
+        if (m_webViewOnResume == null)
+            return;
+
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() { try { m_webViewOnResume.invoke(m_webView); } catch (Exception e) { e.printStackTrace(); } }
+        });
     }
 }
