@@ -34,47 +34,22 @@
 **
 ****************************************************************************/
 
-#ifndef QWINDOWCONTROLLERITEM_H
-#define QWINDOWCONTROLLERITEM_H
+#ifndef QWEBVIEWGLOBAL_H
+#define QWEBVIEWGLOBAL_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include <QtCore/qglobal.h>
 
-#include "qwebview_global.h"
+QT_BEGIN_NAMESPACE
 
-#include <QtQuick/QQuickItem>
-
-#ifdef Q_OS_IOS
-Q_FORWARD_DECLARE_OBJC_CLASS(UIView);
-#endif
-
-class Q_WEBVIEW_EXPORT QWindowControllerItem : public QQuickItem
-{
-    Q_OBJECT
-public:
-    explicit QWindowControllerItem(QQuickItem *parent = 0);
-    void setNativeWindow(WId windowId);
-    void componentComplete();
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
-
-public slots:
-    void onWindowChanged(QQuickWindow* window);
-    void onVisibleChanged();
-
-private:
-#ifdef Q_OS_IOS
-    UIView *m_controlledUIView;
+#ifndef QT_STATIC
+#  if defined(QT_BUILD_WEBVIEW_LIB)
+#    define Q_WEBVIEW_EXPORT Q_DECL_EXPORT
+#  else
+#    define Q_WEBVIEW_EXPORT Q_DECL_IMPORT
+#  endif
 #else
-    QWindow *m_controlledWindow;
+#  define Q_WEBVIEW_EXPORT
 #endif
-};
 
-#endif // QTWINDOWCONTROLLERITEM_H
+QT_END_NAMESPACE
+#endif // QWEBVIEWGLOBAL_H

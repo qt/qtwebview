@@ -4,6 +4,7 @@ ANDROID_JAR_DEPENDENCIES = \
     jar/QtAndroidWebView.jar
 
 HEADERS += \
+    qwebview_global.h \
     qwebview_p.h \
 
 android {

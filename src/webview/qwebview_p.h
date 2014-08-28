@@ -101,7 +101,7 @@ private:
     QWebView *q_ptr;
 };
 
-class Q_DECL_EXPORT QWebView : public QWindowControllerItem
+class Q_WEBVIEW_EXPORT QWebView : public QWindowControllerItem
 {
     Q_OBJECT
     Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged)
@@ -150,7 +150,7 @@ QT_END_NAMESPACE
 
 QT_BEGIN_NAMESPACE
 
-class Q_DECL_EXPORT QWebView : public QQuickWebEngineView
+class Q_WEBVIEW_EXPORT QWebView : public QQuickWebEngineView
 {
     Q_OBJECT
 };
