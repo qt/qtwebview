@@ -68,6 +68,7 @@ class QWebViewPrivate;
 
 - (void)pageDone
 {
+    Q_EMIT qIosWebViewPrivate->progressChanged(100);
     Q_EMIT qIosWebViewPrivate->pageFinished(qIosWebViewPrivate->requestUrl);
     Q_EMIT qIosWebViewPrivate->titleChanged(qIosWebViewPrivate->getTitle());
     // QWebViewPrivate emits urlChanged.
@@ -130,6 +131,7 @@ QString QIOSWebViewPrivate::getUrl() const
 
 void QIOSWebViewPrivate::loadUrl(const QString &url)
 {
+    Q_EMIT progressChanged(0);
     requestUrl = url;
     requestFrameCount = 0;
     [uiWebView loadRequest:[NSURLRequest requestWithURL:QUrl(url).toNSURL()]];
