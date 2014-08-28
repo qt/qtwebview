@@ -40,64 +40,47 @@
 
 import QtQuick 2.2
 import QtQuick.Controls 1.1
-import QtQuick.Dialogs 1.2
 import QtWebView 1.0
+import QtQuick.Layouts 1.1
 
 ApplicationWindow {
-    id: topLevel
     visible: true
     width: 640
     height: 480
-    title: qsTr("QtWebView Browser")
+    title: qsTr("QtWebView Example")
 
-    Label {
-        id: title
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        horizontalAlignment: Label.AlignHCenter
-        text: webView.title
-    }
+    toolBar: ToolBar {
+        id: navigationBar
+        RowLayout {
+            anchors.fill: parent
+            TextField {
+                Layout.fillWidth: true
+                id: urlField
+                inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhPreferLowercase
+                text: webView.url
+            }
 
-    Rectangle {
-        id: addressBar
-        anchors.top: title.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: parent.height / 10
-        color: "black"
-
-        Button {
-            id: goButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            anchors.margins: topLevel.width / 30
-            text: qsTr("Go")
-            onClicked: {
-                webView.url = utils.fromUserInput(addressField.text)
+            ToolButton {
+                id: goButton
+                text: qsTr("Go")
+                onClicked: {
+                    webView.url = utils.fromUserInput(urlField.text)
+                }
             }
         }
+    }
 
-        TextField {
-            id: addressField
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: goButton.left
-            anchors.margins: topLevel.width / 30
+    statusBar: StatusBar {
+        id: statusBar
+        RowLayout {
+            anchors.fill: parent
+            Label { text: webView.loadProgress == 100 ? qsTr("Done") : qsTr("Loading: ") + webView.loadProgress + "%" }
         }
     }
 
     WebView {
         id: webView
-        anchors.top: addressBar.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.fill: parent
         url: "http://qt-project.org"
-        onUrlChanged: {
-            addressField.text = url
-        }
     }
 }
