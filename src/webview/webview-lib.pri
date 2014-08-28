@@ -17,7 +17,7 @@ android {
     SOURCES += \
         qwebview_android.cpp \
         qwebview.cpp \
-        qwindowcontrolleritem.cpp
+        qwindowcontrolleritem_android.cpp
     PRIVATE_HEADERS += \
         qwebview_android_p.h \
         qwindowcontrolleritem_p.h
