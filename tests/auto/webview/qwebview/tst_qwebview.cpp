@@ -36,35 +36,53 @@
 
 #include <QtTest/QtTest>
 #include <QtCore/qstandardpaths.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qtemporarydir.h>
+#include <QtCore/qfileinfo.h>
 #include <QtWebView/private/qwebview_p.h>
 
 class tst_QWebView : public QObject
 {
     Q_OBJECT
+public:
+    tst_QWebView() : m_cacheLocation(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)) {}
+
 private slots:
+    void initTestCase();
     void load();
+
+private:
+    const QString m_cacheLocation;
 };
+
+void tst_QWebView::initTestCase()
+{
+    if (!QFileInfo(m_cacheLocation).isDir()) {
+        QDir dir;
+        QVERIFY(dir.mkpath(m_cacheLocation));
+    }
+}
 
 void tst_QWebView::load()
 {
-    QString cacheLocation = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-    QString fileName(cacheLocation + QStringLiteral("/file.html"));
+    QTemporaryFile file(m_cacheLocation + QStringLiteral("/XXXXXXfile.html"));
+    QVERIFY2(file.open(),
+             qPrintable(QStringLiteral("Cannot create temporary file:") + file.errorString()));
 
-    {
-        QFile file(fileName);
-        QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write("<html><head><title>FooBar</title></head><body />");
-    }
+    file.write("<html><head><title>FooBar</title></head><body />");
+    const QString fileName = file.fileName();
+    file.close();
 
     QWebView view;
     QCOMPARE(view.loadProgress(), 0);
-    view.setUrl(QUrl(QStringLiteral("file://") + fileName));
+    const QUrl url = QUrl::fromLocalFile(fileName);
+    view.setUrl(url);
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
     QCOMPARE(view.title(), QStringLiteral("FooBar"));
     QVERIFY(!view.canGoBack());
     QVERIFY(!view.canGoForward());
-    QCOMPARE(view.url(), QUrl(QStringLiteral("file://") + fileName));
+    QCOMPARE(view.url(), url);
 }
 
 QTEST_MAIN(tst_QWebView)
