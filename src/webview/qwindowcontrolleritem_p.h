@@ -48,7 +48,7 @@
 // We mean it.
 //
 
-#include "qwebview_global.h"
+#include <QtWebView/qwebview_global.h>
 
 #include <QtQuick/QQuickItem>
 

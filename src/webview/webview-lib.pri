@@ -3,9 +3,13 @@ ANDROID_BUNDLED_JAR_DEPENDENCIES = \
 ANDROID_JAR_DEPENDENCIES = \
     jar/QtAndroidWebView.jar
 
-HEADERS += \
-    qwebview_global.h \
-    qwebview_p.h \
+INCLUDEPATH += $$PWD
+
+PUBLIC_HEADERS += \
+    qwebview_global.h
+
+PRIVATE_HEADERS += \
+    qwebview_p.h
 
 android {
     QT += androidextras
@@ -14,7 +18,7 @@ android {
         qwebview_android.cpp \
         qwebview.cpp \
         qwindowcontrolleritem.cpp
-    HEADERS += \
+    PRIVATE_HEADERS += \
         qwebview_android_p.h \
         qwindowcontrolleritem_p.h
 
@@ -24,7 +28,7 @@ android {
     OBJECTIVE_SOURCES += \
         qwebview_ios.mm \
         qwindowcontrolleritem_ios.mm
-    HEADERS += \
+    PRIVATE_HEADERS += \
         qwebview_ios_p.h \
         qwindowcontrolleritem_p.h
 
@@ -37,8 +41,10 @@ android {
             qwebview_default.cpp \
             qwebview.cpp \
             qwindowcontrolleritem.cpp
-        HEADERS += \
+        PRIVATE_HEADERS += \
             qwebview_default_p.h \
             qwindowcontrolleritem_p.h
     }
 }
+
+HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERS
