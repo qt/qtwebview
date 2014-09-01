@@ -139,6 +139,9 @@ QWebView::~QWebView()
 
   The url of currently loaded web page. Changing this will trigger
   loading new content.
+
+  The url is used as-is. Urls that originate from user input should
+  be parsed with QUrl::fromUserInput.
 */
 
 void QWebView::setUrl(const QUrl &url)

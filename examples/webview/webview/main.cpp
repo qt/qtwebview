@@ -38,14 +38,27 @@
 **
 ****************************************************************************/
 
+#include <QtCore/QUrl>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QtQml/QQmlContext>
+
+// Workaround: As of Qt 5.4 QtQuick does not expose QUrl::fromUserInput.
+class Utils : public QObject {
+    Q_OBJECT
+public:
+    Utils(QObject* parent = 0) : QObject(parent) { }
+    Q_INVOKABLE static QUrl fromUserInput(const QString& userInput) { return QUrl::fromUserInput(userInput); }
+};
+
+#include "main.moc"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("utils", new Utils(&engine));
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     return app.exec();

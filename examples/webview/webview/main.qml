@@ -75,7 +75,7 @@ ApplicationWindow {
             anchors.margins: topLevel.width / 30
             text: qsTr("Go")
             onClicked: {
-                webView.url = addressField.text
+                webView.url = utils.fromUserInput(addressField.text)
             }
         }
 
