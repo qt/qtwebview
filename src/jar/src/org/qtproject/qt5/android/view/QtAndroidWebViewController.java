@@ -43,7 +43,6 @@ import java.lang.Runnable;
 import android.app.Activity;
 import java.lang.String;
 import android.webkit.WebSettings;
-import android.webkit.URLUtil;
 import android.util.Log;
 import android.webkit.WebSettings.PluginState;
 import android.graphics.Bitmap;
@@ -146,7 +145,7 @@ public class QtAndroidWebViewController
 
         m_activity.runOnUiThread(new Runnable() {
             @Override
-            public void run() { m_webView.loadUrl(URLUtil.guessUrl(url)); }
+            public void run() { m_webView.loadUrl(url); }
         });
     }
 
