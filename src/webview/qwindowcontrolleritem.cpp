@@ -61,7 +61,8 @@ void QWindowControllerItem::componentComplete()
 void QWindowControllerItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    m_controlledWindow->setGeometry(newGeometry.toRect());
+    if (m_controlledWindow)
+        m_controlledWindow->setGeometry(newGeometry.toRect());
 }
 
 void QWindowControllerItem::onWindowChanged(QQuickWindow* window)
@@ -74,5 +75,6 @@ void QWindowControllerItem::onWindowChanged(QQuickWindow* window)
 
 void QWindowControllerItem::onVisibleChanged()
 {
-    m_controlledWindow->setVisible(isVisible());
+    if (m_controlledWindow)
+        m_controlledWindow->setVisible(isVisible());
 }
