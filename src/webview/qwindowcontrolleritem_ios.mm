@@ -56,6 +56,11 @@ QWindowControllerItem::QWindowControllerItem(QQuickItem *parent)
     connect(this, SIGNAL(visibleChanged()), this, SLOT(onVisibleChanged()));
 }
 
+QWindowControllerItem::~QWindowControllerItem()
+{
+
+}
+
 void QWindowControllerItem::setNativeWindow(WId windowId)
 {
    m_controlledUIView = reinterpret_cast<UIView *>(windowId);

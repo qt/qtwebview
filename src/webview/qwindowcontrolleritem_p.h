@@ -61,6 +61,7 @@ class Q_WEBVIEW_EXPORT QWindowControllerItem : public QQuickItem
     Q_OBJECT
 public:
     explicit QWindowControllerItem(QQuickItem *parent = 0);
+    ~QWindowControllerItem();
     void setNativeWindow(WId windowId);
     void componentComplete();
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);

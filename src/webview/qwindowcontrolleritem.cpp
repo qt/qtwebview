@@ -47,8 +47,14 @@ QWindowControllerItem::QWindowControllerItem(QQuickItem *parent)
     connect(this, SIGNAL(visibleChanged()), this, SLOT(onVisibleChanged()));
 }
 
+QWindowControllerItem::~QWindowControllerItem()
+{
+    delete m_controlledWindow;
+}
+
 void QWindowControllerItem::setNativeWindow(WId windowId)
 {
+    Q_ASSERT(m_controlledWindow == 0);
     m_controlledWindow = QWindow::fromWinId(windowId);
     m_controlledWindow->setVisibility(QWindow::Windowed);
 }
