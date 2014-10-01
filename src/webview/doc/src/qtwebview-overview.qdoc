@@ -37,7 +37,7 @@
   This is especially important on platforms such as iOS, where policy dictates
   that all web content is displayed using the operating system's web view.
 
-  The WebView is currently supported on the following platforms: Android.
+  The WebView is currently supported on the following platforms: Android and iOS.
 
   \section1 QML types
 
