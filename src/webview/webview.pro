@@ -6,4 +6,7 @@ TARGET = QtWebView
 
 QT += quick qml
 
+QMAKE_DOCS = \
+             $$PWD/doc/qtwebview.qdocconf
+
 load(qt_module)

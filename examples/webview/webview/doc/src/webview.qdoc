@@ -27,9 +27,9 @@
 
 /*!
     \title Qt WebView Examples - WebView
-    \example qtwebview
+    \example webview
     \brief WebView is an example that demonstrates how to use the Qt WebView module with Qt Quick.
-    \image qtwebview-example.png
+    \image webview-example.png
     \ingroup qtwebview-examples
 
     The WebView example creates a simple browser using Qt Quick Controls
