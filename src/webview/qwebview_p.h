@@ -48,6 +48,8 @@
 // We mean it.
 //
 
+#include <QtWebView/qwebview_global.h>
+
 #if !defined(QT_WEBVIEW_WEBENGINE_BACKEND)
 
 #include "qwindowcontrolleritem_p.h"
