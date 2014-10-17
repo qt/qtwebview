@@ -45,19 +45,41 @@ import QtQuick.Layouts 1.1
 
 ApplicationWindow {
     visible: true
-    width: 640
-    height: 480
+    x: initialX
+    y: initialY
+    width: initialWidth
+    height: initialHeight
     title: qsTr("QtWebView Example")
 
     toolBar: ToolBar {
         id: navigationBar
         RowLayout {
             anchors.fill: parent
+
+            ToolButton {
+                id: backButton
+                text: qsTr("Back")
+                iconSource: "qrc:/images/left-32.png"
+                onClicked: webView.goBack()
+                enabled: webView.canGoBack
+            }
+
+            ToolButton {
+                id: forwardButton
+                text: qsTr("Forward")
+                iconSource: "qrc:/images/right-32.png"
+                onClicked: webView.goForward()
+                enabled: webView.canGoForward
+            }
+
             TextField {
                 Layout.fillWidth: true
                 id: urlField
                 inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhPreferLowercase
                 text: webView.url
+                onEditingFinished: {
+                    webView.url = utils.fromUserInput(urlField.text);
+                }
             }
 
             ToolButton {
@@ -81,6 +103,6 @@ ApplicationWindow {
     WebView {
         id: webView
         anchors.fill: parent
-        url: "http://qt-project.org"
+        url: initialUrl
     }
 }
