@@ -38,6 +38,7 @@
 
 #include <QtGui/QWindow>
 #include <QtQuick/QQuickWindow>
+#include <QtCore/QDebug>
 
 QWindowControllerItem::QWindowControllerItem(QQuickItem *parent)
     : QQuickItem(parent)
@@ -67,8 +68,13 @@ void QWindowControllerItem::componentComplete()
 void QWindowControllerItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    if (m_controlledWindow)
-        m_controlledWindow->setGeometry(newGeometry.toRect());
+    if (!m_controlledWindow)
+        return;
+
+    if (newGeometry.isValid())
+        m_controlledWindow->setGeometry(mapRectToScene(newGeometry).toRect());
+    else
+        qWarning() << __FUNCTION__ << "Invalid geometry: " << newGeometry;
 }
 
 void QWindowControllerItem::onWindowChanged(QQuickWindow* window)
