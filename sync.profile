@@ -12,6 +12,5 @@
 #
 %dependencies = (
     "qtbase" => "",
-    "qtandroidextras" => "",
     "qtdeclarative" => "",
 );

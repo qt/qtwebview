@@ -36,7 +36,8 @@
 
 #include "qwebview_p.h"
 #include "qwebview_android_p.h"
-#include <QtAndroidExtras/QtAndroid>
+#include <QtCore/private/qjnihelpers_p.h>
+#include <QtCore/private/qjni_p.h>
 
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmap.h>
@@ -76,9 +77,9 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *q)
     : QWebViewPrivate(q)
     , m_id(reinterpret_cast<quintptr>(this))
 {
-    m_viewController = QAndroidJniObject(qtAndroidWebViewControllerClass,
+    m_viewController = QJNIObjectPrivate(qtAndroidWebViewControllerClass,
                                          "(Landroid/app/Activity;J)V",
-                                         QtAndroid::androidActivity().object(),
+                                         QtAndroidPrivate::activity(),
                                          m_id);
     m_webView = m_viewController.callObjectMethod("getWebView",
                                                   "()Landroid/webkit/WebView;");
@@ -101,7 +102,7 @@ void QAndroidWebViewPrivate::loadUrl(const QString &url)
 {
     m_viewController.callMethod<void>("loadUrl",
                                       "(Ljava/lang/String;)V",
-                                      QAndroidJniObject::fromString(url).object());
+                                      QJNIObjectPrivate::fromString(url).object());
 }
 
 bool QAndroidWebViewPrivate::canGoBack() const
@@ -141,7 +142,7 @@ void *QAndroidWebViewPrivate::nativeWebView() const
 
 void QAndroidWebViewPrivate::onApplicationStateChanged(Qt::ApplicationState state)
 {
-    if (QtAndroid::androidSdkVersion() < 11)
+    if (QtAndroidPrivate::androidSdkVersion() < 11)
         return;
 
     if (state == Qt::ApplicationActive)
@@ -164,7 +165,7 @@ static void c_onPageFinished(JNIEnv *env,
     if (!wc)
         return;
 
-    Q_EMIT wc->pageFinished(QAndroidJniObject(url).toString());
+    Q_EMIT wc->pageFinished(QJNIObjectPrivate(url).toString());
 }
 
 static void c_onPageStarted(JNIEnv *env,
@@ -181,7 +182,7 @@ static void c_onPageStarted(JNIEnv *env,
     if (!wc)
         return;
 
-    Q_EMIT wc->pageStarted(QAndroidJniObject(url).toString());
+    Q_EMIT wc->pageStarted(QJNIObjectPrivate(url).toString());
 
 //    if (!icon)
 //        return;
@@ -241,7 +242,7 @@ static void c_onReceivedTitle(JNIEnv *env,
     if (!wc)
         return;
 
-    Q_EMIT wc->titleChanged(QAndroidJniObject(title).toString());
+    Q_EMIT wc->titleChanged(QJNIObjectPrivate(title).toString());
 }
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
@@ -257,9 +258,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
     if (vm->GetEnv(&uenv.venv, JNI_VERSION_1_4) != JNI_OK)
         return JNI_ERR;
 
-    JNIEnv *jniEnv = uenv.nativeEnvironment;
+    JNIEnv *env = uenv.nativeEnvironment;
 
-    jclass clazz = jniEnv->FindClass(qtAndroidWebViewControllerClass);
+    jclass clazz = QJNIEnvironmentPrivate::findClass(qtAndroidWebViewControllerClass, env);
     if (!clazz)
         return JNI_ERR;
 
@@ -273,7 +274,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
 
     const int nMethods = sizeof(methods) / sizeof(methods[0]);
 
-    if (jniEnv->RegisterNatives(clazz, methods, nMethods) != JNI_OK)
+    if (env->RegisterNatives(clazz, methods, nMethods) != JNI_OK)
         return JNI_ERR;
 
     return JNI_VERSION_1_4;

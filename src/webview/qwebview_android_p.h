@@ -51,7 +51,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtGui/qwindow.h>
-#include <QtAndroidExtras/qandroidjniobject.h>
+#include <QtCore/private/qjni_p.h>
 
 #include "qwebview_p.h"
 
@@ -82,8 +82,8 @@ private Q_SLOTS:
 
 private:
     quintptr m_id;
-    QAndroidJniObject m_viewController;
-    QAndroidJniObject m_webView;
+    QJNIObjectPrivate m_viewController;
+    QJNIObjectPrivate m_webView;
 };
 
 QT_END_NAMESPACE

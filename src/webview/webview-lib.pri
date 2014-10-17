@@ -12,7 +12,7 @@ PRIVATE_HEADERS += \
     qwebview_p.h
 
 android {
-    QT += androidextras
+    QT += core-private
     LIBS += -ljnigraphics
     SOURCES += \
         qwebview_android.cpp \
