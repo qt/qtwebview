@@ -60,6 +60,7 @@ public class QtAndroidWebViewController
     // API 11 methods
     private Method m_webViewOnResume = null;
     private Method m_webViewOnPause = null;
+    private Method m_webSettingsSetDisplayZoomControls = null;
 
     // Native callbacks
     private native void c_onPageFinished(long id, String url);
@@ -128,7 +129,19 @@ public class QtAndroidWebViewController
             public void run() {
                 m_webView = new WebView(m_activity);
                 WebSettings webSettings = m_webView.getSettings();
+
+                if (Build.VERSION.SDK_INT > 10) {
+                    try {
+                        m_webViewOnResume = m_webView.getClass().getMethod("onResume");
+                        m_webViewOnPause = m_webView.getClass().getMethod("onPause");
+                        m_webSettingsSetDisplayZoomControls = webSettings.getClass().getMethod("setDisplayZoomControls", boolean.class);
+                    } catch (Exception e) { /* Do nothing */ e.printStackTrace(); }
+                }
+
                 webSettings.setJavaScriptEnabled(true);
+                if (m_webSettingsSetDisplayZoomControls != null) {
+                    try { m_webSettingsSetDisplayZoomControls.invoke(webSettings, false); } catch (Exception e) { e.printStackTrace(); }
+                }
                 webSettings.setBuiltInZoomControls(true);
                 webSettings.setPluginState(PluginState.ON);
                 m_webView.setWebViewClient((WebViewClient)new QtAndroidWebViewClient());
@@ -141,13 +154,6 @@ public class QtAndroidWebViewController
             sem.acquire();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        if (Build.VERSION.SDK_INT > 10) {
-            try {
-                m_webViewOnResume = m_webView.getClass().getMethod("onResume");
-                m_webViewOnPause = m_webView.getClass().getMethod("onPause");
-            } catch (Exception e) { /* Do nothing */ e.printStackTrace(); }
         }
     }
 
