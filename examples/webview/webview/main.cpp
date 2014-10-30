@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
         const QSize size = geometry.size() * 4 / 5;
         const QSize offset = (geometry.size() - size) / 2;
         const QPoint pos = geometry.topLeft() + QPoint(offset.width(), offset.height());
-        geometry = QRect(geometry.topLeft() + QPoint(offset.width(), offset.height()), size);
+        geometry = QRect(pos, size);
     }
     context->setContextProperty(QStringLiteral("initialX"), geometry.x());
     context->setContextProperty(QStringLiteral("initialY"), geometry.y());
