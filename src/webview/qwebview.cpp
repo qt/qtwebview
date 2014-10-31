@@ -103,6 +103,21 @@ void QWebViewPrivate::onProgressChangedPrivate(int progress)
     Q_EMIT q->loadProgressChanged();
 }
 
+// This is called by QWindowControllerItem::componentComplete
+// to create the native web view on the parent window. Alternatively,
+// it can be called from QWebViewPrivate::create() if no delayed
+// creation is desired.
+void QWebViewPrivate::ensureNativeWebView()
+{
+    Q_Q(QWebView);
+    if (q->controlledWindow())
+        return;
+    if (const WId id = WId(nativeWebView()))
+        q->setNativeWindow(id);
+    else
+        qWarning("No native web view. Missing platform support?");
+}
+
 /*!
     \qmltype WebView
     \inqmlmodule QtWebView
@@ -123,11 +138,6 @@ QWebView::QWebView(QQuickItem *parent)
     : QWindowControllerItem(parent)
     , d_ptr(QWebViewPrivate::create(this))
 {
-    WId id(WId(d_ptr->nativeWebView()));
-    if (id != 0)
-        setNativeWindow(id);
-    else
-        qWarning("No native web view. Missing platform support?");
 }
 
 QWebView::~QWebView()
@@ -254,6 +264,13 @@ void QWebView::stop()
 {
     Q_D(QWebView);
     d->stopLoading();
+}
+
+void QWebView::componentComplete()
+{
+    Q_D(QWebView);
+    QWindowControllerItem::componentComplete();
+    d->ensureNativeWebView();
 }
 
 QT_END_NAMESPACE

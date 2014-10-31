@@ -63,6 +63,11 @@ public:
     explicit QWindowControllerItem(QQuickItem *parent = 0);
     ~QWindowControllerItem();
     void setNativeWindow(WId windowId);
+#ifndef Q_OS_IOS
+    QWindow *controlledWindow() const { return m_controlledWindow; }
+#else
+    UIView *controlledWindow() const { return m_controlledUIView; }
+#endif
     void componentComplete();
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
 

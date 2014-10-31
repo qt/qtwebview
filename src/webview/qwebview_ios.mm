@@ -101,7 +101,9 @@ class QWebViewPrivate;
 
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
-    return new QIOSWebViewPrivate(q);
+    QIOSWebViewPrivate *result = new QIOSWebViewPrivate(q);
+    result->ensureNativeWebView();
+    return result;
 }
 
 QIOSWebViewPrivate::QIOSWebViewPrivate(QWebView *q)

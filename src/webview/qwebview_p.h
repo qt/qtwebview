@@ -94,8 +94,11 @@ Q_SIGNALS:
     void progressChanged(int progress);
     void titleChanged(QString title);
 
-private:
+protected:
     Q_DECLARE_PUBLIC(QWebView)
+    void ensureNativeWebView();
+
+private:
     int m_loadProgress;
     bool m_loading;
     QString m_title;
@@ -136,6 +139,9 @@ Q_SIGNALS:
     void urlChanged();
     void loadingChanged();
     void loadProgressChanged();
+
+protected:
+    void componentComplete() Q_DECL_OVERRIDE;
 
 private:
     void load(const QUrl &url);

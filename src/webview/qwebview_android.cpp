@@ -50,7 +50,9 @@ static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt5/android
 
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
-    return new QAndroidWebViewPrivate(q);
+    QWebViewPrivate *result = new QAndroidWebViewPrivate(q);
+    result->ensureNativeWebView();
+    return result;
 }
 
 //static bool favIcon(JNIEnv *env, jobject icon, QImage *image)
