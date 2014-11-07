@@ -12,7 +12,7 @@ version                                            = $QT_VERSION
 qhp.projects                                       = QtWebView
 
 qhp.QtWebView.file                              = qtwebview.qhp
-qhp.QtWebView.namespace                         = org.qt-project.qtmultimedia.$QT_VERSION_TAG
+qhp.QtWebView.namespace                         = org.qt-project.qtwebview.$QT_VERSION_TAG
 qhp.QtWebView.virtualFolder                     = qtwebview
 qhp.QtWebView.indexTitle                        = Qt WebView
 qhp.QtWebView.indexRoot                         =
