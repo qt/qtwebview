@@ -39,9 +39,9 @@
 #include <QtGui/QWindow>
 #include <QtQuick/QQuickWindow>
 
-#import <UiKit/UIView.h>
-#import <UiKit/UIWindow.h>
-#import <UiKit/UIViewController.h>
+#import <UIKit/UIView.h>
+#import <UIKit/UIWindow.h>
+#import <UIKit/UIViewController.h>
 
 static inline CGRect toCGRect(const QRectF &rect)
 {
