@@ -1,12 +1,7 @@
-include($QT_INSTALL_DOCS/global/macros.qdocconf)
-include($QT_INSTALL_DOCS/global/qt-cpp-defines.qdocconf)
-include($QT_INSTALL_DOCS/global/compat.qdocconf)
-include($QT_INSTALL_DOCS/global/fileextensions.qdocconf)
-include($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 
 project                                            = QtWebView
 description                                        = Qt WebView Reference Documentation
-url                                                = http://qt-project.org/doc/qt-$QT_VER
 version                                            = $QT_VERSION
 
 qhp.projects                                       = QtWebView
@@ -20,23 +15,19 @@ qhp.QtWebView.filterAttributes                  = qtwebview 1.0 qtrefdoc
 qhp.QtWebView.customFilters.Qt.name             = QtWebView 1.0
 qhp.QtWebView.customFilters.Qt.filterAttributes = qtwebview 1.0
 
-qhp.QtWebView.subprojects                       = qmltypes classes examples
+qhp.QtWebView.subprojects                       = qmltypes examples
 qhp.QtWebView.subprojects.qmltypes.title        = QML Types
 qhp.QtWebView.subprojects.qmltypes.indexTitle   = Qt WebView QML Types
-qhp.QtWebView.subprojects.qmltypes.selectors    = fake:qmlclass
+qhp.QtWebView.subprojects.qmltypes.selectors    = qmlclass
 qhp.QtWebView.subprojects.qmltypes.sortPages    = true
 qhp.QtWebView.subprojects.examples.title        = Examples
 qhp.QtWebView.subprojects.examples.indexTitle   = Qt WebView Examples
 qhp.QtWebView.subprojects.examples.selectors    = fake:example
-
-indexes +=  $QT_INSTALL_DOCS/qtqml/qtqml.index \
-            $QT_INSTALL_DOCS/qtquick/qtquick.index \
-            $QT_INSTALL_DOCS/qtdoc/qtdoc.index \
-            $QT_INSTALL_DOCS/qtquickcontrols/qtquickcontrols.index
+qhp.QtWebView.subprojects.examples.sortPages    = true
 
 headerdirs += ../ ../../imports/ ../
 sourcedirs += ../ ../../imports/ ../
-exampledirs += ../../../examples
+exampledirs += ../../../examples/webview
 imagedirs  += images
 
 examplesinstallpath = webview

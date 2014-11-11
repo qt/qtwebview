@@ -26,7 +26,7 @@
 ****************************************************************************/
 
 /*!
-  \page index.html
+  \page qtwebview-index.html
   \title Qt WebView
   \brief A light-weight web view.
 
@@ -39,7 +39,7 @@
 
   The WebView is currently supported on the following platforms: Android and iOS.
 
-  \section1 QML types
+  \section1 QML Types
 
   The module provides a single QML component for displaying web content in
   the application: \l{WebView}.
