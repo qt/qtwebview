@@ -74,7 +74,7 @@ void QWindowControllerItem::componentComplete()
 void QWindowControllerItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    [m_controlledUIView setFrame:toCGRect(newGeometry)];
+    [m_controlledUIView setFrame:toCGRect(mapRectToScene(newGeometry).toRect())];
 }
 
 void QWindowControllerItem::onWindowChanged(QQuickWindow* window)
