@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS += webview
-EXAMPLE_FILES += webview
+SUBDIRS += minibrowser
+EXAMPLE_FILES += minibrowser

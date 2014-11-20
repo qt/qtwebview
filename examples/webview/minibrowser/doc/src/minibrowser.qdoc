@@ -26,12 +26,15 @@
 ****************************************************************************/
 
 /*!
-    \title Qt WebView Examples - WebView
-    \example webview
-    \brief WebView is an example that demonstrates how to use the Qt WebView module with Qt Quick.
+    \title Qt WebView Examples - Minibrowser
+    \example minibrowser
+    \brief Minibrowser example demonstrates how to use the Qt WebView module with Qt Quick.
     \image webview-example.png
     \ingroup qtwebview-examples
 
-    The WebView example creates a simple browser using Qt Quick Controls
-    and Qt WebView.
+    Minibrowser uses Qt Quick Controls and Qt WebView to provide basic
+    browsing experience. Besides the addressbar for the URL, it has a
+    couple of controls to navigate through the browsing history.
+
+    \include examples-run.qdocinc
 */
