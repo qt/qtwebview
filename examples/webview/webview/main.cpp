@@ -47,6 +47,10 @@
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
 
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+#include <QtWebEngine>
+#endif // QT_WEBVIEW_WEBENGINE_BACKEND
+
 // Workaround: As of Qt 5.4 QtQuick does not expose QUrl::fromUserInput.
 class Utils : public QObject {
     Q_OBJECT
@@ -68,6 +72,9 @@ QUrl Utils::fromUserInput(const QString& userInput)
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+    QtWebEngine::initialize();
+#endif // QT_WEBVIEW_WEBENGINE_BACKEND
     QCommandLineParser parser;
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     parser.setApplicationDescription("QtWebView Browser Example");

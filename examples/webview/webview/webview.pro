@@ -2,6 +2,11 @@ TEMPLATE = app
 
 QT += qml quick
 
+qtHaveModule(webengine) {
+        QT += webengine
+        DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
+}
+
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc
