@@ -72,12 +72,14 @@ QUrl Utils::fromUserInput(const QString& userInput)
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    QGuiApplication::setApplicationDisplayName(QCoreApplication::translate("main",
+                                                                           "QtWebView Example"));
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
     QtWebEngine::initialize();
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
     QCommandLineParser parser;
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
-    parser.setApplicationDescription("QtWebView Browser Example");
+    parser.setApplicationDescription(QGuiApplication::applicationDisplayName());
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("url", "The initial URL to open.");

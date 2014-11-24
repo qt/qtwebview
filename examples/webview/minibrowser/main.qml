@@ -49,7 +49,7 @@ ApplicationWindow {
     y: initialY
     width: initialWidth
     height: initialHeight
-    title: qsTr("QtWebView Example")
+    title: webView.title
 
     toolBar: ToolBar {
         id: navigationBar
