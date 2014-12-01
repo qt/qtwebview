@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
     context->setContextProperty(QStringLiteral("initialY"), geometry.y());
     context->setContextProperty(QStringLiteral("initialWidth"), geometry.width());
     context->setContextProperty(QStringLiteral("initialHeight"), geometry.height());
+
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     return app.exec();
