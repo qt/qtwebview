@@ -42,11 +42,64 @@
 #import <UIKit/UIView.h>
 #import <UIKit/UIWindow.h>
 #import <UIKit/UIViewController.h>
+#import <UIKit/UITapGestureRecognizer.h>
+#import <UIKit/UIGestureRecognizerSubclass.h>
 
 static inline CGRect toCGRect(const QRectF &rect)
 {
     return CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
 }
+
+// -------------------------------------------------------------------------
+
+@interface QIOSNativeViewSelectedRecognizer : UIGestureRecognizer <UIGestureRecognizerDelegate>
+{
+@public
+    QWindowControllerItem *m_item;
+}
+@end
+
+@implementation QIOSNativeViewSelectedRecognizer
+
+- (id)initWithQWindowControllerItem:(QWindowControllerItem *)item
+{
+    self = [super initWithTarget:self action:@selector(nativeViewSelected:)];
+    if (self) {
+        self.cancelsTouchesInView = NO;
+        self.delaysTouchesEnded = NO;
+        m_item = item;
+    }
+    return self;
+}
+
+- (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)other
+{
+    Q_UNUSED(other);
+    return NO;
+}
+
+- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)other
+{
+    Q_UNUSED(other);
+    return NO;
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    Q_UNUSED(touches);
+    Q_UNUSED(event);
+    self.state = UIGestureRecognizerStateRecognized;
+}
+
+- (void)nativeViewSelected:(UIGestureRecognizer *)gestureRecognizer
+{
+    Q_UNUSED(gestureRecognizer);
+    m_item->setFocus(true);
+}
+
+@end
+
+// -------------------------------------------------------------------------
 
 QWindowControllerItem::QWindowControllerItem(QQuickItem *parent)
     : QQuickItem(parent)
@@ -58,12 +111,15 @@ QWindowControllerItem::QWindowControllerItem(QQuickItem *parent)
 
 QWindowControllerItem::~QWindowControllerItem()
 {
-
+    [m_recognizer release];
+    [m_controlledUIView release];
 }
 
 void QWindowControllerItem::setNativeWindow(WId windowId)
 {
-   m_controlledUIView = reinterpret_cast<UIView *>(windowId);
+   m_controlledUIView = [reinterpret_cast<UIView *>(windowId) retain];
+   m_recognizer = [[QIOSNativeViewSelectedRecognizer alloc] initWithQWindowControllerItem:this];
+   [m_controlledUIView addGestureRecognizer:m_recognizer];
 }
 
 void QWindowControllerItem::componentComplete()
