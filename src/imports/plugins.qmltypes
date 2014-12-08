@@ -1,0 +1,24 @@
+import QtQuick.tooling 1.1
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QWebView"
+        defaultProperty: "data"
+        prototype: "QQuickItem"
+        exports: ["QtWebView/WebView 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "url"; type: "QUrl" }
+        Property { name: "loading"; type: "bool"; isReadonly: true }
+        Property { name: "loadProgress"; type: "int"; isReadonly: true }
+        Property { name: "title"; type: "string"; isReadonly: true }
+        Property { name: "canGoBack"; type: "bool"; isReadonly: true }
+        Property { name: "canGoForward"; type: "bool"; isReadonly: true }
+        Method { name: "goBack" }
+        Method { name: "goForward" }
+        Method { name: "reload" }
+        Method { name: "stop" }
+    }
+}
