@@ -138,8 +138,12 @@ void QWindowControllerItem::onWindowChanged(QQuickWindow* window)
     if (!m_controlledUIView)
         return;
 
-    UIView *parentView = reinterpret_cast<UIView *>(window->winId());
-    [parentView addSubview:m_controlledUIView];
+    if (window != 0) {
+        UIView *parentView = reinterpret_cast<UIView *>(window->winId());
+        [parentView addSubview:m_controlledUIView];
+    } else {
+        [m_controlledUIView removeFromSuperview];
+    }
 }
 
 void QWindowControllerItem::onVisibleChanged()
