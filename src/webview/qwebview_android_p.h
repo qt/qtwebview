@@ -53,7 +53,7 @@
 #include <QtGui/qwindow.h>
 #include <QtCore/private/qjni_p.h>
 
-#include "qwebview_p.h"
+#include "qwebview_p_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -61,27 +61,35 @@ class QAndroidWebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
 public:
-    QAndroidWebViewPrivate(QWebView *q);
-    virtual ~QAndroidWebViewPrivate();
+    explicit QAndroidWebViewPrivate(QObject *p = 0);
+    ~QAndroidWebViewPrivate() Q_DECL_OVERRIDE;
 
-    QString getUrl() const;
-    bool canGoBack() const;
-    bool canGoForward() const;
-    QString getTitle() const;
+    QUrl url() const Q_DECL_OVERRIDE;
+    void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
+    bool canGoBack() const Q_DECL_OVERRIDE;
+    bool canGoForward() const Q_DECL_OVERRIDE;
+    QString title() const Q_DECL_OVERRIDE;
+    int loadProgress() const Q_DECL_OVERRIDE;
+    bool isLoading() const Q_DECL_OVERRIDE;
 
-    void *nativeWebView() const;
+    void setParentView(QObject *view) Q_DECL_OVERRIDE;
+    void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
+    void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
+    void setVisible(bool visible) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
-    void loadUrl(const QString &url);
-    void goBack() const;
-    void goForward() const;
-    void stopLoading() const;
+    void goBack() Q_DECL_OVERRIDE;
+    void goForward() Q_DECL_OVERRIDE;
+    void reload() Q_DECL_OVERRIDE;
+    void stop() Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);
 
 private:
     quintptr m_id;
+    quint64 m_callbackId;
+    QWindow *m_window;
     QJNIObjectPrivate m_viewController;
     QJNIObjectPrivate m_webView;
 };

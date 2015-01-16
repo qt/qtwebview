@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,36 +34,54 @@
 **
 ****************************************************************************/
 
-#include <QtQml/qqmlextensionplugin.h>
-#include <QtQml/qqml.h>
+#include "qquickviewcontroller_p.h"
+#include "qwebview_p.h"
 
-#include <QtWebView/qquickwebview.h>
+#include <QtGui/QWindow>
+#include <QtQuick/QQuickWindow>
+#include <QtCore/QDebug>
 
-QT_BEGIN_NAMESPACE
-
-class QWebViewModule : public QQmlExtensionPlugin
+QQuickViewController::QQuickViewController(QQuickItem *parent)
+    : QQuickItem(parent)
+    , m_view(0)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface/1.0")
-public:
-    void registerTypes(const char *uri)
-    {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWebView"));
+    connect(this, &QQuickViewController::windowChanged, this, &QQuickViewController::onWindowChanged);
+    connect(this, &QQuickViewController::visibleChanged, this, &QQuickViewController::onVisibleChanged);
+}
 
-        // @uri QtWebView
-        qmlRegisterType<QQuickWebView>(uri, 1, 0, "WebView");
-    }
+QQuickViewController::~QQuickViewController()
+{
+}
 
-    void initializeEngine(QQmlEngine *engine, const char *uri)
-    {
-        Q_UNUSED(uri);
-        Q_UNUSED(engine);
-    }
-};
+void QQuickViewController::componentComplete()
+{
+   QQuickItem::componentComplete();
+   m_view->init();
+   m_view->setVisibility(QWindow::Windowed);
+}
 
-QT_END_NAMESPACE
+void QQuickViewController::setView(QNativeViewController *view)
+{
+    Q_ASSERT(m_view == 0);
+    m_view = view;
+}
 
-#include "webview.moc"
+void QQuickViewController::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
 
+    if (newGeometry.isValid())
+        m_view->setGeometry(mapRectToScene(newGeometry).toRect());
+    else
+        qWarning() << __FUNCTION__ << "Invalid geometry: " << newGeometry;
+}
 
+void QQuickViewController::onWindowChanged(QQuickWindow* window)
+{
+    m_view->setParentView(window);
+}
 
+void QQuickViewController::onVisibleChanged()
+{
+    m_view->setVisible(isVisible());
+}

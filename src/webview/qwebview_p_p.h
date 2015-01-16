@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,77 +34,38 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBVIEW_P_H
-#define QWEBVIEW_P_H
+#ifndef QWEBVIEW_P_P_H
+#define QWEBVIEW_P_P_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include "qwebview_p_p.h"
 #include "qwebviewinterface_p.h"
 #include "qnativeviewcontroller_p.h"
-#include <QtCore/qobject.h>
-#include <QtCore/qurl.h>
-#include <QtGui/qimage.h>
-#include <QtQml/qjsvalue.h>
 
 QT_BEGIN_NAMESPACE
 
-class Q_WEBVIEW_EXPORT QWebView
+class QWebView;
+
+class Q_WEBVIEW_EXPORT QWebViewPrivate
         : public QObject
         , public QWebViewInterface
         , public QNativeViewController
 {
     Q_OBJECT
 public:
-    explicit QWebView(QObject *p = 0);
-    ~QWebView() Q_DECL_OVERRIDE;
-
-    QUrl url() const Q_DECL_OVERRIDE;
-    void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
-    bool canGoBack() const Q_DECL_OVERRIDE;
-    bool canGoForward() const Q_DECL_OVERRIDE;
-    QString title() const Q_DECL_OVERRIDE;
-    int loadProgress() const Q_DECL_OVERRIDE;
-    bool isLoading() const Q_DECL_OVERRIDE;
-
-    void setParentView(QObject *view) Q_DECL_OVERRIDE;
-    void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
-    void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
-    void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void setFocus(bool focus) Q_DECL_OVERRIDE;
-
-public Q_SLOTS:
-    void goBack() Q_DECL_OVERRIDE;
-    void goForward() Q_DECL_OVERRIDE;
-    void reload() Q_DECL_OVERRIDE;
-    void stop() Q_DECL_OVERRIDE;
+    static QWebViewPrivate *create(QWebView *q);
 
 Q_SIGNALS:
     void titleChanged();
     void urlChanged();
     void loadingChanged();
     void loadProgressChanged();
+    void javaScriptResult(int id, const QVariant &result);
     void requestFocus(bool focus);
 
 protected:
-    void init();
-
-private:
-    friend class QQuickViewController;
-    friend class QQuickWebView;
-    Q_DECLARE_PRIVATE(QWebView)
-    QScopedPointer<QWebViewPrivate> d_ptr;
+    explicit QWebViewPrivate(QObject *p = 0) : QObject(p) { }
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_P_H
+#endif // QWEBVIEW_P_P_H
+

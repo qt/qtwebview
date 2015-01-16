@@ -1,9 +1,6 @@
-#ifndef QWEBVIEW_DEFAULT_P_H
-#define QWEBVIEW_DEFAULT_P_H
-
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -37,42 +34,28 @@
 **
 ****************************************************************************/
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#ifndef QNATIVEVIEWCONTROLLER_P_H
+#define QNATIVEVIEWCONTROLLER_P_H
 
-#include "qwebview_p.h"
+#include "qwebview_global.h"
+#include <QtCore/qrect.h>
+#include <QtGui/qwindow.h>
 
 QT_BEGIN_NAMESPACE
 
-class QDefaultWebViewPrivate : public QWebViewPrivate
+class QNativeViewController
 {
-    Q_OBJECT
 public:
-    QDefaultWebViewPrivate(QWebView *q);
-    ~QDefaultWebViewPrivate();
-
-    QString getUrl() const;
-    bool canGoBack() const;
-    bool canGoForward() const;
-    QString getTitle() const;
-
-    void *nativeWebView() const;
-
-public Q_SLOTS:
-    void loadUrl(const QString &url);
-    void goBack() const;
-    void goForward() const;
-    void stopLoading() const;
+    virtual ~QNativeViewController() {}
+    virtual void setParentView(QObject *view) = 0;
+    virtual void setGeometry(const QRect &geometry) = 0;
+    virtual void setVisibility(QWindow::Visibility visibility) = 0;
+    virtual void setVisible(bool visible) = 0;
+    virtual void init() { }
+    virtual void setFocus(bool focus) { Q_UNUSED(focus); }
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_DEFAULT_P_H
+#endif // QNATIVEVIEWCONTROLLER_P_H
+

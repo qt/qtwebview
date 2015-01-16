@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#include "qwebview_p.h"
 #include "qwebview_ios_p.h"
+#include "qwebview_p.h"
 
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmap.h>
@@ -43,14 +43,81 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <UIKit/UIKit.h>
 
+#import <UIKit/UIView.h>
+#import <UIKit/UIWindow.h>
+#import <UIKit/UIViewController.h>
+#import <UIKit/UITapGestureRecognizer.h>
+#import <UIKit/UIGestureRecognizerSubclass.h>
+
 QT_BEGIN_NAMESPACE
 
-class QWebViewPrivate;
+QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
+{
+    return new QIosWebViewPrivate(q);
+}
+
+static inline CGRect toCGRect(const QRectF &rect)
+{
+    return CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
+}
+
+// -------------------------------------------------------------------------
+
+@interface QIOSNativeViewSelectedRecognizer : UIGestureRecognizer <UIGestureRecognizerDelegate>
+{
+@public
+    QNativeViewController *m_item;
+}
+@end
+
+@implementation QIOSNativeViewSelectedRecognizer
+
+- (id)initWithQWindowControllerItem:(QNativeViewController *)item
+{
+    self = [super initWithTarget:self action:@selector(nativeViewSelected:)];
+    if (self) {
+        self.cancelsTouchesInView = NO;
+        self.delaysTouchesEnded = NO;
+        m_item = item;
+    }
+    return self;
+}
+
+- (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)other
+{
+    Q_UNUSED(other);
+    return NO;
+}
+
+- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)other
+{
+    Q_UNUSED(other);
+    return NO;
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    Q_UNUSED(touches);
+    Q_UNUSED(event);
+    self.state = UIGestureRecognizerStateRecognized;
+}
+
+- (void)nativeViewSelected:(UIGestureRecognizer *)gestureRecognizer
+{
+    Q_UNUSED(gestureRecognizer);
+    m_item->setFocus(true);
+}
+
+@end
+
+// -------------------------------------------------------------------------
+
+class QWebViewInterface;
 
 @interface QtWebViewDelegate : NSObject<UIWebViewDelegate> {
-    QIOSWebViewPrivate *qIosWebViewPrivate;
+    QIosWebViewPrivate *qIosWebViewPrivate;
 }
-- (QtWebViewDelegate *)initWithQWebViewPrivate:(QIOSWebViewPrivate *)webViewPrivate;
+- (QtWebViewDelegate *)initWithQAbstractWebView:(QIosWebViewPrivate *)webViewPrivate;
 - (void)pageDone;
 
 // protocol:
@@ -60,7 +127,7 @@ class QWebViewPrivate;
 @end
 
 @implementation QtWebViewDelegate
-- (QtWebViewDelegate *)initWithQWebViewPrivate:(QIOSWebViewPrivate *)webViewPrivate
+- (QtWebViewDelegate *)initWithQAbstractWebView:(QIosWebViewPrivate *)webViewPrivate
 {
     qIosWebViewPrivate = webViewPrivate;
     return self;
@@ -68,10 +135,10 @@ class QWebViewPrivate;
 
 - (void)pageDone
 {
-    Q_EMIT qIosWebViewPrivate->progressChanged(100);
-    Q_EMIT qIosWebViewPrivate->pageFinished(qIosWebViewPrivate->requestUrl);
-    Q_EMIT qIosWebViewPrivate->titleChanged(qIosWebViewPrivate->getTitle());
-    // QWebViewPrivate emits urlChanged.
+    Q_EMIT qIosWebViewPrivate->loadProgressChanged();
+    Q_EMIT qIosWebViewPrivate->loadingChanged();
+    Q_EMIT qIosWebViewPrivate->titleChanged();
+    Q_EMIT qIosWebViewPrivate->urlChanged();
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
@@ -81,7 +148,8 @@ class QWebViewPrivate;
     // should provide per-page notifications. Keep track of started frame loads
     // and emit notifications when the final frame completes.
     ++qIosWebViewPrivate->requestFrameCount;
-    emit qIosWebViewPrivate->pageStarted(qIosWebViewPrivate->requestUrl);
+    Q_EMIT qIosWebViewPrivate->loadingChanged();
+    Q_EMIT qIosWebViewPrivate->loadProgressChanged();
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -100,77 +168,119 @@ class QWebViewPrivate;
 }
 @end
 
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-    QIOSWebViewPrivate *result = new QIOSWebViewPrivate(q);
-    result->ensureNativeWebView();
-    return result;
-}
-
-QIOSWebViewPrivate::QIOSWebViewPrivate(QWebView *q)
-    : QWebViewPrivate(q)
+QIosWebViewPrivate::QIosWebViewPrivate(QObject *p)
+    : QWebViewPrivate(p)
+    , uiWebView(0)
+    , m_recognizer(0)
 {
     CGRect frame = CGRectMake(0.0, 0.0, 400, 400);
-    UIWebView *webView = [[UIWebView alloc] initWithFrame:frame];
-    webView.delegate = [[QtWebViewDelegate alloc] initWithQWebViewPrivate:this];
-    uiWebView = webView;
+    uiWebView = [[UIWebView alloc] initWithFrame:frame];
+    uiWebView.delegate = [[QtWebViewDelegate alloc] initWithQAbstractWebView:this];
+
+    m_recognizer = [[QIOSNativeViewSelectedRecognizer alloc] initWithQWindowControllerItem:this];
+    [uiWebView addGestureRecognizer:m_recognizer];
+
 }
 
-QIOSWebViewPrivate::~QIOSWebViewPrivate()
+QIosWebViewPrivate::~QIosWebViewPrivate()
 {
     [uiWebView.delegate release];
     uiWebView.delegate = nil; // reset as per UIWebViewDelegate documentation
     [uiWebView release];
+    [m_recognizer release];
 }
 
-QString QIOSWebViewPrivate::getUrl() const
+QUrl QIosWebViewPrivate::url() const
 {
     NSString *currentURL = [uiWebView stringByEvaluatingJavaScriptFromString:@"window.location.href"];
     return QString::fromNSString(currentURL);
 }
 
-void QIOSWebViewPrivate::loadUrl(const QString &url)
+void QIosWebViewPrivate::setUrl(const QUrl &url)
 {
-    Q_EMIT progressChanged(0);
-    requestUrl = url;
     requestFrameCount = 0;
-    [uiWebView loadRequest:[NSURLRequest requestWithURL:QUrl(url).toNSURL()]];
+    [uiWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
 }
 
-bool QIOSWebViewPrivate::canGoBack() const
+bool QIosWebViewPrivate::canGoBack() const
 {
     return uiWebView.canGoBack;
 }
 
-void QIOSWebViewPrivate::goBack() const
-{
-    [uiWebView goBack];
-}
-
-bool QIOSWebViewPrivate::canGoForward() const
+bool QIosWebViewPrivate::canGoForward() const
 {
     return uiWebView.canGoForward;
 }
 
-void QIOSWebViewPrivate::goForward() const
-{
-    [uiWebView goForward];
-}
-
-QString QIOSWebViewPrivate::getTitle() const
+QString QIosWebViewPrivate::title() const
 {
     NSString *title = [uiWebView stringByEvaluatingJavaScriptFromString:@"document.title"];
     return QString::fromNSString(title);
 }
 
-void QIOSWebViewPrivate::stopLoading() const
+int QIosWebViewPrivate::loadProgress() const
+{
+    // TODO:
+    return isLoading() ? 100 : 0;
+}
+
+bool QIosWebViewPrivate::isLoading() const
+{
+    return uiWebView.loading;
+}
+
+void QIosWebViewPrivate::setParentView(QObject *view)
+{
+    if (!uiWebView)
+        return;
+
+    QWindow *window = qobject_cast<QWindow *>(view);
+    if (window != 0) {
+        UIView *parentView = reinterpret_cast<UIView *>(window->winId());
+        [parentView addSubview:uiWebView];
+    } else {
+        [uiWebView removeFromSuperview];
+    }
+}
+
+void QIosWebViewPrivate::setGeometry(const QRect &geometry)
+{
+    [uiWebView setFrame:toCGRect(geometry)];
+}
+
+void QIosWebViewPrivate::setVisibility(QWindow::Visibility visibility)
+{
+    Q_UNUSED(visibility);
+}
+
+void QIosWebViewPrivate::setVisible(bool visible)
+{
+    [uiWebView setHidden:visible];
+}
+
+void QIosWebViewPrivate::setFocus(bool focus)
+{
+    Q_EMIT requestFocus(focus);
+}
+
+void QIosWebViewPrivate::goBack()
+{
+    [uiWebView goBack];
+}
+
+void QIosWebViewPrivate::goForward()
+{
+    [uiWebView goForward];
+}
+
+void QIosWebViewPrivate::stop()
 {
     [uiWebView stopLoading];
 }
 
-void *QIOSWebViewPrivate::nativeWebView() const
+void QIosWebViewPrivate::reload()
 {
-    return uiWebView;
+    [uiWebView reload];
 }
 
 QT_END_NAMESPACE

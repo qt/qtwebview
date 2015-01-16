@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,59 +34,51 @@
 **
 ****************************************************************************/
 
-#include "qwindowcontrolleritem_p.h"
+#ifndef QQUICKVIEWCONTROLLER_H
+#define QQUICKVIEWCONTROLLER_H
 
-#include <QtGui/QWindow>
-#include <QtQuick/QQuickWindow>
-#include <QtCore/QDebug>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-QWindowControllerItem::QWindowControllerItem(QQuickItem *parent)
-    : QQuickItem(parent)
-    , m_controlledWindow(0)
+#include <QtWebView/qwebview_global.h>
+
+#include <QtQuick/QQuickItem>
+#include <QtGui/qwindow.h>
+
+QT_BEGIN_NAMESPACE
+
+class QNativeViewController;
+
+class Q_WEBVIEW_EXPORT QQuickViewController : public QQuickItem
 {
-    connect(this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(onWindowChanged(QQuickWindow*)));
-    connect(this, SIGNAL(visibleChanged()), this, SLOT(onVisibleChanged()));
-}
+    Q_OBJECT
+public:
+    explicit QQuickViewController(QQuickItem *parent = 0);
+    ~QQuickViewController();
 
-QWindowControllerItem::~QWindowControllerItem()
-{
-    delete m_controlledWindow;
-}
+    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) Q_DECL_OVERRIDE;
 
-void QWindowControllerItem::setNativeWindow(WId windowId)
-{
-    Q_ASSERT(m_controlledWindow == 0);
-    m_controlledWindow = QWindow::fromWinId(windowId);
-    m_controlledWindow->setVisibility(QWindow::Windowed);
-}
+public slots:
+    void onWindowChanged(QQuickWindow* window);
+    void onVisibleChanged();
 
-void QWindowControllerItem::componentComplete()
-{
-   QQuickItem::componentComplete();
-}
+protected:
+    void componentComplete() Q_DECL_OVERRIDE;
+    void setView(QNativeViewController *view);
 
-void QWindowControllerItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-    QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    if (!m_controlledWindow)
-        return;
+private:
+    friend class QQuickWebView;
+    QNativeViewController *m_view;
+};
 
-    if (newGeometry.isValid())
-        m_controlledWindow->setGeometry(mapRectToScene(newGeometry).toRect());
-    else
-        qWarning() << __FUNCTION__ << "Invalid geometry: " << newGeometry;
-}
+QT_END_NAMESPACE
 
-void QWindowControllerItem::onWindowChanged(QQuickWindow* window)
-{
-    if (!m_controlledWindow)
-        return;
-
-    m_controlledWindow->setParent(window);
-}
-
-void QWindowControllerItem::onVisibleChanged()
-{
-    if (m_controlledWindow)
-        m_controlledWindow->setVisible(isVisible());
-}
+#endif // QTWINDOWCONTROLLERITEM_H

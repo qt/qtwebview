@@ -52,34 +52,43 @@
 #include <QtCore/qurl.h>
 #include <QtGui/qwindow.h>
 
-#include "qwebview_p.h"
+#include "qwebview_p_p.h"
 
 QT_BEGIN_NAMESPACE
 
 Q_FORWARD_DECLARE_OBJC_CLASS(UIWebView);
+Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
 
-class QIOSWebViewPrivate : public QWebViewPrivate
+class QIosWebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
 public:
-    QIOSWebViewPrivate(QWebView *q);
-    virtual ~QIOSWebViewPrivate();
+    explicit QIosWebViewPrivate(QObject *p = 0);
+    ~QIosWebViewPrivate() Q_DECL_OVERRIDE;
 
-    QString getUrl() const;
-    bool canGoBack() const;
-    bool canGoForward() const;
-    QString getTitle() const;
+    QUrl url() const Q_DECL_OVERRIDE;
+    void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
+    bool canGoBack() const Q_DECL_OVERRIDE;
+    bool canGoForward() const Q_DECL_OVERRIDE;
+    QString title() const Q_DECL_OVERRIDE;
+    int loadProgress() const Q_DECL_OVERRIDE;
+    bool isLoading() const Q_DECL_OVERRIDE;
 
-    void *nativeWebView() const;
+    void setParentView(QObject *view) Q_DECL_OVERRIDE;
+    void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
+    void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
+    void setVisible(bool visible) Q_DECL_OVERRIDE;
+    void setFocus(bool focus) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
-    void loadUrl(const QString &url);
-    void goBack() const;
-    void goForward() const;
-    void stopLoading() const;
+    void goBack() Q_DECL_OVERRIDE;
+    void goForward() Q_DECL_OVERRIDE;
+    void reload() Q_DECL_OVERRIDE;
+    void stop() Q_DECL_OVERRIDE;
+
 public:
     UIWebView *uiWebView;
-    QString requestUrl;
+    UIGestureRecognizer *m_recognizer;
     int requestFrameCount;
 };
 

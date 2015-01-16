@@ -8,29 +8,37 @@ INCLUDEPATH += $$PWD
 PUBLIC_HEADERS += \
     qwebview_global.h
 
-PRIVATE_HEADERS += \
-    qwebview_p.h
+COMMON_HEADERS += \
+    qwebview_p.h \
+    qwebviewinterface_p.h \
+    qquickwebview.h \
+    qnativeviewcontroller_p.h \
+    qwebview_p_p.h \
+    qquickviewcontroller_p.h
+
+COMMON_SOURCES += \
+    qwebview.cpp \
+    qquickwebview.cpp \
+    qquickviewcontroller.cpp
 
 android {
     QT += core-private
     LIBS += -ljnigraphics
     SOURCES += \
-        qwebview_android.cpp \
-        qwebview.cpp \
-        qwindowcontrolleritem.cpp
+        $$COMMON_SOURCES \
+        qwebview_android.cpp
     PRIVATE_HEADERS += \
-        qwebview_android_p.h \
-        qwindowcontrolleritem_p.h
+        $$COMMON_HEADERS \
+        qwebview_android_p.h
 
 } else:ios {
     SOURCES += \
-        qwebview.cpp
+        $$COMMON_SOURCES
     OBJECTIVE_SOURCES += \
-        qwebview_ios.mm \
-        qwindowcontrolleritem_ios.mm
+        qwebview_ios.mm
     PRIVATE_HEADERS += \
-        qwebview_ios_p.h \
-        qwindowcontrolleritem_p.h
+        $$COMMON_HEADERS \
+        qwebview_ios_p.h
 
 } else {
     qtHaveModule(webengine) {
@@ -38,12 +46,9 @@ android {
         DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
     } else {
         SOURCES += \
-            qwebview_default.cpp \
-            qwebview.cpp \
-            qwindowcontrolleritem.cpp
+            qwebview.cpp
         PRIVATE_HEADERS += \
-            qwebview_default_p.h \
-            qwindowcontrolleritem_p.h
+            qwebviewinterface_p.h
     }
 }
 

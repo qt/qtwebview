@@ -34,25 +34,26 @@
 **
 ****************************************************************************/
 
-#include "qwebview_p.h"
 #include "qwebview_android_p.h"
+#include "qwebview_p.h"
 #include <QtCore/private/qjnihelpers_p.h>
 #include <QtCore/private/qjni_p.h>
 
 #include <QtCore/qmap.h>
 #include <android/bitmap.h>
 #include <QtGui/qguiapplication.h>
+#include <QtCore/qjsondocument.h>
+#include <QtCore/qjsonobject.h>
+#include <QtCore/qurl.h>
 
 QT_BEGIN_NAMESPACE
 
-static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt5/android/view/QtAndroidWebViewController";
-
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
-    QWebViewPrivate *result = new QAndroidWebViewPrivate(q);
-    result->ensureNativeWebView();
-    return result;
+    return new QAndroidWebViewPrivate(q);
 }
+
+static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt5/android/view/QtAndroidWebViewController";
 
 //static bool favIcon(JNIEnv *env, jobject icon, QImage *image)
 //{
@@ -71,12 +72,14 @@ QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 //    return true;
 //}
 
-typedef QMap<quintptr, QWebViewPrivate *> WebViews;
+typedef QMap<quintptr, QAndroidWebViewPrivate *> WebViews;
 Q_GLOBAL_STATIC(WebViews, g_webViews)
 
-QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *q)
-    : QWebViewPrivate(q)
+QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
+    : QWebViewPrivate(p)
     , m_id(reinterpret_cast<quintptr>(this))
+    , m_callbackId(0)
+    , m_window(0)
 {
     m_viewController = QJNIObjectPrivate(qtAndroidWebViewControllerClass,
                                          "(Landroid/app/Activity;J)V",
@@ -84,6 +87,8 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *q)
                                          m_id);
     m_webView = m_viewController.callObjectMethod("getWebView",
                                                   "()Landroid/webkit/WebView;");
+
+    m_window = QWindow::fromWinId(reinterpret_cast<WId>(m_webView.object()));
     g_webViews->insert(m_id, this);
     connect(qApp, &QGuiApplication::applicationStateChanged,
             this, &QAndroidWebViewPrivate::onApplicationStateChanged);
@@ -92,18 +97,19 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *q)
 QAndroidWebViewPrivate::~QAndroidWebViewPrivate()
 {
     g_webViews->take(m_id);
+    delete m_window;
 }
 
-QString QAndroidWebViewPrivate::getUrl() const
+QUrl QAndroidWebViewPrivate::url() const
 {
-    return m_viewController.callObjectMethod<jstring>("getUrl").toString();
+    return QUrl::fromUserInput(m_viewController.callObjectMethod<jstring>("getUrl").toString());
 }
 
-void QAndroidWebViewPrivate::loadUrl(const QString &url)
+void QAndroidWebViewPrivate::setUrl(const QUrl &url)
 {
     m_viewController.callMethod<void>("loadUrl",
                                       "(Ljava/lang/String;)V",
-                                      QJNIObjectPrivate::fromString(url).object());
+                                      QJNIObjectPrivate::fromString(url.toString()).object());
 }
 
 bool QAndroidWebViewPrivate::canGoBack() const
@@ -111,7 +117,7 @@ bool QAndroidWebViewPrivate::canGoBack() const
     return m_viewController.callMethod<jboolean>("canGoBack");
 }
 
-void QAndroidWebViewPrivate::goBack() const
+void QAndroidWebViewPrivate::goBack()
 {
     m_viewController.callMethod<void>("goBack");
 }
@@ -121,25 +127,60 @@ bool QAndroidWebViewPrivate::canGoForward() const
     return m_viewController.callMethod<jboolean>("canGoForward");
 }
 
-void QAndroidWebViewPrivate::goForward() const
+void QAndroidWebViewPrivate::goForward()
 {
     m_viewController.callMethod<void>("goForward");
 }
 
-QString QAndroidWebViewPrivate::getTitle() const
+void QAndroidWebViewPrivate::reload()
+{
+    m_viewController.callMethod<void>("reload");
+}
+
+QString QAndroidWebViewPrivate::title() const
 {
     return m_viewController.callObjectMethod<jstring>("getTitle").toString();
 }
 
-void QAndroidWebViewPrivate::stopLoading() const
+void QAndroidWebViewPrivate::setGeometry(const QRect &geometry)
+{
+    m_window->setGeometry(geometry);
+}
+
+void QAndroidWebViewPrivate::setVisibility(QWindow::Visibility visibility)
+{
+    m_window->setVisibility(visibility);
+}
+
+void QAndroidWebViewPrivate::setVisible(bool visible)
+{
+    m_window->setVisible(visible);
+}
+
+int QAndroidWebViewPrivate::loadProgress() const
+{
+    return m_viewController.callMethod<jint>("getProgress");
+}
+
+bool QAndroidWebViewPrivate::isLoading() const
+{
+    return true;
+}
+
+void QAndroidWebViewPrivate::setParentView(QObject *view)
+{
+    m_window->setParent(qobject_cast<QWindow *>(view));
+}
+
+void QAndroidWebViewPrivate::stop()
 {
     m_viewController.callMethod<void>("stopLoading");
 }
 
-void *QAndroidWebViewPrivate::nativeWebView() const
-{
-    return m_webView.object();
-}
+//void QAndroidWebViewPrivate::initialize()
+//{
+//    // TODO:
+//}
 
 void QAndroidWebViewPrivate::onApplicationStateChanged(Qt::ApplicationState state)
 {
@@ -162,11 +203,12 @@ static void c_onPageFinished(JNIEnv *env,
     Q_UNUSED(env)
     Q_UNUSED(thiz)
     const WebViews &wv = (*g_webViews);
-    QWebViewPrivate *wc = wv[id];
+    QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
         return;
 
-    Q_EMIT wc->pageFinished(QJNIObjectPrivate(url).toString());
+    Q_UNUSED(url) // TODO:
+    Q_EMIT wc->loadingChanged();
 }
 
 static void c_onPageStarted(JNIEnv *env,
@@ -179,11 +221,12 @@ static void c_onPageStarted(JNIEnv *env,
     Q_UNUSED(thiz)
     Q_UNUSED(icon)
     const WebViews &wv = (*g_webViews);
-    QWebViewPrivate *wc = wv[id];
+    QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
         return;
 
-    Q_EMIT wc->pageStarted(QJNIObjectPrivate(url).toString());
+    Q_UNUSED(url) // TODO:
+    Q_EMIT wc->loadingChanged();
 
 //    if (!icon)
 //        return;
@@ -201,11 +244,12 @@ static void c_onProgressChanged(JNIEnv *env,
     Q_UNUSED(env)
     Q_UNUSED(thiz)
     const WebViews &wv = (*g_webViews);
-    QWebViewPrivate *wc = wv[id];
+    QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
         return;
 
-    Q_EMIT wc->progressChanged(newProgress);
+    Q_UNUSED(newProgress) // TODO:
+    Q_EMIT wc->loadProgressChanged();
 }
 
 static void c_onReceivedIcon(JNIEnv *env,
@@ -219,7 +263,7 @@ static void c_onReceivedIcon(JNIEnv *env,
     Q_UNUSED(icon)
 
     const WebViews &wv = (*g_webViews);
-    QWebViewPrivate *wc = wv[id];
+    QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
         return;
 
@@ -239,11 +283,12 @@ static void c_onReceivedTitle(JNIEnv *env,
     Q_UNUSED(env)
     Q_UNUSED(thiz)
     const WebViews &wv = (*g_webViews);
-    QWebViewPrivate *wc = wv[id];
+    QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
         return;
 
-    Q_EMIT wc->titleChanged(QJNIObjectPrivate(title).toString());
+    Q_UNUSED(title) // TODO:
+    Q_EMIT wc->titleChanged();
 }
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)

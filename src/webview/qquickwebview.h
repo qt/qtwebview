@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBVIEW_P_H
-#define QWEBVIEW_P_H
+#ifndef QQUICKWEBVIEW_H
+#define QQUICKWEBVIEW_H
 
 //
 //  W A R N I N G
@@ -48,39 +48,36 @@
 // We mean it.
 //
 
-#include "qwebview_p_p.h"
 #include "qwebviewinterface_p.h"
-#include "qnativeviewcontroller_p.h"
-#include <QtCore/qobject.h>
-#include <QtCore/qurl.h>
-#include <QtGui/qimage.h>
-#include <QtQml/qjsvalue.h>
+
+#if !defined(QT_WEBVIEW_WEBENGINE_BACKEND)
+
+#include "qwebview_p.h"
+#include "qquickviewcontroller_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class Q_WEBVIEW_EXPORT QWebView
-        : public QObject
-        , public QWebViewInterface
-        , public QNativeViewController
+class Q_WEBVIEW_EXPORT QQuickWebView : public QQuickViewController, public QWebViewInterface
 {
     Q_OBJECT
+    Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged)
+    Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged)
+    Q_PROPERTY(int loadProgress READ loadProgress NOTIFY loadProgressChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged)
+    Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged)
+
 public:
-    explicit QWebView(QObject *p = 0);
-    ~QWebView() Q_DECL_OVERRIDE;
+    QQuickWebView(QQuickItem *parent = 0);
+    ~QQuickWebView();
 
     QUrl url() const Q_DECL_OVERRIDE;
     void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
-    bool canGoBack() const Q_DECL_OVERRIDE;
-    bool canGoForward() const Q_DECL_OVERRIDE;
-    QString title() const Q_DECL_OVERRIDE;
     int loadProgress() const Q_DECL_OVERRIDE;
+    QString title() const Q_DECL_OVERRIDE;
+    bool canGoBack() const Q_DECL_OVERRIDE;
     bool isLoading() const Q_DECL_OVERRIDE;
-
-    void setParentView(QObject *view) Q_DECL_OVERRIDE;
-    void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
-    void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
-    void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void setFocus(bool focus) Q_DECL_OVERRIDE;
+    bool canGoForward() const Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
     void goBack() Q_DECL_OVERRIDE;
@@ -93,18 +90,31 @@ Q_SIGNALS:
     void urlChanged();
     void loadingChanged();
     void loadProgressChanged();
-    void requestFocus(bool focus);
 
-protected:
-    void init();
+private Q_SLOTS:
+    void onFocusRequest(bool focus);
 
 private:
-    friend class QQuickViewController;
-    friend class QQuickWebView;
-    Q_DECLARE_PRIVATE(QWebView)
-    QScopedPointer<QWebViewPrivate> d_ptr;
+    QScopedPointer<QWebView> m_webView;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_P_H
+#else
+
+#include <QtWebEngine/private/qquickwebengineview_p.h>
+
+QT_BEGIN_NAMESPACE
+
+class Q_WEBVIEW_EXPORT QQuickWebView : public QQuickWebEngineView
+{
+    Q_OBJECT
+public:
+    QQuickWebView(QQuickItem *parent = 0) : QQuickWebEngineView(parent) { }
+};
+
+QT_END_NAMESPACE
+
+#endif
+
+#endif // QQUICKWEBVIEW_H

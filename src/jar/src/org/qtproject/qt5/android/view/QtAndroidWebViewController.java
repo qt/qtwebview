@@ -36,6 +36,7 @@
 
 package org.qtproject.qt5.android.view;
 
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
@@ -169,6 +170,32 @@ public class QtAndroidWebViewController
         });
     }
 
+    public void loadData(final String data, final String mimeType, final String encoding)
+    {
+        if (data == null)
+            return;
+
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() { m_webView.loadData(data, mimeType, encoding); }
+        });
+    }
+
+    public void loadDataWithBaseURL(final String baseUrl,
+                                    final String data,
+                                    final String mimeType,
+                                    final String encoding,
+                                    final String historyUrl)
+    {
+        if (data == null)
+            return;
+
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() { m_webView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl); }
+        });
+    }
+
     public void goBack()
     {
         m_activity.runOnUiThread(new Runnable() {
@@ -229,6 +256,14 @@ public class QtAndroidWebViewController
         });
     }
 
+    public void reload()
+    {
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() { m_webView.reload(); }
+        });
+    }
+
     public String getTitle()
     {
         final String[] title = {""};
@@ -245,6 +280,24 @@ public class QtAndroidWebViewController
         }
 
         return title[0];
+    }
+
+    public int getProgress()
+    {
+        final int[] progress = {0};
+        final Semaphore sem = new Semaphore(0);
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() { progress[0] = m_webView.getProgress(); sem.release(); }
+        });
+
+        try {
+            sem.acquire();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return progress[0];
     }
 
     public String getUrl()

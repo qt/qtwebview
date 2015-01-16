@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWINDOWCONTROLLERITEM_H
-#define QWINDOWCONTROLLERITEM_H
+#ifndef QWEBVIEWINTERFACE_H
+#define QWEBVIEWINTERFACE_H
 
 //
 //  W A R N I N G
@@ -50,39 +50,32 @@
 
 #include <QtWebView/qwebview_global.h>
 
-#include <QtQuick/QQuickItem>
+#include <QtCore/qobject.h>
+#include <QtCore/qurl.h>
+#include <QtGui/qimage.h>
 
-#ifdef Q_OS_IOS
-Q_FORWARD_DECLARE_OBJC_CLASS(UIView);
-Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
-#endif
 
-class Q_WEBVIEW_EXPORT QWindowControllerItem : public QQuickItem
+QT_BEGIN_NAMESPACE
+
+class QJSValue;
+
+class QWebViewInterface
 {
-    Q_OBJECT
 public:
-    explicit QWindowControllerItem(QQuickItem *parent = 0);
-    ~QWindowControllerItem();
-    void setNativeWindow(WId windowId);
-#ifndef Q_OS_IOS
-    QWindow *controlledWindow() const { return m_controlledWindow; }
-#else
-    UIView *controlledWindow() const { return m_controlledUIView; }
-#endif
-    void componentComplete();
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+    virtual ~QWebViewInterface() {}
+    virtual QUrl url() const = 0;
+    virtual void setUrl(const QUrl &url) = 0;
+    virtual bool canGoBack() const = 0;
+    virtual bool canGoForward() const = 0;
+    virtual QString title() const = 0;
+    virtual int loadProgress() const = 0;
+    virtual bool isLoading() const = 0;
 
-public slots:
-    void onWindowChanged(QQuickWindow* window);
-    void onVisibleChanged();
-
-private:
-#ifdef Q_OS_IOS
-    UIView *m_controlledUIView;
-    UIGestureRecognizer *m_recognizer;
-#else
-    QWindow *m_controlledWindow;
-#endif
+    // Q_SLOTS
+    virtual void goBack() = 0;
+    virtual void goForward() = 0;
+    virtual void stop() = 0;
+    virtual void reload() = 0;
 };
 
-#endif // QTWINDOWCONTROLLERITEM_H
+#endif // QWEBVIEWINTERFACE_H

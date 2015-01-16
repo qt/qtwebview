@@ -63,6 +63,12 @@ void QDefaultWebViewPrivate::loadUrl(const QString &url)
     Q_UNUSED(url);
 }
 
+void QDefaultWebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
+{
+    Q_UNUSED(html);
+    Q_UNUSED(baseUrl);
+}
+
 bool QDefaultWebViewPrivate::canGoBack() const
 {
     return false;
