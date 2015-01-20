@@ -113,6 +113,26 @@ void QAndroidWebViewPrivate::setUrl(const QUrl &url)
                                       QJNIObjectPrivate::fromString(url.toString()).object());
 }
 
+void QAndroidWebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
+{
+    const QJNIObjectPrivate &htmlString = QJNIObjectPrivate::fromString(html);
+    const QJNIObjectPrivate &mimeTypeString = QJNIObjectPrivate::fromString(QLatin1String("text/html;charset=UTF-8"));
+
+    baseUrl.isEmpty() ? m_viewController.callMethod<void>("loadData",
+                                                          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+                                                          htmlString.object(),
+                                                          mimeTypeString.object(),
+                                                          0)
+
+                      : m_viewController.callMethod<void>("loadDataWithBaseURL",
+                                                          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+                                                          QJNIObjectPrivate::fromString(baseUrl.toString()).object(),
+                                                          htmlString.object(),
+                                                          mimeTypeString.object(),
+                                                          0,
+                                                          0);
+}
+
 bool QAndroidWebViewPrivate::canGoBack() const
 {
     return m_viewController.callMethod<jboolean>("canGoBack");

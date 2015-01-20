@@ -60,6 +60,7 @@ private slots:
     void initTestCase();
     void load();
     void runJavaScript();
+    void loadHtml();
 
 private:
     const QString m_cacheLocation;
@@ -121,6 +122,16 @@ void tst_QWebView::runJavaScript()
     view.runJavaScript(QString(QLatin1String("document.title")), callback);
     QTRY_COMPARE(engine.evaluate(tstProperty).toString(), title);
 #endif // QT_NO_QQUICKWEBVIEW_TESTS
+}
+
+void tst_QWebView::loadHtml()
+{
+    QWebView view;
+    QCOMPARE(view.loadProgress(), 0);
+    view.loadHtml(QString("<html><head><title>WebViewTitle</title></head><body />"));
+    QTRY_COMPARE(view.loadProgress(), 100);
+    QTRY_VERIFY(!view.isLoading());
+    QCOMPARE(view.title(), QStringLiteral("WebViewTitle"));
 }
 
 QTEST_MAIN(tst_QWebView)

@@ -152,6 +152,12 @@ void QWebView::setFocus(bool focus)
     d->setFocus(focus);
 }
 
+void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
+{
+    Q_D(QWebView);
+    d->loadHtml(html, baseUrl);
+}
+
 void QWebView::runJavaScriptPrivate(const QString &script,
                                     int callbackId)
 {

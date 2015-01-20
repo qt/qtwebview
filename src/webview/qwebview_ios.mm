@@ -202,6 +202,11 @@ void QIosWebViewPrivate::setUrl(const QUrl &url)
     [uiWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
 }
 
+void QIosWebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
+{
+    [uiWebView loadHTMLString:html.toNSString() baseURL:baseUrl.toNSURL()];
+}
+
 bool QIosWebViewPrivate::canGoBack() const
 {
     return uiWebView.canGoBack;

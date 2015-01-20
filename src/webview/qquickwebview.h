@@ -84,6 +84,7 @@ public Q_SLOTS:
     void goForward() Q_DECL_OVERRIDE;
     void reload() Q_DECL_OVERRIDE;
     void stop() Q_DECL_OVERRIDE;
+    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
     void runJavaScript(const QString& script,
                        const QJSValue &callback = QJSValue());
 

@@ -76,6 +76,7 @@ public:
     virtual void goForward() = 0;
     virtual void stop() = 0;
     virtual void reload() = 0;
+    virtual void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) = 0;
 
     virtual void runJavaScriptPrivate(const QString &script,
                                       int callbackId) = 0;

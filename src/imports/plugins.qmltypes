@@ -21,6 +21,15 @@ Module {
         Method { name: "reload" }
         Method { name: "stop" }
         Method {
+            name: "loadHtml"
+            Parameter { name: "html"; type: "string" }
+            Parameter { name: "baseUrl"; type: "QUrl" }
+        }
+        Method {
+            name: "loadHtml"
+            Parameter { name: "html"; type: "string" }
+        }
+        Method {
             name: "runJavaScript"
             Parameter { name: "script"; type: "string" }
             Parameter { name: "callback"; type: "QJValue" }

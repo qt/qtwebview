@@ -219,6 +219,27 @@ void QQuickWebView::stop()
 }
 
 /*!
+    \qmlmethod void QtWebView::WebView::loadHtml(string html, url baseUrl)
+
+    Loads the specified \a html content to the web view.
+
+    This method offers a lower-level alternative to the \c{url} property,
+    which references HTML pages via URL.
+
+    External objects such as stylesheets or images referenced in the HTML
+    document should be located relative to \a baseUrl. For example, if \a html
+    is retrieved from \c http://www.example.com/documents/overview.html, which
+    is the base url, then an image referenced with the relative url, \c diagram.png,
+    should be at \c{http://www.example.com/documents/diagram.png}.
+
+    \sa QtWebView::WebView::url
+*/
+void QQuickWebView::loadHtml(const QString &html, const QUrl &baseUrl)
+{
+    m_webView->loadHtml(html, baseUrl);
+}
+
+/*!
     \qmlmethod void QtWebView::WebView::runJavaScript(string script, variant callback)
 
     Runs the specified JavaScript.
