@@ -84,6 +84,8 @@ public Q_SLOTS:
     void goForward() Q_DECL_OVERRIDE;
     void reload() Q_DECL_OVERRIDE;
     void stop() Q_DECL_OVERRIDE;
+    void runJavaScript(const QString& script,
+                       const QJSValue &callback = QJSValue());
 
 Q_SIGNALS:
     void titleChanged();
@@ -91,7 +93,12 @@ Q_SIGNALS:
     void loadingChanged();
     void loadProgressChanged();
 
+protected:
+    void runJavaScriptPrivate(const QString& script,
+                              int callbackId) Q_DECL_OVERRIDE;
+
 private Q_SLOTS:
+    void onRunJavaScriptResult(int id, const QVariant &variant);
     void onFocusRequest(bool focus);
 
 private:

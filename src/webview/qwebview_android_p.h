@@ -83,6 +83,10 @@ public Q_SLOTS:
     void reload() Q_DECL_OVERRIDE;
     void stop() Q_DECL_OVERRIDE;
 
+protected:
+    void runJavaScriptPrivate(const QString& script,
+                              int callbackId) Q_DECL_OVERRIDE;
+
 private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);
 

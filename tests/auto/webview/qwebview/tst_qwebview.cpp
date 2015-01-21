@@ -41,6 +41,11 @@
 #include <QtCore/qfileinfo.h>
 #include <QtWebView/private/qwebview_p.h>
 #include <QtQml/qqmlengine.h>
+
+#ifndef QT_NO_QQUICKWEBVIEW_TESTS
+#include <QtWebView/qquickwebview.h>
+#endif // QT_NO_QQUICKWEBVIEW_TESTS
+
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
 #include <QtWebEngine>
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
@@ -54,6 +59,7 @@ public:
 private slots:
     void initTestCase();
     void load();
+    void runJavaScript();
 
 private:
     const QString m_cacheLocation;
@@ -90,6 +96,31 @@ void tst_QWebView::load()
     QVERIFY(!view.canGoBack());
     QVERIFY(!view.canGoForward());
     QCOMPARE(view.url(), url);
+}
+
+void tst_QWebView::runJavaScript()
+{
+#ifndef QT_NO_QQUICKWEBVIEW_TESTS
+    const QString tstProperty = QString(QLatin1String("Qt.tst_data"));
+    const QString title = QString(QLatin1String("WebViewTitle"));
+
+    QQuickWebView view;
+    QQmlEngine engine;
+    QQmlContext *rootContext = engine.rootContext();
+    QQmlEngine::setContextForObject(&view, rootContext);
+
+    QCOMPARE(view.loadProgress(), 0);
+    view.loadHtml(QString("<html><head><title>%1</title></head><body /></html>").arg(title));
+    QTRY_COMPARE(view.loadProgress(), 100);
+    QTRY_VERIFY(!view.isLoading());
+    QCOMPARE(view.title(), title);
+    QJSValue callback = engine.evaluate(QString("function(result) { %1 = result; }").arg(tstProperty));
+    QVERIFY2(!callback.isError(), qPrintable(callback.toString()));
+    QVERIFY(!callback.isUndefined());
+    QVERIFY(callback.isCallable());
+    view.runJavaScript(QString(QLatin1String("document.title")), callback);
+    QTRY_COMPARE(engine.evaluate(tstProperty).toString(), title);
+#endif // QT_NO_QQUICKWEBVIEW_TESTS
 }
 
 QTEST_MAIN(tst_QWebView)

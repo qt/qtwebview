@@ -48,6 +48,8 @@ QWebView::QWebView(QObject *p)
     connect(d, SIGNAL(loadingChanged()), this, SIGNAL(loadingChanged()));
     connect(d, SIGNAL(loadProgressChanged()), this, SIGNAL(loadProgressChanged()));
     connect(d, SIGNAL(requestFocus(bool)), this, SIGNAL(requestFocus(bool)));
+    connect(d, &QWebViewPrivate::javaScriptResult,
+            this, &QWebView::javaScriptResult);
 }
 
 QWebView::~QWebView()
@@ -148,6 +150,13 @@ void QWebView::setFocus(bool focus)
 {
     Q_D(QWebView);
     d->setFocus(focus);
+}
+
+void QWebView::runJavaScriptPrivate(const QString &script,
+                                    int callbackId)
+{
+    Q_D(QWebView);
+    d->runJavaScriptPrivate(script, callbackId);
 }
 
 void QWebView::init()

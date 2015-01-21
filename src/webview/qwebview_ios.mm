@@ -283,4 +283,12 @@ void QIosWebViewPrivate::reload()
     [uiWebView reload];
 }
 
+void QIosWebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)
+{
+    // ### TODO needs more async
+    NSString *result = [uiWebView stringByEvaluatingJavaScriptFromString:script.toNSString()];
+    if (callbackId != -1)
+        Q_EMIT javaScriptResult(callbackId, QString::fromNSString(result));
+}
+
 QT_END_NAMESPACE

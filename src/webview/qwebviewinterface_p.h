@@ -76,6 +76,9 @@ public:
     virtual void goForward() = 0;
     virtual void stop() = 0;
     virtual void reload() = 0;
+
+    virtual void runJavaScriptPrivate(const QString &script,
+                                      int callbackId) = 0;
 };
 
 #endif // QWEBVIEWINTERFACE_H

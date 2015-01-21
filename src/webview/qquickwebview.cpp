@@ -38,6 +38,38 @@
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
 
+namespace {
+
+class CallbackStorage
+{
+public:
+    int insertCallback(const QJSValue &callback)
+    {
+        QMutexLocker locker(&m_mtx);
+        const int nextId = qMax(++m_counter, 0);
+        if (nextId == 0)
+          m_counter = 1;
+
+        m_callbacks.insert(nextId, callback);
+        return nextId;
+    }
+
+    QJSValue takeCallback(int callbackId)
+    {
+        QMutexLocker lock(&m_mtx);
+        return m_callbacks.take(callbackId);
+    }
+
+private:
+    QMutex m_mtx;
+    int m_counter;
+    QHash<int, QJSValue> m_callbacks;
+};
+
+} // namespace
+
+Q_GLOBAL_STATIC(CallbackStorage, callbacks)
+
 /*!
     \qmltype WebView
     \inqmlmodule QtWebView
@@ -64,6 +96,7 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView.data(), &QWebView::loadingChanged, this, &QQuickWebView::loadingChanged);
     connect(m_webView.data(), &QWebView::loadProgressChanged, this, &QQuickWebView::loadProgressChanged);
     connect(m_webView.data(), &QWebView::requestFocus, this, &QQuickWebView::onFocusRequest);
+    connect(m_webView.data(), &QWebView::javaScriptResult, this, &QQuickWebView::onRunJavaScriptResult);
 }
 
 QQuickWebView::~QQuickWebView()
@@ -183,6 +216,48 @@ void QQuickWebView::reload()
 void QQuickWebView::stop()
 {
     m_webView->stop();
+}
+
+/*!
+    \qmlmethod void QtWebView::WebView::runJavaScript(string script, variant callback)
+
+    Runs the specified JavaScript.
+    In case a callback function is provided, it will be invoked after the script finished running.
+
+    \badcode
+    runJavaScript("document.title", function(result) { console.log(result); });
+    \endcode
+*/
+void QQuickWebView::runJavaScript(const QString &script, const QJSValue &callback)
+{
+    const int callbackId = callback.isCallable() ? callbacks->insertCallback(callback)
+                                                 : -1;
+    runJavaScriptPrivate(script, callbackId);
+}
+
+void QQuickWebView::runJavaScriptPrivate(const QString &script, int callbackId)
+{
+    m_webView->runJavaScriptPrivate(script, callbackId);
+}
+
+void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)
+{
+    if (id == -1)
+        return;
+
+    QJSValue callback = callbacks->takeCallback(id);
+    if (callback.isUndefined())
+        return;
+
+    QQmlEngine *engine = qmlEngine(this);
+    if (engine == 0) {
+        qWarning() << "No JavaScript engine, unable to handle JavaScript callback!";
+        return;
+    }
+
+    QJSValueList args;
+    args.append(engine->toScriptValue(variant));
+    callback.call(args);
 }
 
 void QQuickWebView::onFocusRequest(bool focus)

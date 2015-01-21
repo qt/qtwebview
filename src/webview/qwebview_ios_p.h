@@ -86,6 +86,10 @@ public Q_SLOTS:
     void reload() Q_DECL_OVERRIDE;
     void stop() Q_DECL_OVERRIDE;
 
+protected:
+    void runJavaScriptPrivate(const QString& script,
+                              int callbackId) Q_DECL_OVERRIDE;
+
 public:
     UIWebView *uiWebView;
     UIGestureRecognizer *m_recognizer;

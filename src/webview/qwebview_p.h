@@ -93,10 +93,13 @@ Q_SIGNALS:
     void urlChanged();
     void loadingChanged();
     void loadProgressChanged();
+    void javaScriptResult(int id, const QVariant &result);
     void requestFocus(bool focus);
 
 protected:
     void init();
+    void runJavaScriptPrivate(const QString &script,
+                              int callbackId) Q_DECL_OVERRIDE;
 
 private:
     friend class QQuickViewController;

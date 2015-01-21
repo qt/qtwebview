@@ -20,5 +20,14 @@ Module {
         Method { name: "goForward" }
         Method { name: "reload" }
         Method { name: "stop" }
+        Method {
+            name: "runJavaScript"
+            Parameter { name: "script"; type: "string" }
+            Parameter { name: "callback"; type: "QJValue" }
+        }
+        Method {
+            name: "runJavaScript"
+            Parameter { name: "script"; type: "string" }
+        }
     }
 }

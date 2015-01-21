@@ -45,6 +45,7 @@
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qjsonobject.h>
 #include <QtCore/qurl.h>
+#include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -152,6 +153,24 @@ void QAndroidWebViewPrivate::setVisibility(QWindow::Visibility visibility)
     m_window->setVisibility(visibility);
 }
 
+void QAndroidWebViewPrivate::runJavaScriptPrivate(const QString &script,
+                                                  int callbackId)
+{
+    if (QtAndroidPrivate::androidSdkVersion() < 19) {
+        qWarning() << "runJavaScript() requires API level 19 or higher.";
+        if (callbackId == -1)
+            return;
+
+        // Emit signal here to remove the callback.
+        Q_EMIT javaScriptResult(callbackId, QVariant());
+    }
+
+    m_viewController.callMethod<void>("runJavaScript",
+                                      "(Ljava/lang/String;J)V",
+                                      static_cast<jstring>(QJNIObjectPrivate::fromString(script).object()),
+                                      callbackId);
+}
+
 void QAndroidWebViewPrivate::setVisible(bool visible)
 {
     m_window->setVisible(visible);
@@ -194,6 +213,37 @@ void QAndroidWebViewPrivate::onApplicationStateChanged(Qt::ApplicationState stat
 }
 
 QT_END_NAMESPACE
+
+static void c_onRunJavaScriptResult(JNIEnv *env,
+                                    jobject thiz,
+                                    jlong id,
+                                    jlong callbackId,
+                                    jstring result)
+{
+    Q_UNUSED(env)
+    Q_UNUSED(thiz)
+
+    const WebViews &wv = (*g_webViews);
+    QAndroidWebViewPrivate *wc = static_cast<QAndroidWebViewPrivate *>(wv[id]);
+    if (!wc)
+        return;
+
+    const QString &resultString = QJNIObjectPrivate(result).toString();
+
+    // The result string is in JSON format, lets parse it to see what we got.
+    QJsonValue jsonValue;
+    const QByteArray &jsonData = "{ \"data\": " + resultString.toUtf8() + " }";
+    QJsonParseError error;
+    const QJsonDocument &jsonDoc = QJsonDocument::fromJson(jsonData, &error);
+    if (error.error == QJsonParseError::NoError && jsonDoc.isObject()) {
+        const QJsonObject &object = jsonDoc.object();
+        jsonValue = object.value(QStringLiteral("data"));
+    }
+
+    Q_EMIT wc->javaScriptResult(int(callbackId),
+                                jsonValue.isNull() ? resultString
+                                                   : jsonValue.toVariant());
+}
 
 static void c_onPageFinished(JNIEnv *env,
                              jobject thiz,
@@ -315,7 +365,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
         {"c_onPageStarted", "(JLjava/lang/String;Landroid/graphics/Bitmap;)V", reinterpret_cast<void *>(c_onPageStarted)},
         {"c_onProgressChanged", "(JI)V", reinterpret_cast<void *>(c_onProgressChanged)},
         {"c_onReceivedIcon", "(JLandroid/graphics/Bitmap;)V", reinterpret_cast<void *>(c_onReceivedIcon)},
-        {"c_onReceivedTitle", "(JLjava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedTitle)}
+        {"c_onReceivedTitle", "(JLjava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedTitle)},
+        {"c_onRunJavaScriptResult", "(JJLjava/lang/String;)V", reinterpret_cast<void *>(c_onRunJavaScriptResult)}
     };
 
     const int nMethods = sizeof(methods) / sizeof(methods[0]);

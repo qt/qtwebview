@@ -63,12 +63,16 @@ public class QtAndroidWebViewController
     private Method m_webViewOnPause = null;
     private Method m_webSettingsSetDisplayZoomControls = null;
 
+    // API 19 methods
+    private Method m_webViewEvaluateJavascript = null;
+
     // Native callbacks
     private native void c_onPageFinished(long id, String url);
     private native void c_onPageStarted(long id, String url, Bitmap icon);
     private native void c_onProgressChanged(long id, int newProgress);
     private native void c_onReceivedIcon(long id, Bitmap icon);
     private native void c_onReceivedTitle(long id, String title);
+    private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
 
     private class QtAndroidWebViewClient extends WebViewClient
     {
@@ -136,6 +140,11 @@ public class QtAndroidWebViewController
                         m_webViewOnResume = m_webView.getClass().getMethod("onResume");
                         m_webViewOnPause = m_webView.getClass().getMethod("onPause");
                         m_webSettingsSetDisplayZoomControls = webSettings.getClass().getMethod("setDisplayZoomControls", boolean.class);
+                        if (Build.VERSION.SDK_INT > 18) {
+                            m_webViewEvaluateJavascript = m_webView.getClass().getMethod("evaluateJavascript",
+                                                                                         String.class,
+                                                                                         ValueCallback.class);
+                        }
                     } catch (Exception e) { /* Do nothing */ e.printStackTrace(); }
                 }
 
@@ -298,6 +307,32 @@ public class QtAndroidWebViewController
         }
 
         return progress[0];
+    }
+
+    public void runJavaScript(final String script, final long callbackId)
+    {
+        if (script == null)
+            return;
+
+        if (Build.VERSION.SDK_INT < 19 || m_webViewEvaluateJavascript == null)
+            return;
+
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    m_webViewEvaluateJavascript.invoke(m_webView, script, callbackId == -1 ? null :
+                        new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String result) {
+                                c_onRunJavaScriptResult(m_id, callbackId, result);
+                            }
+                        });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public String getUrl()
