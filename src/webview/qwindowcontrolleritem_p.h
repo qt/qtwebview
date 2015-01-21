@@ -54,6 +54,7 @@
 
 #ifdef Q_OS_IOS
 Q_FORWARD_DECLARE_OBJC_CLASS(UIView);
+Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
 #endif
 
 class Q_WEBVIEW_EXPORT QWindowControllerItem : public QQuickItem
@@ -78,6 +79,7 @@ public slots:
 private:
 #ifdef Q_OS_IOS
     UIView *m_controlledUIView;
+    UIGestureRecognizer *m_recognizer;
 #else
     QWindow *m_controlledWindow;
 #endif

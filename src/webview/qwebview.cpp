@@ -230,6 +230,8 @@ bool QWebView::isLoading() const
 }
 
 /*!
+    \qmlmethod void QtWebView::WebView::goBack()
+
     Navigates back in the web history.
 */
 void QWebView::goBack()
@@ -239,6 +241,8 @@ void QWebView::goBack()
 }
 
 /*!
+    \qmlmethod void QtWebView::WebView::goForward()
+
     Navigates forward in the web history.
 */
 void QWebView::goForward()
@@ -248,6 +252,8 @@ void QWebView::goForward()
 }
 
 /*!
+    \qmlmethod void QtWebView::WebView::reload()
+
     Reloads the current url.
 */
 void QWebView::reload()
@@ -258,6 +264,8 @@ void QWebView::reload()
 }
 
 /*!
+    \qmlmethod void QtWebView::WebView::stop()
+
     Stops loading the current url.
 */
 void QWebView::stop()

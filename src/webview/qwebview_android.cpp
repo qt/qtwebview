@@ -39,7 +39,6 @@
 #include <QtCore/private/qjnihelpers_p.h>
 #include <QtCore/private/qjni_p.h>
 
-#include <QtQuick/qquickitem.h>
 #include <QtCore/qmap.h>
 #include <android/bitmap.h>
 #include <QtGui/qguiapplication.h>

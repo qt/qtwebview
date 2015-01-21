@@ -77,9 +77,7 @@ ApplicationWindow {
                 id: urlField
                 inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhPreferLowercase
                 text: webView.url
-                onEditingFinished: {
-                    webView.url = utils.fromUserInput(urlField.text);
-                }
+                onAccepted: webView.url = utils.fromUserInput(text)
             }
 
             ToolButton {
