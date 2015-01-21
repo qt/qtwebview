@@ -40,6 +40,10 @@
 #include <QtCore/qtemporarydir.h>
 #include <QtCore/qfileinfo.h>
 #include <QtWebView/private/qwebview_p.h>
+#include <QtQml/qqmlengine.h>
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+#include <QtWebEngine>
+#endif // QT_WEBVIEW_WEBENGINE_BACKEND
 
 class tst_QWebView : public QObject
 {
@@ -57,6 +61,9 @@ private:
 
 void tst_QWebView::initTestCase()
 {
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+    QtWebEngine::initialize();
+#endif // QT_WEBVIEW_WEBENGINE_BACKEND
     if (!QFileInfo(m_cacheLocation).isDir()) {
         QDir dir;
         QVERIFY(dir.mkpath(m_cacheLocation));
