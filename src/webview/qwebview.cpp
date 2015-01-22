@@ -43,11 +43,11 @@ QWebView::QWebView(QObject *p)
       d_ptr(QWebViewPrivate::create(this))
 {
     Q_D(QWebView);
-    connect(d, SIGNAL(titleChanged()), this, SIGNAL(titleChanged()));
-    connect(d, SIGNAL(urlChanged()), this, SIGNAL(urlChanged()));
-    connect(d, SIGNAL(loadingChanged()), this, SIGNAL(loadingChanged()));
-    connect(d, SIGNAL(loadProgressChanged()), this, SIGNAL(loadProgressChanged()));
-    connect(d, SIGNAL(requestFocus(bool)), this, SIGNAL(requestFocus(bool)));
+    connect(d, &QWebViewPrivate::titleChanged, this, &QWebView::titleChanged);
+    connect(d, &QWebViewPrivate::urlChanged, this, &QWebView::urlChanged);
+    connect(d, &QWebViewPrivate::loadingChanged, this, &QWebView::loadingChanged);
+    connect(d, &QWebViewPrivate::loadProgressChanged, this, &QWebView::loadProgressChanged);
+    connect(d, &QWebViewPrivate::requestFocus, this, &QWebView::requestFocus);
     connect(d, &QWebViewPrivate::javaScriptResult,
             this, &QWebView::javaScriptResult);
 }
