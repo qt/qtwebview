@@ -57,6 +57,9 @@
 
 QT_BEGIN_NAMESPACE
 
+class QQuickWebViewLoadRequest;
+class QWebViewLoadRequestPrivate;
+
 class Q_WEBVIEW_EXPORT QQuickWebView : public QQuickViewController, public QWebViewInterface
 {
     Q_OBJECT
@@ -66,8 +69,16 @@ class Q_WEBVIEW_EXPORT QQuickWebView : public QQuickViewController, public QWebV
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged)
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged)
+    Q_ENUMS(LoadStatus)
 
 public:
+    enum LoadStatus { // Changes here needs to be done in QWebView as well
+        LoadStartedStatus,
+        LoadStoppedStatus,
+        LoadSucceededStatus,
+        LoadFailedStatus
+    };
+
     QQuickWebView(QQuickItem *parent = 0);
     ~QQuickWebView();
 
@@ -91,7 +102,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void titleChanged();
     void urlChanged();
-    void loadingChanged();
+    void loadingChanged(QQuickWebViewLoadRequest *loadRequest);
     void loadProgressChanged();
 
 protected:
@@ -101,6 +112,7 @@ protected:
 private Q_SLOTS:
     void onRunJavaScriptResult(int id, const QVariant &variant);
     void onFocusRequest(bool focus);
+    void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
 
 private:
     QScopedPointer<QWebView> m_webView;

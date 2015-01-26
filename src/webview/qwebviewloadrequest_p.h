@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
 **
@@ -10,9 +10,9 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms and
+** conditions see http://www.qt.io/terms-conditions. For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
@@ -34,39 +34,32 @@
 **
 ****************************************************************************/
 
-#include <QtQml/qqmlextensionplugin.h>
-#include <QtQml/qqml.h>
 
-#include <QtWebView/qquickwebview.h>
-#include <QtWebView/qquickwebviewloadrequest.h>
+#ifndef QWEBVIEWLOADREQUESTPRIVATE_H
+#define QWEBVIEWLOADREQUESTPRIVATE_H
+
+#include <QtWebView/private/qwebview_p.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qurl.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWebViewModule : public QQmlExtensionPlugin
+class Q_WEBVIEW_EXPORT QWebViewLoadRequestPrivate
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface/1.0")
 public:
-    void registerTypes(const char *uri)
-    {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWebView"));
+    QWebViewLoadRequestPrivate();
+    QWebViewLoadRequestPrivate(const QUrl &url,
+                               QWebView::LoadStatus status,
+                               const QString &errorString);
+    ~QWebViewLoadRequestPrivate();
 
-        // @uri QtWebView
-        qmlRegisterType<QQuickWebView>(uri, 1, 0, "WebView");
-        const QString &msg = QObject::tr("Cannot create separate instance of WebViewLoadRequest");
-        qmlRegisterUncreatableType<QQuickWebViewLoadRequest>(uri, 1, 0, "WebViewLoadRequest", msg);
-    }
-
-    void initializeEngine(QQmlEngine *engine, const char *uri)
-    {
-        Q_UNUSED(uri);
-        Q_UNUSED(engine);
-    }
+    QUrl m_url;
+    QWebView::LoadStatus m_status;
+    QString m_errorString;
 };
 
 QT_END_NAMESPACE
 
-#include "webview.moc"
+Q_DECLARE_METATYPE(QWebViewLoadRequestPrivate)
 
-
-
+#endif // QWEBVIEWLOADREQUESTPRIVATE_H

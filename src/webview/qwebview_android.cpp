@@ -36,6 +36,7 @@
 
 #include "qwebview_android_p.h"
 #include "qwebview_p.h"
+#include "qwebviewloadrequest_p.h" // TODO:
 #include <QtCore/private/qjnihelpers_p.h>
 #include <QtCore/private/qjni_p.h>
 
@@ -277,8 +278,10 @@ static void c_onPageFinished(JNIEnv *env,
     if (!wc)
         return;
 
-    Q_UNUSED(url) // TODO:
-    Q_EMIT wc->loadingChanged();
+    QWebViewLoadRequestPrivate loadRequest(QUrl(QJNIObjectPrivate(url).toString()),
+                                           QWebView::LoadSucceededStatus,
+                                           QString());
+    Q_EMIT wc->loadingChanged(loadRequest);
 }
 
 static void c_onPageStarted(JNIEnv *env,
@@ -294,9 +297,10 @@ static void c_onPageStarted(JNIEnv *env,
     QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
         return;
-
-    Q_UNUSED(url) // TODO:
-    Q_EMIT wc->loadingChanged();
+    QWebViewLoadRequestPrivate loadRequest(QUrl(QJNIObjectPrivate(url).toString()),
+                                           QWebView::LoadStartedStatus,
+                                           QString());
+    Q_EMIT wc->loadingChanged(loadRequest);
 
 //    if (!icon)
 //        return;
@@ -361,6 +365,27 @@ static void c_onReceivedTitle(JNIEnv *env,
     Q_EMIT wc->titleChanged();
 }
 
+static void c_onReceivedError(JNIEnv *env,
+                              jobject thiz,
+                              jlong id,
+                              jint errorCode,
+                              jstring description,
+                              jstring url)
+{
+    Q_UNUSED(env)
+    Q_UNUSED(thiz)
+    Q_UNUSED(errorCode)
+
+    const WebViews &wv = (*g_webViews);
+    QAndroidWebViewPrivate *wc = wv[id];
+    if (!wc)
+        return;
+    QWebViewLoadRequestPrivate loadRequest(QUrl(QJNIObjectPrivate(url).toString()),
+                                           QWebView::LoadFailedStatus,
+                                           QJNIObjectPrivate(description).toString());
+    Q_EMIT wc->loadingChanged(loadRequest);
+}
+
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
 {
     typedef union {
@@ -386,7 +411,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
         {"c_onProgressChanged", "(JI)V", reinterpret_cast<void *>(c_onProgressChanged)},
         {"c_onReceivedIcon", "(JLandroid/graphics/Bitmap;)V", reinterpret_cast<void *>(c_onReceivedIcon)},
         {"c_onReceivedTitle", "(JLjava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedTitle)},
-        {"c_onRunJavaScriptResult", "(JJLjava/lang/String;)V", reinterpret_cast<void *>(c_onRunJavaScriptResult)}
+        {"c_onRunJavaScriptResult", "(JJLjava/lang/String;)V", reinterpret_cast<void *>(c_onRunJavaScriptResult)},
+        {"c_onReceivedError", "(JILjava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedError)}
     };
 
     const int nMethods = sizeof(methods) / sizeof(methods[0]);

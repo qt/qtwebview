@@ -43,6 +43,7 @@
 QT_BEGIN_NAMESPACE
 
 class QWebView;
+class QWebViewLoadRequestPrivate;
 
 class Q_WEBVIEW_EXPORT QWebViewPrivate
         : public QObject
@@ -56,7 +57,7 @@ public:
 Q_SIGNALS:
     void titleChanged();
     void urlChanged();
-    void loadingChanged();
+    void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
     void loadProgressChanged();
     void javaScriptResult(int id, const QVariant &result);
     void requestFocus(bool focus);

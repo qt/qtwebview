@@ -36,6 +36,7 @@
 
 #include "qwebview_ios_p.h"
 #include "qwebview_p.h"
+#include "qwebviewloadrequest_p.h"
 
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmap.h>
@@ -136,7 +137,6 @@ class QWebViewInterface;
 - (void)pageDone
 {
     Q_EMIT qIosWebViewPrivate->loadProgressChanged();
-    Q_EMIT qIosWebViewPrivate->loadingChanged();
     Q_EMIT qIosWebViewPrivate->titleChanged();
     Q_EMIT qIosWebViewPrivate->urlChanged();
 }
@@ -148,23 +148,33 @@ class QWebViewInterface;
     // should provide per-page notifications. Keep track of started frame loads
     // and emit notifications when the final frame completes.
     ++qIosWebViewPrivate->requestFrameCount;
-    Q_EMIT qIosWebViewPrivate->loadingChanged();
+    Q_EMIT qIosWebViewPrivate->loadingChanged(QWebViewLoadRequestPrivate(qIosWebViewPrivate->url(),
+                                                                         QWebView::LoadStartedStatus,
+                                                                         QString()));
     Q_EMIT qIosWebViewPrivate->loadProgressChanged();
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
     Q_UNUSED(webView);
-    if (--qIosWebViewPrivate->requestFrameCount == 0)
+    if (--qIosWebViewPrivate->requestFrameCount == 0) {
         [self pageDone];
+        Q_EMIT qIosWebViewPrivate->loadingChanged(QWebViewLoadRequestPrivate(qIosWebViewPrivate->url(),
+                                                                             QWebView::LoadSucceededStatus,
+                                                                             QString()));
+    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     Q_UNUSED(webView);
-    Q_UNUSED(error);
-    if (--qIosWebViewPrivate->requestFrameCount == 0)
+    if (--qIosWebViewPrivate->requestFrameCount == 0) {
         [self pageDone];
+        NSString *errorString = [error localizedFailureReason];
+        Q_EMIT qIosWebViewPrivate->loadingChanged(QWebViewLoadRequestPrivate(qIosWebViewPrivate->url(),
+                                                                             QWebView::LoadFailedStatus,
+                                                                             QString::fromNSString(errorString)));
+    }
 }
 @end
 

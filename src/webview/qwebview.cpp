@@ -35,6 +35,7 @@
 ****************************************************************************/
 
 #include "qwebview_p.h"
+#include <QtWebView/private/qwebviewloadrequest_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -42,6 +43,7 @@ QWebView::QWebView(QObject *p)
     : QObject(p),
       d_ptr(QWebViewPrivate::create(this))
 {
+    qRegisterMetaType<QWebViewLoadRequestPrivate>();
     Q_D(QWebView);
     connect(d, &QWebViewPrivate::titleChanged, this, &QWebView::titleChanged);
     connect(d, &QWebViewPrivate::urlChanged, this, &QWebView::urlChanged);

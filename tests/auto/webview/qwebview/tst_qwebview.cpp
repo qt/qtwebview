@@ -41,6 +41,7 @@
 #include <QtCore/qfileinfo.h>
 #include <QtWebView/private/qwebview_p.h>
 #include <QtQml/qqmlengine.h>
+#include <QtWebView/private/qwebviewloadrequest_p.h>
 
 #ifndef QT_NO_QQUICKWEBVIEW_TESTS
 #include <QtWebView/qquickwebview.h>
@@ -61,6 +62,7 @@ private slots:
     void load();
     void runJavaScript();
     void loadHtml();
+    void loadRequest();
 
 private:
     const QString m_cacheLocation;
@@ -132,6 +134,62 @@ void tst_QWebView::loadHtml()
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
     QCOMPARE(view.title(), QStringLiteral("WebViewTitle"));
+}
+
+void tst_QWebView::loadRequest()
+{
+    // LoadSucceeded
+    {
+        QTemporaryFile file(m_cacheLocation + QStringLiteral("/XXXXXXfile.html"));
+        QVERIFY2(file.open(),
+                 qPrintable(QStringLiteral("Cannot create temporary file:") + file.errorString()));
+
+        file.write("<html><head><title>FooBar</title></head><body />");
+        const QString fileName = file.fileName();
+        file.close();
+        QWebView view;
+        QCOMPARE(view.loadProgress(), 0);
+        const QUrl url = QUrl::fromLocalFile(fileName);
+        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
+        view.setUrl(url);
+        QTRY_VERIFY(!view.isLoading());
+        QTRY_COMPARE(view.loadProgress(), 100);
+        QTRY_COMPARE(view.title(), QStringLiteral("FooBar"));
+        QCOMPARE(view.url(), url);
+        QTRY_COMPARE(loadChangedSingalSpy.count(), 2);
+        {
+            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
+            QCOMPARE(lr.m_status, QWebView::LoadStartedStatus);
+        }
+        {
+            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
+            QCOMPARE(lr.m_status, QWebView::LoadSucceededStatus);
+        }
+    }
+
+    // LoadFailed
+    {
+        QWebView view;
+        QCOMPARE(view.loadProgress(), 0);
+        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
+        view.setUrl(QUrl(QStringLiteral("file:///file_that_does_not_exist.html")));
+        QTRY_VERIFY(!view.isLoading());
+        QTRY_COMPARE(loadChangedSingalSpy.count(), 2);
+        {
+            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
+            QCOMPARE(lr.m_status, QWebView::LoadStartedStatus);
+        }
+        {
+            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
+            QCOMPARE(lr.m_status, QWebView::LoadFailedStatus);
+        }
+
+        QCOMPARE(view.loadProgress(), 0);
+    }
 }
 
 QTEST_MAIN(tst_QWebView)

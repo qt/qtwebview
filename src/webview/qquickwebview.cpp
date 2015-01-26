@@ -35,6 +35,8 @@
 ****************************************************************************/
 
 #include "qquickwebview.h"
+#include "qquickwebviewloadrequest.h"
+#include <QtWebView/private/qwebviewloadrequest_p.h>
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
 
@@ -93,8 +95,8 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     setView(m_webView.data());
     connect(m_webView.data(), &QWebView::titleChanged, this, &QQuickWebView::titleChanged);
     connect(m_webView.data(), &QWebView::urlChanged, this, &QQuickWebView::urlChanged);
-    connect(m_webView.data(), &QWebView::loadingChanged, this, &QQuickWebView::loadingChanged);
     connect(m_webView.data(), &QWebView::loadProgressChanged, this, &QQuickWebView::loadProgressChanged);
+    connect(m_webView.data(), &QWebView::loadingChanged, this, &QQuickWebView::onLoadingChanged);
     connect(m_webView.data(), &QWebView::requestFocus, this, &QQuickWebView::onFocusRequest);
     connect(m_webView.data(), &QWebView::javaScriptResult, this, &QQuickWebView::onRunJavaScriptResult);
 }
@@ -284,4 +286,10 @@ void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)
 void QQuickWebView::onFocusRequest(bool focus)
 {
     setFocus(focus);
+}
+
+void QQuickWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest)
+{
+    QQuickWebViewLoadRequest qqLoadRequest(loadRequest);
+    Q_EMIT loadingChanged(&qqLoadRequest);
 }

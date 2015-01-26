@@ -5,6 +5,16 @@ import QtQuick.tooling 1.1
 
 Module {
     Component {
+        name: "QQuickWebViewLoadRequest"
+        prototype: "QObject"
+        exports: ["QtWebView/WebViewLoadRequest 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+        Property { name: "url"; type: "QUrl"; isReadonly: true }
+        Property { name: "status"; type: "QQuickWebView::LoadStatus"; isReadonly: true }
+        Property { name: "errorString"; type: "string"; isReadonly: true }
+    }
+    Component {
         name: "QWebView"
         defaultProperty: "data"
         prototype: "QQuickItem"
@@ -20,6 +30,10 @@ Module {
         Method { name: "goForward" }
         Method { name: "reload" }
         Method { name: "stop" }
+        Signal {
+            name: "loadingChanged"
+            Parameter { name: "loadRequest"; type: "QQuickWebViewLoadRequest"; isPointer: true }
+        }
         Method {
             name: "loadHtml"
             Parameter { name: "html"; type: "string" }

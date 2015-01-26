@@ -58,6 +58,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWebViewLoadRequestPrivate;
+
 class Q_WEBVIEW_EXPORT QWebView
         : public QObject
         , public QWebViewInterface
@@ -65,6 +67,13 @@ class Q_WEBVIEW_EXPORT QWebView
 {
     Q_OBJECT
 public:
+    enum LoadStatus { // Changes here needs to be done in QQuickWebView as well
+        LoadStartedStatus,
+        LoadStoppedStatus,
+        LoadSucceededStatus,
+        LoadFailedStatus
+    };
+
     explicit QWebView(QObject *p = 0);
     ~QWebView() Q_DECL_OVERRIDE;
 
@@ -92,7 +101,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void titleChanged();
     void urlChanged();
-    void loadingChanged();
+    void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
     void loadProgressChanged();
     void javaScriptResult(int id, const QVariant &result);
     void requestFocus(bool focus);

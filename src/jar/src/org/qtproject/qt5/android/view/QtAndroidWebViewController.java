@@ -76,6 +76,7 @@ public class QtAndroidWebViewController
     private native void c_onReceivedIcon(long id, Bitmap icon);
     private native void c_onReceivedTitle(long id, String title);
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
+    private native void c_onReceivedError(long id, int errorCode, String description, String url);
 
     private void resetLoadingState()
     {
@@ -112,6 +113,17 @@ public class QtAndroidWebViewController
                 m_onPageFinishedCalled = false;
                 c_onPageStarted(m_id, url, favicon);
             }
+        }
+
+        @Override
+        public void onReceivedError(WebView view,
+                                    int errorCode,
+                                    String description,
+                                    String url)
+        {
+            super.onReceivedError(view, errorCode, description, url);
+            resetLoadingState();
+            c_onReceivedError(m_id, errorCode, description, url);
         }
     }
 
