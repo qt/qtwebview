@@ -57,6 +57,9 @@ public class QtAndroidWebViewController
     private final long m_id;
     private WebView m_webView = null;
     private static final String TAG = "QtAndroidWebViewController";
+    private volatile boolean m_onPageFinishedCalled = false;
+    private volatile int m_progress = 0;
+    private volatile int m_frameCount = 0;
 
     // API 11 methods
     private Method m_webViewOnResume = null;
@@ -74,6 +77,12 @@ public class QtAndroidWebViewController
     private native void c_onReceivedTitle(long id, String title);
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
 
+    private void resetLoadingState()
+    {
+        m_progress = 0;
+        m_onPageFinishedCalled = false;
+    }
+
     private class QtAndroidWebViewClient extends WebViewClient
     {
         QtAndroidWebViewClient() { super(); }
@@ -88,14 +97,21 @@ public class QtAndroidWebViewController
         public void onPageFinished(WebView view, String url)
         {
             super.onPageFinished(view, url);
-            c_onPageFinished(m_id, url);
+            m_onPageFinishedCalled = true;
+            if (m_progress == 100) { // onProgressChanged() will notify Qt if we didn't finish here.
+                m_frameCount = 0;
+                c_onPageFinished(m_id, url);
+            }
         }
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon)
         {
             super.onPageStarted(view, url, favicon);
-            c_onPageStarted(m_id, url, favicon);
+            if (++m_frameCount == 1) { // Only call onPageStarted for the first frame.
+                m_onPageFinishedCalled = false;
+                c_onPageStarted(m_id, url, favicon);
+            }
         }
     }
 
@@ -106,7 +122,12 @@ public class QtAndroidWebViewController
         public void onProgressChanged(WebView view, int newProgress)
         {
             super.onProgressChanged(view, newProgress);
+            m_progress = newProgress;
             c_onProgressChanged(m_id, newProgress);
+            if (m_onPageFinishedCalled && m_progress == 100) { // Did we finish?
+                m_frameCount = 0;
+                c_onPageFinished(m_id, view.getUrl());
+            }
         }
 
         @Override
@@ -173,6 +194,7 @@ public class QtAndroidWebViewController
             return;
         }
 
+        resetLoadingState();
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadUrl(url); }
@@ -184,6 +206,7 @@ public class QtAndroidWebViewController
         if (data == null)
             return;
 
+        resetLoadingState();
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadData(data, mimeType, encoding); }
@@ -199,6 +222,7 @@ public class QtAndroidWebViewController
         if (data == null)
             return;
 
+        resetLoadingState();
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl); }
@@ -293,20 +317,12 @@ public class QtAndroidWebViewController
 
     public int getProgress()
     {
-        final int[] progress = {0};
-        final Semaphore sem = new Semaphore(0);
-        m_activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() { progress[0] = m_webView.getProgress(); sem.release(); }
-        });
+        return m_progress;
+    }
 
-        try {
-            sem.acquire();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return progress[0];
+    public boolean isLoading()
+    {
+        return (m_progress != 100 && !m_onPageFinishedCalled);
     }
 
     public void runJavaScript(final String script, final long callbackId)

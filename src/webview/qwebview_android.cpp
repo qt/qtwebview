@@ -203,7 +203,7 @@ int QAndroidWebViewPrivate::loadProgress() const
 
 bool QAndroidWebViewPrivate::isLoading() const
 {
-    return true;
+    return m_viewController.callMethod<jboolean>("isLoading");
 }
 
 void QAndroidWebViewPrivate::setParentView(QObject *view)
