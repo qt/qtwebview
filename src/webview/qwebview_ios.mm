@@ -69,7 +69,7 @@ class QWebViewPrivate;
 - (void)pageDone
 {
     Q_EMIT qIosWebViewPrivate->progressChanged(100);
-    Q_EMIT qIosWebViewPrivate->pageFinished(qIosWebViewPrivate->requestUrl);
+    Q_EMIT qIosWebViewPrivate->pageFinished(qIosWebViewPrivate->getUrl());
     Q_EMIT qIosWebViewPrivate->titleChanged(qIosWebViewPrivate->getTitle());
     // QWebViewPrivate emits urlChanged.
 }
@@ -80,8 +80,8 @@ class QWebViewPrivate;
     // UIWebViewDelegate gives us per-frame notifications while the QWebView API
     // should provide per-page notifications. Keep track of started frame loads
     // and emit notifications when the final frame completes.
-    ++qIosWebViewPrivate->requestFrameCount;
-    emit qIosWebViewPrivate->pageStarted(qIosWebViewPrivate->requestUrl);
+    if (++qIosWebViewPrivate->requestFrameCount == 1)
+        emit qIosWebViewPrivate->pageStarted(qIosWebViewPrivate->getUrl());
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -125,14 +125,13 @@ QIOSWebViewPrivate::~QIOSWebViewPrivate()
 
 QString QIOSWebViewPrivate::getUrl() const
 {
-    NSString *currentURL = [uiWebView stringByEvaluatingJavaScriptFromString:@"window.location.href"];
-    return QString::fromNSString(currentURL);
+    NSURL *url = [[uiWebView request] URL];
+    return QUrl::fromNSURL(url).toString();
 }
 
 void QIOSWebViewPrivate::loadUrl(const QString &url)
 {
     Q_EMIT progressChanged(0);
-    requestUrl = url;
     requestFrameCount = 0;
     [uiWebView loadRequest:[NSURLRequest requestWithURL:QUrl(url).toNSURL()]];
 }

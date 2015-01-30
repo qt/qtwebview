@@ -79,7 +79,6 @@ public Q_SLOTS:
     void stopLoading() const;
 public:
     UIWebView *uiWebView;
-    QString requestUrl;
     int requestFrameCount;
 };
 
