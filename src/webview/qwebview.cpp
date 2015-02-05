@@ -45,10 +45,10 @@ QWebView::QWebView(QObject *p)
 {
     qRegisterMetaType<QWebViewLoadRequestPrivate>();
     Q_D(QWebView);
-    connect(d, &QWebViewPrivate::titleChanged, this, &QWebView::titleChanged);
-    connect(d, &QWebViewPrivate::urlChanged, this, &QWebView::urlChanged);
-    connect(d, &QWebViewPrivate::loadingChanged, this, &QWebView::loadingChanged);
-    connect(d, &QWebViewPrivate::loadProgressChanged, this, &QWebView::loadProgressChanged);
+    connect(d, &QWebViewPrivate::titleChanged, this, &QWebView::onTitleChanged);
+    connect(d, &QWebViewPrivate::urlChanged, this, &QWebView::onUrlChanged);
+    connect(d, &QWebViewPrivate::loadingChanged, this, &QWebView::onLoadingChanged);
+    connect(d, &QWebViewPrivate::loadProgressChanged, this, &QWebView::onLoadProgressChanged);
     connect(d, &QWebViewPrivate::requestFocus, this, &QWebView::requestFocus);
     connect(d, &QWebViewPrivate::javaScriptResult,
             this, &QWebView::javaScriptResult);
@@ -165,6 +165,40 @@ void QWebView::runJavaScriptPrivate(const QString &script,
 {
     Q_D(QWebView);
     d->runJavaScriptPrivate(script, callbackId);
+}
+
+void QWebView::onTitleChanged(const QString &title)
+{
+    if (m_title == title)
+        return;
+
+    m_title = title;
+    Q_EMIT titleChanged();
+}
+
+void QWebView::onUrlChanged(const QUrl &url)
+{
+    if (m_url == url)
+        return;
+
+    m_url = url;
+    Q_EMIT urlChanged();
+}
+
+void QWebView::onLoadProgressChanged(int progress)
+{
+    if (m_progress == progress)
+        return;
+
+    m_progress = progress;
+    Q_EMIT loadProgressChanged();
+}
+
+void QWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest)
+{
+    onUrlChanged(loadRequest.m_url);
+    Q_EMIT loadingChanged(loadRequest);
+
 }
 
 void QWebView::init()

@@ -72,8 +72,8 @@ class QOsxWebViewPrivate;
 
 - (void)pageDone
 {
-    Q_EMIT qtWebViewPrivate->titleChanged();
-    Q_EMIT qtWebViewPrivate->loadProgressChanged();
+    Q_EMIT qtWebViewPrivate->titleChanged(qtWebViewPrivate->title());
+    Q_EMIT qtWebViewPrivate->loadProgressChanged(qtWebViewPrivate->loadProgress());
 }
 
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame

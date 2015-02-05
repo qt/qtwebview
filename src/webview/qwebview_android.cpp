@@ -322,8 +322,7 @@ static void c_onProgressChanged(JNIEnv *env,
     if (!wc)
         return;
 
-    Q_UNUSED(newProgress) // TODO:
-    Q_EMIT wc->loadProgressChanged();
+    Q_EMIT wc->loadProgressChanged(newProgress);
 }
 
 static void c_onReceivedIcon(JNIEnv *env,
@@ -361,8 +360,8 @@ static void c_onReceivedTitle(JNIEnv *env,
     if (!wc)
         return;
 
-    Q_UNUSED(title) // TODO:
-    Q_EMIT wc->titleChanged();
+    const QString &qTitle = QJNIObjectPrivate(title).toString();
+    Q_EMIT wc->titleChanged(qTitle);
 }
 
 static void c_onReceivedError(JNIEnv *env,

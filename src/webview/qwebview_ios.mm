@@ -136,9 +136,8 @@ class QWebViewInterface;
 
 - (void)pageDone
 {
-    Q_EMIT qIosWebViewPrivate->loadProgressChanged();
-    Q_EMIT qIosWebViewPrivate->titleChanged();
-    Q_EMIT qIosWebViewPrivate->urlChanged();
+    Q_EMIT qIosWebViewPrivate->loadProgressChanged(qIosWebViewPrivate->loadProgress());
+    Q_EMIT qIosWebViewPrivate->titleChanged(qIosWebViewPrivate->title());
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
@@ -151,7 +150,7 @@ class QWebViewInterface;
     Q_EMIT qIosWebViewPrivate->loadingChanged(QWebViewLoadRequestPrivate(qIosWebViewPrivate->url(),
                                                                          QWebView::LoadStartedStatus,
                                                                          QString()));
-    Q_EMIT qIosWebViewPrivate->loadProgressChanged();
+    Q_EMIT qIosWebViewPrivate->loadProgressChanged(qIosWebViewPrivate->loadProgress());
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView

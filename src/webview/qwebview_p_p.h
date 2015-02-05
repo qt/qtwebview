@@ -55,10 +55,10 @@ public:
     static QWebViewPrivate *create(QWebView *q);
 
 Q_SIGNALS:
-    void titleChanged();
-    void urlChanged();
+    void titleChanged(const QString &title);
+    void urlChanged(const QUrl &url);
     void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-    void loadProgressChanged();
+    void loadProgressChanged(int progress);
     void javaScriptResult(int id, const QVariant &result);
     void requestFocus(bool focus);
 

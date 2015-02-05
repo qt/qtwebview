@@ -111,9 +111,21 @@ protected:
     void runJavaScriptPrivate(const QString &script,
                               int callbackId) Q_DECL_OVERRIDE;
 
+private Q_SLOTS:
+    void onTitleChanged(const QString &title);
+    void onUrlChanged(const QUrl &url);
+    void onLoadProgressChanged(int progress);
+    void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
+
 private:
     friend class QQuickViewController;
     friend class QQuickWebView;
+
+    // provisional data
+    QString m_title;
+    QUrl m_url;
+    int m_progress;
+
     Q_DECLARE_PRIVATE(QWebView)
     QScopedPointer<QWebViewPrivate> d_ptr;
 };
