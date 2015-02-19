@@ -60,8 +60,7 @@ QWebView::~QWebView()
 
 QUrl QWebView::url() const
 {
-    Q_D(const QWebView);
-    return d->url();
+    return m_url;
 }
 
 void QWebView::setUrl(const QUrl &url)
@@ -108,14 +107,12 @@ void QWebView::stop()
 
 QString QWebView::title() const
 {
-    Q_D(const QWebView);
-    return d->title();
+    return m_title;
 }
 
 int QWebView::loadProgress() const
 {
-    Q_D(const QWebView);
-    return d->loadProgress();
+    return m_progress;
 }
 
 bool QWebView::isLoading() const
