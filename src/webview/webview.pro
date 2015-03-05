@@ -4,7 +4,7 @@ load(qt_build_config)
 
 TARGET = QtWebView
 
-QT += quick qml
+QT += core-private gui-private qml-private quick-private quick qml
 
 QMAKE_DOCS = \
              $$PWD/doc/qtwebview.qdocconf
