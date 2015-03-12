@@ -271,7 +271,7 @@ void QIosWebViewPrivate::setVisibility(QWindow::Visibility visibility)
 
 void QIosWebViewPrivate::setVisible(bool visible)
 {
-    [uiWebView setHidden:visible];
+    [uiWebView setHidden:!visible];
 }
 
 void QIosWebViewPrivate::setFocus(bool focus)
