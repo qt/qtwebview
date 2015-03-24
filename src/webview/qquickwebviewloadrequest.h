@@ -37,7 +37,7 @@
 #ifndef QQUICKWEBVIEWREQUEST_H
 #define QQUICKWEBVIEWREQUEST_H
 
-#include "qquickwebview.h"
+#include <QtWebView/qquickwebview.h>
 #include <QtWebView/qwebview_global.h>
 #include <QObject>
 
