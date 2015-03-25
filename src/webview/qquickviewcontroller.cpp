@@ -69,9 +69,8 @@ void QQuickViewController::setView(QNativeViewController *view)
 void QQuickViewController::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
-
     if (newGeometry.isValid())
-        m_view->setGeometry(mapRectToScene(newGeometry).toRect());
+        m_view->setGeometry(mapRectToScene(clipRect()).toRect());
     else
         qWarning() << __FUNCTION__ << "Invalid geometry: " << newGeometry;
 }
