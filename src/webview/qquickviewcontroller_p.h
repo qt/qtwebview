@@ -80,6 +80,9 @@ private:
     friend class QQuickWebView;
     QNativeViewController *m_view;
     QScopedPointer<QQuickViewChangeListener> m_changeListener;
+
+private Q_SLOTS:
+    void scheduleUpdatePolish();
 };
 
 QT_END_NAMESPACE

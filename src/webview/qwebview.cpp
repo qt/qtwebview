@@ -127,6 +127,12 @@ void QWebView::setParentView(QObject *view)
     d->setParentView(view);
 }
 
+QObject *QWebView::parentView() const
+{
+    Q_D(const QWebView);
+    return d->parentView();
+}
+
 void QWebView::setGeometry(const QRect &geometry)
 {
     Q_D(QWebView);

@@ -184,17 +184,31 @@ void QQuickViewController::setView(QNativeViewController *view)
     m_view = view;
 }
 
+void QQuickViewController::scheduleUpdatePolish()
+{
+    polish();
+}
+
 void QQuickViewController::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
     if (newGeometry.isValid())
-        m_view->setGeometry(mapRectToScene(clipRect()).toRect());
-    else
-        qWarning() << __FUNCTION__ << "Invalid geometry: " << newGeometry;
+        polish();
 }
 
 void QQuickViewController::onWindowChanged(QQuickWindow* window)
 {
+    QQuickWindow *oldParent = qobject_cast<QQuickWindow *>(m_view->parentView());
+    if (oldParent != 0)
+        oldParent->disconnect(this);
+
+    if (window != 0) {
+        connect(window, &QQuickWindow::widthChanged, this, &QQuickViewController::scheduleUpdatePolish);
+        connect(window, &QQuickWindow::heightChanged, this, &QQuickViewController::scheduleUpdatePolish);
+        connect(window, &QQuickWindow::xChanged, this, &QQuickViewController::scheduleUpdatePolish);
+        connect(window, &QQuickWindow::yChanged, this, &QQuickViewController::scheduleUpdatePolish);
+    }
+
     m_view->setParentView(window);
 }
 

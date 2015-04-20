@@ -212,6 +212,11 @@ void QAndroidWebViewPrivate::setParentView(QObject *view)
     m_window->setParent(qobject_cast<QWindow *>(view));
 }
 
+QObject *QAndroidWebViewPrivate::parentView() const
+{
+    return m_window->parent();
+}
+
 void QAndroidWebViewPrivate::stop()
 {
     m_viewController.callMethod<void>("stopLoading");

@@ -212,6 +212,11 @@ void QOsxWebViewPrivate::setParentView(QObject *view)
     m_window->setParent(qobject_cast<QWindow *>(view));
 }
 
+QObject *QOsxWebViewPrivate::parentView() const
+{
+    return m_window->parent();
+}
+
 void QOsxWebViewPrivate::setGeometry(const QRect &geometry)
 {
     m_window->setGeometry(geometry);
