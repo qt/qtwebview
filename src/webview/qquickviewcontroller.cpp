@@ -175,7 +175,8 @@ void QQuickViewController::updatePolish()
     if (m_view == 0)
         return;
 
-    m_view->setGeometry(mapRectToScene(clipRect()).toRect());
+    const QRectF &cr = clipRect();
+    m_view->setGeometry(cr.isValid() ? mapRectToScene(cr).toRect() : QRect(-1, -1, 1, 1));
 }
 
 void QQuickViewController::setView(QNativeViewController *view)
