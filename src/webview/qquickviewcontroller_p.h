@@ -65,8 +65,6 @@ public:
     explicit QQuickViewController(QQuickItem *parent = 0);
     ~QQuickViewController();
 
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) Q_DECL_OVERRIDE;
-
 public slots:
     void onWindowChanged(QQuickWindow* window);
     void onVisibleChanged();
@@ -74,6 +72,7 @@ public slots:
 protected:
     void componentComplete() Q_DECL_OVERRIDE;
     void updatePolish() Q_DECL_OVERRIDE;
+    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) Q_DECL_OVERRIDE;
     void setView(QNativeViewController *view);
 
 private:
