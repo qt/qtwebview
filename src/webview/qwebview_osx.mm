@@ -43,7 +43,7 @@
 #include <QtCore/qvariant.h>
 
 #import <CoreFoundation/CoreFoundation.h>
-#import <Webkit/WebKit.h>
+#import <WebKit/WebKit.h>
 
 QT_BEGIN_NAMESPACE
 
