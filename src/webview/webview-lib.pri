@@ -58,11 +58,6 @@ android {
     qtHaveModule(webengine) {
         QT += webengine webengine-private
         DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
-    } else {
-        SOURCES += \
-            qwebview.cpp
-        PRIVATE_HEADERS += \
-            qwebviewinterface_p.h
     }
 }
 
