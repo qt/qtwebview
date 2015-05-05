@@ -49,9 +49,6 @@
 //
 
 #include <QtWebView/private/qwebviewinterface_p.h>
-
-#if !defined(QT_WEBVIEW_WEBENGINE_BACKEND)
-
 #include <QtWebView/private/qwebview_p.h>
 #include <QtWebView/private/qquickviewcontroller_p.h>
 
@@ -119,22 +116,5 @@ private:
 };
 
 QT_END_NAMESPACE
-
-#else
-
-#include <QtWebEngine/private/qquickwebengineview_p.h>
-
-QT_BEGIN_NAMESPACE
-
-class Q_WEBVIEW_EXPORT QQuickWebView : public QQuickWebEngineView
-{
-    Q_OBJECT
-public:
-    QQuickWebView(QQuickItem *parent = 0) : QQuickWebEngineView(parent) { }
-};
-
-QT_END_NAMESPACE
-
-#endif
 
 #endif // QQUICKWEBVIEW_H

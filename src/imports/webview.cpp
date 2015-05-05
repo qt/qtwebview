@@ -37,8 +37,14 @@
 #include <QtQml/qqmlextensionplugin.h>
 #include <QtQml/qqml.h>
 
-#include <QtWebView/qquickwebview.h>
-#include <QtWebView/qquickwebviewloadrequest.h>
+
+#if defined(QT_WEBVIEW_WEBENGINE_BACKEND)
+#    include <QtWebEngine/private/qquickwebengineloadrequest_p.h>
+#    include <QtWebEngine/private/qquickwebengineview_p.h>
+#else
+#    include <QtWebView/qquickwebviewloadrequest.h>
+#    include <QtWebView/qquickwebview.h>
+#endif // QT_WEBVIEW_WEBENGINE_BACKEND
 
 QT_BEGIN_NAMESPACE
 
@@ -52,9 +58,14 @@ public:
         Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWebView"));
 
         // @uri QtWebView
-        qmlRegisterType<QQuickWebView>(uri, 1, 0, "WebView");
         const QString &msg = QObject::tr("Cannot create separate instance of WebViewLoadRequest");
+#if defined(QT_WEBVIEW_WEBENGINE_BACKEND)
+        qmlRegisterType<QQuickWebEngineView>(uri, 1, 0, "WebView");
+        qmlRegisterUncreatableType<QQuickWebEngineLoadRequest>(uri, 1, 0, "WebViewLoadRequest", msg);
+#else
+        qmlRegisterType<QQuickWebView>(uri, 1, 0, "WebView");
         qmlRegisterUncreatableType<QQuickWebViewLoadRequest>(uri, 1, 0, "WebViewLoadRequest", msg);
+#endif
     }
 
     void initializeEngine(QQmlEngine *engine, const char *uri)
