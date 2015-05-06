@@ -61,10 +61,11 @@ public:
         const QString &msg = QObject::tr("Cannot create separate instance of WebViewLoadRequest");
 #if defined(QT_WEBVIEW_WEBENGINE_BACKEND)
         qmlRegisterType<QQuickWebEngineView>(uri, 1, 0, "WebView");
-        qmlRegisterUncreatableType<QQuickWebEngineLoadRequest>(uri, 1, 0, "WebViewLoadRequest", msg);
+        qmlRegisterUncreatableType<QQuickWebEngineLoadRequest>(uri, 1, 1, "WebViewLoadRequest", msg);
 #else
         qmlRegisterType<QQuickWebView>(uri, 1, 0, "WebView");
-        qmlRegisterUncreatableType<QQuickWebViewLoadRequest>(uri, 1, 0, "WebViewLoadRequest", msg);
+        qmlRegisterRevision<QQuickWebView, 1>(uri, 1, 1);
+        qmlRegisterUncreatableType<QQuickWebViewLoadRequest>(uri, 1, 1, "WebViewLoadRequest", msg);
 #endif
     }
 

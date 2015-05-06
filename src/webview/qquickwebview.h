@@ -92,14 +92,14 @@ public Q_SLOTS:
     void goForward() Q_DECL_OVERRIDE;
     void reload() Q_DECL_OVERRIDE;
     void stop() Q_DECL_OVERRIDE;
-    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
-    void runJavaScript(const QString& script,
-                       const QJSValue &callback = QJSValue());
+    Q_REVISION(1) void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
+    Q_REVISION(1) void runJavaScript(const QString& script,
+                                     const QJSValue &callback = QJSValue());
 
 Q_SIGNALS:
     void titleChanged();
     void urlChanged();
-    void loadingChanged(QQuickWebViewLoadRequest *loadRequest);
+    Q_REVISION(1) void loadingChanged(QQuickWebViewLoadRequest *loadRequest);
     void loadProgressChanged();
 
 protected:
