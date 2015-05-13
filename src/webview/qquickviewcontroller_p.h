@@ -82,6 +82,7 @@ private:
 
 private Q_SLOTS:
     void scheduleUpdatePolish();
+    void onSceneGraphInvalidated();
 };
 
 QT_END_NAMESPACE

@@ -177,6 +177,7 @@ void QQuickViewController::updatePolish()
 
     const QRectF &cr = clipRect();
     m_view->setGeometry(cr.isValid() ? mapRectToScene(cr).toRect() : QRect(-1, -1, 1, 1));
+    m_view->setVisible(isVisible());
 }
 
 void QQuickViewController::setView(QNativeViewController *view)
@@ -208,6 +209,8 @@ void QQuickViewController::onWindowChanged(QQuickWindow* window)
         connect(window, &QQuickWindow::heightChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QQuickWindow::xChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QQuickWindow::yChanged, this, &QQuickViewController::scheduleUpdatePolish);
+        connect(window, &QQuickWindow::sceneGraphInitialized, this, &QQuickViewController::scheduleUpdatePolish);
+        connect(window, &QQuickWindow::sceneGraphInvalidated, this, &QQuickViewController::onSceneGraphInvalidated);
     }
 
     m_view->setParentView(window);
@@ -216,4 +219,12 @@ void QQuickViewController::onWindowChanged(QQuickWindow* window)
 void QQuickViewController::onVisibleChanged()
 {
     m_view->setVisible(isVisible());
+}
+
+void QQuickViewController::onSceneGraphInvalidated()
+{
+    if (m_view == 0)
+        return;
+
+    m_view->setVisible(false);
 }
