@@ -73,6 +73,7 @@ public:
     bool isLoading() const Q_DECL_OVERRIDE;
 
     void setParentView(QObject *view) Q_DECL_OVERRIDE;
+    QObject *parentView() const Q_DECL_OVERRIDE;
     void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
     void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
     void setVisible(bool visible) Q_DECL_OVERRIDE;

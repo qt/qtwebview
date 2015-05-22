@@ -56,6 +56,7 @@
 QT_BEGIN_NAMESPACE
 
 class QNativeViewController;
+class QQuickViewChangeListener;
 
 class Q_WEBVIEW_EXPORT QQuickViewController : public QQuickItem
 {
@@ -64,19 +65,24 @@ public:
     explicit QQuickViewController(QQuickItem *parent = 0);
     ~QQuickViewController();
 
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) Q_DECL_OVERRIDE;
-
 public slots:
     void onWindowChanged(QQuickWindow* window);
     void onVisibleChanged();
 
 protected:
     void componentComplete() Q_DECL_OVERRIDE;
+    void updatePolish() Q_DECL_OVERRIDE;
+    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) Q_DECL_OVERRIDE;
     void setView(QNativeViewController *view);
 
 private:
     friend class QQuickWebView;
     QNativeViewController *m_view;
+    QScopedPointer<QQuickViewChangeListener> m_changeListener;
+
+private Q_SLOTS:
+    void scheduleUpdatePolish();
+    void onSceneGraphInvalidated();
 };
 
 QT_END_NAMESPACE

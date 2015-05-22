@@ -3,15 +3,18 @@ TARGET  = declarative_webview
 TARGETPATH = QtWebView
 IMPORT_VERSION = 1.0
 
-QT += qml quick webview webview-private
+QT += qml quick
 SOURCES += \
     $$PWD/webview.cpp
 
-!android:!osx: qtHaveModule(webengine) {
+android|mac {
+    QT += webview webview-private
+} else:qtHaveModule(webengine) {
     QT += webengine webengine-private
     DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
+} else {
+    error(No WebView backend found!)
 }
-
 
 load(qml_plugin)
 

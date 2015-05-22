@@ -40,6 +40,7 @@
 #include "qwebview_global.h"
 #include <QtCore/qrect.h>
 #include <QtGui/qwindow.h>
+#include <QtCore/qpointer.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -48,6 +49,7 @@ class QNativeViewController
 public:
     virtual ~QNativeViewController() {}
     virtual void setParentView(QObject *view) = 0;
+    virtual QObject *parentView() const = 0;
     virtual void setGeometry(const QRect &geometry) = 0;
     virtual void setVisibility(QWindow::Visibility visibility) = 0;
     virtual void setVisible(bool visible) = 0;

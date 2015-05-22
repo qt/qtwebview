@@ -247,6 +247,8 @@ bool QIosWebViewPrivate::isLoading() const
 
 void QIosWebViewPrivate::setParentView(QObject *view)
 {
+    m_parentView = view;
+
     if (!uiWebView)
         return;
 
@@ -257,6 +259,11 @@ void QIosWebViewPrivate::setParentView(QObject *view)
     } else {
         [uiWebView removeFromSuperview];
     }
+}
+
+QObject *QIosWebViewPrivate::parentView() const
+{
+    return m_parentView;
 }
 
 void QIosWebViewPrivate::setGeometry(const QRect &geometry)
@@ -271,7 +278,7 @@ void QIosWebViewPrivate::setVisibility(QWindow::Visibility visibility)
 
 void QIosWebViewPrivate::setVisible(bool visible)
 {
-    [uiWebView setHidden:visible];
+    [uiWebView setHidden:!visible];
 }
 
 void QIosWebViewPrivate::setFocus(bool focus)

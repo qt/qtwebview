@@ -47,8 +47,37 @@
 #include <QtCore/qjsonobject.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qdebug.h>
+#include <QtCore/qrunnable.h>
 
 QT_BEGIN_NAMESPACE
+
+class SetClipBoundsRunnable : public QRunnable
+{
+public:
+    SetClipBoundsRunnable(const QJNIObjectPrivate &view, const QRect &cr) : m_view(view), m_cr(cr) { }
+    void run()
+    {
+        QJNIObjectPrivate cr("android/graphics/Rect", "(IIII)V", 0, 0, m_cr.width(), m_cr.height());
+        m_view.callMethod<void>("setClipBounds", "(Landroid/graphics/Rect;)V", cr.object());
+    }
+private:
+    QJNIObjectPrivate m_view;
+    const QRect m_cr;
+};
+
+static inline bool setClipRect(const QJNIObjectPrivate &view, const QRect &clipRect)
+{
+    if (QtAndroidPrivate::androidSdkVersion() < 18)
+        return false;
+
+    if (!view.isValid())
+        return false;
+
+    SetClipBoundsRunnable *r = new SetClipBoundsRunnable(view, clipRect);
+    QtAndroidPrivate::runOnUiThread(r, QJNIEnvironmentPrivate());
+
+    return true;
+}
 
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
@@ -166,7 +195,30 @@ QString QAndroidWebViewPrivate::title() const
 
 void QAndroidWebViewPrivate::setGeometry(const QRect &geometry)
 {
-    m_window->setGeometry(geometry);
+    if (m_window == 0)
+        return;
+
+    QRect newGeometry = geometry;
+    const QWindow *parent = m_window->parent();
+
+    if (parent != 0) {
+        newGeometry.moveTo(parent->mapToGlobal(geometry.topLeft()));
+        const QRect parentGlobalRect(parent->mapToGlobal(QPoint(0, 0)), parent->geometry().size());
+        const QRect clipRect = parentGlobalRect & newGeometry;
+        if (clipRect != newGeometry) {
+            const bool clipIsSet = setClipRect(m_webView, clipRect);
+            const bool topLeftChanged = newGeometry.topLeft() != clipRect.topLeft();
+            if (topLeftChanged && clipIsSet)
+                newGeometry.moveTo(clipRect.topLeft());
+
+            // If setting the clip rect fails, e.g., if the API level is lower then 18, then we'll
+            // cheat by simply re-sizing the view.
+            if (!clipIsSet)
+                newGeometry = clipRect;
+        }
+    }
+
+    m_window->setGeometry(newGeometry);
 }
 
 void QAndroidWebViewPrivate::setVisibility(QWindow::Visibility visibility)
@@ -210,6 +262,11 @@ bool QAndroidWebViewPrivate::isLoading() const
 void QAndroidWebViewPrivate::setParentView(QObject *view)
 {
     m_window->setParent(qobject_cast<QWindow *>(view));
+}
+
+QObject *QAndroidWebViewPrivate::parentView() const
+{
+    return m_window->parent();
 }
 
 void QAndroidWebViewPrivate::stop()

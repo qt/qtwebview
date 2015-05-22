@@ -82,8 +82,6 @@ Q_GLOBAL_STATIC(CallbackStorage, callbacks)
     APIs on the platforms where this is available, thus it does not necessarily require
     including a full web browser stack as part of the application.
 
-    WebView is currently supported on the following platforms: Android.
-
     \note Due to platform limitations overlapping the WebView and other QML components
     is not supported.
 */
