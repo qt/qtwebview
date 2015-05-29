@@ -190,7 +190,7 @@ QIosWebViewPrivate::QIosWebViewPrivate(QObject *p)
 
     m_recognizer = [[QIOSNativeViewSelectedRecognizer alloc] initWithQWindowControllerItem:this];
     [uiWebView addGestureRecognizer:m_recognizer];
-
+    uiWebView.scalesPageToFit = YES;
 }
 
 QIosWebViewPrivate::~QIosWebViewPrivate()
