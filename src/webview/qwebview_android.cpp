@@ -128,7 +128,8 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
 QAndroidWebViewPrivate::~QAndroidWebViewPrivate()
 {
     g_webViews->take(m_id);
-    delete m_window;
+    if (m_window != 0 && m_window->parent() == 0)
+        delete m_window;
 }
 
 QUrl QAndroidWebViewPrivate::url() const

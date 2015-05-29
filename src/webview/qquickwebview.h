@@ -112,7 +112,7 @@ private Q_SLOTS:
     void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
 
 private:
-    QScopedPointer<QWebView> m_webView;
+    QWebView* m_webView;
 };
 
 QT_END_NAMESPACE

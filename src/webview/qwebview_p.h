@@ -128,7 +128,7 @@ private:
     int m_progress;
 
     Q_DECLARE_PRIVATE(QWebView)
-    QScopedPointer<QWebViewPrivate> d_ptr;
+    QWebViewPrivate *d_ptr;
 };
 
 QT_END_NAMESPACE
