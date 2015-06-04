@@ -29,7 +29,7 @@
     \title Qt WebView Examples - Minibrowser
     \example minibrowser
     \brief Minibrowser example demonstrates how to use the Qt WebView module with Qt Quick.
-    \image webview-example.png
+    \image webview-example.jpg
     \ingroup qtwebview-examples
 
     Minibrowser uses Qt Quick Controls and Qt WebView to provide basic
