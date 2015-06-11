@@ -50,6 +50,7 @@ import android.graphics.Bitmap;
 import java.util.concurrent.Semaphore;
 import java.lang.reflect.Method;
 import android.os.Build;
+import java.util.concurrent.TimeUnit;
 
 public class QtAndroidWebViewController
 {
@@ -77,6 +78,12 @@ public class QtAndroidWebViewController
     private native void c_onReceivedTitle(long id, String title);
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
     private native void c_onReceivedError(long id, int errorCode, String description, String url);
+
+    // We need to block the UI thread in some cases, if it takes to long we should timeout before
+    // ANR kicks in... Usually the hard limit is set to 10s and if exceed that then we're in trouble.
+    // In general we should not let input events be delayed for more then 500ms (If we're spending more
+    // then 200ms somethings off...).
+    private final long BLOCKING_TIMEOUT = 250;
 
     private void resetLoadingState()
     {
@@ -259,7 +266,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -285,7 +292,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -319,7 +326,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -373,7 +380,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
