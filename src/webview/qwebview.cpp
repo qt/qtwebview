@@ -42,6 +42,7 @@ QT_BEGIN_NAMESPACE
 QWebView::QWebView(QObject *p)
     : QObject(p),
       d_ptr(QWebViewPrivate::create(this))
+    , m_progress(0)
 {
     qRegisterMetaType<QWebViewLoadRequestPrivate>();
     Q_D(QWebView);
