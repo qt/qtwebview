@@ -82,6 +82,7 @@ QQuickViewChangeListener::~QQuickViewChangeListener()
     if (m_item == 0)
         return;
 
+    QQuickItemPrivate::get(m_item)->removeItemChangeListener(this, QQuickItemPrivate::Parent);
     removeAncestorLiseners(m_item->parentItem(), changeMask);
 }
 
@@ -106,6 +107,7 @@ void QQuickViewChangeListener::itemChildRemoved(QQuickItem *item, QQuickItem *ch
 
 void QQuickViewChangeListener::itemParentChanged(QQuickItem */*item*/, QQuickItem *newParent)
 {
+    removeAncestorLiseners(m_item->parentItem(), changeMask);
     // Adds this as a listener for newParent and its ancestors.
     addAncestorListeners(newParent, changeMask);
 }
@@ -132,8 +134,10 @@ void QQuickViewChangeListener::removeAncestorLiseners(QQuickItem *item,
 
 bool QQuickViewChangeListener::isAncestor(QQuickItem *item)
 {
-    Q_ASSERT(item != 0);
     Q_ASSERT(m_item != 0);
+
+    if (item == 0)
+        return false;
 
     QQuickItem *p = m_item->parentItem();
     while (p != 0) {
