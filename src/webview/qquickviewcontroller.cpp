@@ -64,7 +64,7 @@ private:
     Q_DISABLE_COPY(QQuickViewChangeListener)
     QQuickViewController *m_item;
     void addAncestorListeners(QQuickItem *item, QQuickItemPrivate::ChangeTypes changeType);
-    void removeAncestorLiseners(QQuickItem *item, QQuickItemPrivate::ChangeTypes changeType);
+    void removeAncestorListeners(QQuickItem *item, QQuickItemPrivate::ChangeTypes changeType);
     bool isAncestor(QQuickItem *item);
 };
 
@@ -83,7 +83,7 @@ QQuickViewChangeListener::~QQuickViewChangeListener()
         return;
 
     QQuickItemPrivate::get(m_item)->removeItemChangeListener(this, QQuickItemPrivate::Parent);
-    removeAncestorLiseners(m_item->parentItem(), changeMask);
+    removeAncestorListeners(m_item->parentItem(), changeMask);
 }
 
 void QQuickViewChangeListener::itemGeometryChanged(QQuickItem *, const QRectF &, const QRectF &)
@@ -102,12 +102,12 @@ void QQuickViewChangeListener::itemChildRemoved(QQuickItem *item, QQuickItem *ch
         return;
 
     // Remove any listener we attached to the child and its ancestors.
-    removeAncestorLiseners(child, changeMask);
+    removeAncestorListeners(child, changeMask);
 }
 
 void QQuickViewChangeListener::itemParentChanged(QQuickItem */*item*/, QQuickItem *newParent)
 {
-    removeAncestorLiseners(m_item->parentItem(), changeMask);
+    removeAncestorListeners(m_item->parentItem(), changeMask);
     // Adds this as a listener for newParent and its ancestors.
     addAncestorListeners(newParent, changeMask);
 }
@@ -122,8 +122,8 @@ void QQuickViewChangeListener::addAncestorListeners(QQuickItem *item,
     }
 }
 
-void QQuickViewChangeListener::removeAncestorLiseners(QQuickItem *item,
-                                                      QQuickItemPrivate::ChangeTypes changeType)
+void QQuickViewChangeListener::removeAncestorListeners(QQuickItem *item,
+                                                       QQuickItemPrivate::ChangeTypes changeType)
 {
     QQuickItem *p = item;
     while (p != 0) {
