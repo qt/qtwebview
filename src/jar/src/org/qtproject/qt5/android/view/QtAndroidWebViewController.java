@@ -221,6 +221,7 @@ public class QtAndroidWebViewController
         }
 
         resetLoadingState(STARTED_STATE);
+        c_onPageStarted(m_id, url, null);
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadUrl(url); }
@@ -233,6 +234,7 @@ public class QtAndroidWebViewController
             return;
 
         resetLoadingState(STARTED_STATE);
+        c_onPageStarted(m_id, null, null);
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadData(data, mimeType, encoding); }
@@ -249,6 +251,7 @@ public class QtAndroidWebViewController
             return;
 
         resetLoadingState(STARTED_STATE);
+        c_onPageStarted(m_id, null, null);
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl); }
