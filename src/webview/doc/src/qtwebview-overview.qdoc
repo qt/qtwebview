@@ -38,6 +38,13 @@
   This is especially important on platforms such as iOS, where policy dictates
   that all web content is displayed using the operating system's web view.
 
+  \section1 Prerequisites
+
+  To make the Qt WebView module function correctly across all platforms, it's necessary
+  that \b QtWebView::initialize() is called right after the \b QGuiApplication instance is created.
+
+  \sa QtWebView::initialize()
+
   \section1 QML Types
 
   The module provides a single QML component for displaying web content in

@@ -46,10 +46,7 @@
 #include <QScreen>
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
-
-#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-#include <QtWebEngine>
-#endif // QT_WEBVIEW_WEBENGINE_BACKEND
+#include <QtWebView/QtWebView>
 
 // Workaround: As of Qt 5.4 QtQuick does not expose QUrl::fromUserInput.
 class Utils : public QObject {
@@ -74,17 +71,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QGuiApplication::setApplicationDisplayName(QCoreApplication::translate("main",
                                                                            "QtWebView Example"));
-#ifdef Q_OS_OSX
-    // On OS X, correct WebView / QtQuick compositing and stacking requires running
-    // Qt in layer-backed mode, which again resuires rendering on the Gui thread.
-    qWarning("Setting QT_MAC_WANTS_LAYER=1 and QSG_RENDER_LOOP=basic");
-    qputenv("QT_MAC_WANTS_LAYER", "1");
-    qputenv("QSG_RENDER_LOOP", "basic");
-#endif
-
-#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-    QtWebEngine::initialize();
-#endif // QT_WEBVIEW_WEBENGINE_BACKEND
+    QtWebView::initialize();
     QCommandLineParser parser;
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     parser.setApplicationDescription(QGuiApplication::applicationDisplayName());

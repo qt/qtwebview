@@ -1,11 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick
-
-!osx:qtHaveModule(webengine) {
-        QT += webengine
-        DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
-}
+QT += qml quick webview
 
 SOURCES += main.cpp
 

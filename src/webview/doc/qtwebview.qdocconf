@@ -16,6 +16,7 @@ qhp.QtWebView.customFilters.Qt.name             = QtWebView 1.0
 qhp.QtWebView.customFilters.Qt.filterAttributes = qtwebview 1.0
 
 qhp.QtWebView.subprojects                       = qmltypes examples
+qhp.QtWebView.subprojects.classes.selectors     = class function namespace fake:headerfile
 qhp.QtWebView.subprojects.qmltypes.title        = QML Types
 qhp.QtWebView.subprojects.qmltypes.indexTitle   = Qt WebView QML Types
 qhp.QtWebView.subprojects.qmltypes.selectors    = qmlclass

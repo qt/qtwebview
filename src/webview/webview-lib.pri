@@ -6,7 +6,11 @@ ANDROID_JAR_DEPENDENCIES = \
 INCLUDEPATH += $$PWD
 
 PUBLIC_HEADERS += \
-    qwebview_global.h
+    qwebview_global.h \
+    qtwebviewfunctions.h
+
+SOURCES += \
+    qtwebviewfunctions.cpp
 
 COMMON_HEADERS += \
     qwebview_p.h \
