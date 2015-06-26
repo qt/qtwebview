@@ -65,7 +65,7 @@ public:
     explicit QQuickViewController(QQuickItem *parent = 0);
     ~QQuickViewController();
 
-public slots:
+public Q_SLOTS:
     void onWindowChanged(QQuickWindow* window);
     void onVisibleChanged();
 
