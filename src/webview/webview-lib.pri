@@ -11,12 +11,12 @@ PUBLIC_HEADERS += \
 COMMON_HEADERS += \
     qwebview_p.h \
     qwebviewinterface_p.h \
-    qquickwebview.h \
+    qquickwebview_p.h \
     qnativeviewcontroller_p.h \
     qwebview_p_p.h \
     qquickviewcontroller_p.h \
     qwebviewloadrequest_p.h \
-    qquickwebviewloadrequest.h
+    qquickwebviewloadrequest_p.h
 
 COMMON_SOURCES += \
     qwebview.cpp \

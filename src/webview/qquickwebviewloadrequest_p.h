@@ -37,7 +37,18 @@
 #ifndef QQUICKWEBVIEWREQUEST_H
 #define QQUICKWEBVIEWREQUEST_H
 
-#include <QtWebView/qquickwebview.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <QtWebView/private/qquickwebview_p.h>
 #include <QtWebView/qwebview_global.h>
 #include <QObject>
 

@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#include "qquickwebview.h"
-#include "qquickwebviewloadrequest.h"
+#include "qquickwebview_p.h"
+#include "qquickwebviewloadrequest_p.h"
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>

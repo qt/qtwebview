@@ -42,8 +42,8 @@
 #    include <QtWebEngine/private/qquickwebengineloadrequest_p.h>
 #    include <QtWebEngine/private/qquickwebengineview_p.h>
 #else
-#    include <QtWebView/qquickwebviewloadrequest.h>
-#    include <QtWebView/qquickwebview.h>
+#    include <QtWebView/private/qquickwebviewloadrequest_p.h>
+#    include <QtWebView/private/qquickwebview_p.h>
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
 
 QT_BEGIN_NAMESPACE

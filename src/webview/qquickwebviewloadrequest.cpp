@@ -34,7 +34,7 @@
 **
 ****************************************************************************/
 
-#include "qquickwebviewloadrequest.h"
+#include "qquickwebviewloadrequest_p.h"
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 
 QT_BEGIN_NAMESPACE
