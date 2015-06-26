@@ -8,7 +8,7 @@ SOURCES += \
     $$PWD/webview.cpp
 
 android|mac {
-    QT += webview webview-private
+    QT += webview-private
 } else:qtHaveModule(webengine) {
     QT += webengine webengine-private
     DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND

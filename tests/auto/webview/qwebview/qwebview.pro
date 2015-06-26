@@ -11,6 +11,6 @@ osx:CONFIG -= app_bundle
     DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
 }
 
-QT += webview webview-private testlib
+QT += webview-private testlib
 SOURCES += \
     tst_qwebview.cpp

@@ -34,71 +34,12 @@
 **
 ****************************************************************************/
 
-#include "qwebview_p.h"
-#include "qwebview_default_p.h"
+#include "qwebview_global.h"
 
 QT_BEGIN_NAMESPACE
 
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-    return new QDefaultWebViewPrivate(q);
-}
-
-QDefaultWebViewPrivate::QDefaultWebViewPrivate(QWebView *q)
-    : QWebViewPrivate(q)
-{
-}
-
-QDefaultWebViewPrivate::~QDefaultWebViewPrivate()
-{
-}
-
-QString QDefaultWebViewPrivate::getUrl() const
-{
-    return QString();
-}
-
-void QDefaultWebViewPrivate::loadUrl(const QString &url)
-{
-    Q_UNUSED(url);
-}
-
-void QDefaultWebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
-{
-    Q_UNUSED(html);
-    Q_UNUSED(baseUrl);
-}
-
-bool QDefaultWebViewPrivate::canGoBack() const
-{
-    return false;
-}
-
-void QDefaultWebViewPrivate::goBack() const
-{
-}
-
-bool QDefaultWebViewPrivate::canGoForward() const
-{
-    return false;
-}
-
-void QDefaultWebViewPrivate::goForward() const
-{
-}
-
-QString QDefaultWebViewPrivate::getTitle() const
-{
-    return QString();
-}
-
-void QDefaultWebViewPrivate::stopLoading() const
-{
-}
-
-void *QDefaultWebViewPrivate::nativeWebView() const
-{
-    return 0;
-}
+struct QWebView {};
+struct Q_WEBVIEW_EXPORT QWebViewPrivate { static QWebViewPrivate *create(QWebView *q); };
+QWebViewPrivate *QWebViewPrivate::create(QWebView *) { return 0; }
 
 QT_END_NAMESPACE

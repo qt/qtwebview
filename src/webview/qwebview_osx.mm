@@ -143,6 +143,8 @@ QOsxWebViewPrivate::~QOsxWebViewPrivate()
 {
     [webView.frameLoadDelegate release];
     [webView release];
+    if (m_window != 0 && m_window->parent() == 0)
+        delete m_window;
 }
 
 QUrl QOsxWebViewPrivate::url() const

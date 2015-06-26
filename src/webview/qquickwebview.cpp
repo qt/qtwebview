@@ -90,13 +90,13 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     : QQuickViewController(parent)
     , m_webView(new QWebView(this))
 {
-    setView(m_webView.data());
-    connect(m_webView.data(), &QWebView::titleChanged, this, &QQuickWebView::titleChanged);
-    connect(m_webView.data(), &QWebView::urlChanged, this, &QQuickWebView::urlChanged);
-    connect(m_webView.data(), &QWebView::loadProgressChanged, this, &QQuickWebView::loadProgressChanged);
-    connect(m_webView.data(), &QWebView::loadingChanged, this, &QQuickWebView::onLoadingChanged);
-    connect(m_webView.data(), &QWebView::requestFocus, this, &QQuickWebView::onFocusRequest);
-    connect(m_webView.data(), &QWebView::javaScriptResult, this, &QQuickWebView::onRunJavaScriptResult);
+    setView(m_webView);
+    connect(m_webView, &QWebView::titleChanged, this, &QQuickWebView::titleChanged);
+    connect(m_webView, &QWebView::urlChanged, this, &QQuickWebView::urlChanged);
+    connect(m_webView, &QWebView::loadProgressChanged, this, &QQuickWebView::loadProgressChanged);
+    connect(m_webView, &QWebView::loadingChanged, this, &QQuickWebView::onLoadingChanged);
+    connect(m_webView, &QWebView::requestFocus, this, &QQuickWebView::onFocusRequest);
+    connect(m_webView, &QWebView::javaScriptResult, this, &QQuickWebView::onRunJavaScriptResult);
 }
 
 QQuickWebView::~QQuickWebView()

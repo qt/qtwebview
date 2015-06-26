@@ -42,6 +42,7 @@ QT_BEGIN_NAMESPACE
 QWebView::QWebView(QObject *p)
     : QObject(p),
       d_ptr(QWebViewPrivate::create(this))
+    , m_progress(0)
 {
     qRegisterMetaType<QWebViewLoadRequestPrivate>();
     Q_D(QWebView);
@@ -199,6 +200,9 @@ void QWebView::onLoadProgressChanged(int progress)
 
 void QWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest)
 {
+    if (loadRequest.m_status == QWebView::LoadFailedStatus)
+        m_progress = 0;
+
     onUrlChanged(loadRequest.m_url);
     Q_EMIT loadingChanged(loadRequest);
 

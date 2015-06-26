@@ -50,6 +50,7 @@ import android.graphics.Bitmap;
 import java.util.concurrent.Semaphore;
 import java.lang.reflect.Method;
 import android.os.Build;
+import java.util.concurrent.TimeUnit;
 
 public class QtAndroidWebViewController
 {
@@ -57,7 +58,12 @@ public class QtAndroidWebViewController
     private final long m_id;
     private WebView m_webView = null;
     private static final String TAG = "QtAndroidWebViewController";
-    private volatile boolean m_onPageFinishedCalled = false;
+    private final int INIT_STATE = 0;
+    private final int STARTED_STATE = 1;
+    private final int LOADING_STATE = 2;
+    private final int FINISHED_STATE = 3;
+
+    private volatile int m_loadingState = INIT_STATE;
     private volatile int m_progress = 0;
     private volatile int m_frameCount = 0;
 
@@ -78,10 +84,17 @@ public class QtAndroidWebViewController
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
     private native void c_onReceivedError(long id, int errorCode, String description, String url);
 
-    private void resetLoadingState()
+    // We need to block the UI thread in some cases, if it takes to long we should timeout before
+    // ANR kicks in... Usually the hard limit is set to 10s and if exceed that then we're in trouble.
+    // In general we should not let input events be delayed for more then 500ms (If we're spending more
+    // then 200ms somethings off...).
+    private final long BLOCKING_TIMEOUT = 250;
+
+    private void resetLoadingState(final int state)
     {
         m_progress = 0;
-        m_onPageFinishedCalled = false;
+        m_frameCount = 0;
+        m_loadingState = state;
     }
 
     private class QtAndroidWebViewClient extends WebViewClient
@@ -98,11 +111,12 @@ public class QtAndroidWebViewController
         public void onPageFinished(WebView view, String url)
         {
             super.onPageFinished(view, url);
-            m_onPageFinishedCalled = true;
-            if (m_progress == 100) { // onProgressChanged() will notify Qt if we didn't finish here.
-                m_frameCount = 0;
-                c_onPageFinished(m_id, url);
-            }
+            m_loadingState = FINISHED_STATE;
+            if (m_progress != 100) // onProgressChanged() will notify Qt if we didn't finish here.
+                return;
+
+             m_frameCount = 0;
+             c_onPageFinished(m_id, url);
         }
 
         @Override
@@ -110,7 +124,7 @@ public class QtAndroidWebViewController
         {
             super.onPageStarted(view, url, favicon);
             if (++m_frameCount == 1) { // Only call onPageStarted for the first frame.
-                m_onPageFinishedCalled = false;
+                m_loadingState = LOADING_STATE;
                 c_onPageStarted(m_id, url, favicon);
             }
         }
@@ -122,7 +136,7 @@ public class QtAndroidWebViewController
                                     String url)
         {
             super.onReceivedError(view, errorCode, description, url);
-            resetLoadingState();
+            resetLoadingState(INIT_STATE);
             c_onReceivedError(m_id, errorCode, description, url);
         }
     }
@@ -136,7 +150,7 @@ public class QtAndroidWebViewController
             super.onProgressChanged(view, newProgress);
             m_progress = newProgress;
             c_onProgressChanged(m_id, newProgress);
-            if (m_onPageFinishedCalled && m_progress == 100) { // Did we finish?
+            if (m_loadingState == FINISHED_STATE && m_progress == 100) { // Did we finish?
                 m_frameCount = 0;
                 c_onPageFinished(m_id, view.getUrl());
             }
@@ -206,7 +220,8 @@ public class QtAndroidWebViewController
             return;
         }
 
-        resetLoadingState();
+        resetLoadingState(STARTED_STATE);
+        c_onPageStarted(m_id, url, null);
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadUrl(url); }
@@ -218,7 +233,8 @@ public class QtAndroidWebViewController
         if (data == null)
             return;
 
-        resetLoadingState();
+        resetLoadingState(STARTED_STATE);
+        c_onPageStarted(m_id, null, null);
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadData(data, mimeType, encoding); }
@@ -234,7 +250,8 @@ public class QtAndroidWebViewController
         if (data == null)
             return;
 
-        resetLoadingState();
+        resetLoadingState(STARTED_STATE);
+        c_onPageStarted(m_id, null, null);
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() { m_webView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl); }
@@ -259,7 +276,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -285,7 +302,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -319,7 +336,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -334,7 +351,7 @@ public class QtAndroidWebViewController
 
     public boolean isLoading()
     {
-        return (m_progress != 100 && !m_onPageFinishedCalled);
+        return m_loadingState == LOADING_STATE || m_loadingState == STARTED_STATE || (m_progress > 0 && m_progress < 100);
     }
 
     public void runJavaScript(final String script, final long callbackId)
@@ -373,7 +390,7 @@ public class QtAndroidWebViewController
         });
 
         try {
-            sem.acquire();
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }

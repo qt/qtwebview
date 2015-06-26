@@ -122,13 +122,13 @@ private:
     friend class QQuickViewController;
     friend class QQuickWebView;
 
+    Q_DECLARE_PRIVATE(QWebView)
+    QWebViewPrivate *d_ptr;
+
     // provisional data
+    int m_progress;
     QString m_title;
     QUrl m_url;
-    int m_progress;
-
-    Q_DECLARE_PRIVATE(QWebView)
-    QScopedPointer<QWebViewPrivate> d_ptr;
 };
 
 QT_END_NAMESPACE

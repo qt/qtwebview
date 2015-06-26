@@ -51,6 +51,15 @@
 #include <QtWebEngine>
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
 
+#if defined(Q_OS_ANDROID) && !defined(Q_OS_ANDROID_NO_SDK)
+#include <QtCore/private/qjnihelpers_p.h>
+#define ANDROID_REQUIRES_API_LEVEL(N) \
+    if (QtAndroidPrivate::androidSdkVersion() < N) \
+        QSKIP("This feature is not supported on this version of Android");
+#else
+#define ANDROID_REQUIRES_API_LEVEL(N)
+#endif
+
 class tst_QWebView : public QObject
 {
     Q_OBJECT
@@ -104,6 +113,7 @@ void tst_QWebView::load()
 void tst_QWebView::runJavaScript()
 {
 #ifndef QT_NO_QQUICKWEBVIEW_TESTS
+    ANDROID_REQUIRES_API_LEVEL(19)
     const QString tstProperty = QString(QLatin1String("Qt.tst_data"));
     const QString title = QString(QLatin1String("WebViewTitle"));
 
