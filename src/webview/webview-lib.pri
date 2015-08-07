@@ -48,7 +48,8 @@ android {
         $$COMMON_HEADERS \
         qwebview_ios_p.h
 
-} else:osx {
+} else:osx_webview_experimental {
+    DEFINES += QT_WEBVIEW_EXPERIMENTAL
     LIBS_PRIVATE += -framework Cocoa -framework WebKit
     SOURCES += \
        $$COMMON_SOURCES
