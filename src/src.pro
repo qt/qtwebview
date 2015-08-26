@@ -1,4 +1,8 @@
 TEMPLATE = subdirs
-SUBDIRS += webview imports
-imports.depends = webview
+
+android|mac|winrt|qtHaveModule(webengine) {
+    SUBDIRS += webview imports
+    imports.depends = webview
+}
+
 android: SUBDIRS += jar
