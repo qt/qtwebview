@@ -23,7 +23,7 @@
 #include <QScopedPointer>
 #include <QtQml/QQmlEngine>
 #include <QtTest/QtTest>
-#include <QtWebView/qquickwebview.h>
+#include <QtWebView/private/qquickwebview_p.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qstandardpaths.h>
 
