@@ -40,6 +40,10 @@
 #include <QtWebEngine/qtwebengineglobal.h>
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
 
+#ifdef Q_OS_OSX
+#include <QtCore/qbytearray.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 /*!
