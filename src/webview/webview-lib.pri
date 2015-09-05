@@ -58,6 +58,12 @@ android {
         $$COMMON_HEADERS \
         qwebview_osx_p.h
 
+} else: winrt {
+    NO_PCH_SOURCES += qwebview_winrt.cpp
+    SOURCES += $$COMMON_SOURCES
+    PRIVATE_HEADERS += \
+        $$COMMON_HEADERS \
+        qwebview_winrt_p.h
 } else:qtHaveModule(webengine) {
     QT += webengine webengine-private
     DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND

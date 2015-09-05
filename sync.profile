@@ -13,4 +13,5 @@
 %dependencies = (
     "qtbase" => "",
     "qtdeclarative" => "",
+    "qtwebengine" => "",
 );

@@ -44,7 +44,7 @@
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 
 #ifndef QT_NO_QQUICKWEBVIEW_TESTS
-#include <QtWebView/qquickwebview.h>
+#include <QtWebView/private/qquickwebview_p.h>
 #endif // QT_NO_QQUICKWEBVIEW_TESTS
 
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
