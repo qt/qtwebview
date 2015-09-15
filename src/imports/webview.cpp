@@ -64,7 +64,7 @@ public:
         qmlRegisterUncreatableType<QQuickWebEngineLoadRequest>(uri, 1, 1, "WebViewLoadRequest", msg);
 #else
         qmlRegisterType<QQuickWebView>(uri, 1, 0, "WebView");
-        qmlRegisterRevision<QQuickWebView, 1>(uri, 1, 1);
+        qmlRegisterType<QQuickWebView, 1>(uri, 1, 1, "WebView");
         qmlRegisterUncreatableType<QQuickWebViewLoadRequest>(uri, 1, 1, "WebViewLoadRequest", msg);
 #endif
     }

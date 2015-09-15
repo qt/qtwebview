@@ -1,4 +1,4 @@
-import QtQuick.tooling 1.1
+import QtQuick.tooling 1.2
 
 // This file describes the plugin-supplied types contained in the library.
 // It is used for QML tooling purposes only.
@@ -21,8 +21,8 @@ Module {
         name: "QQuickWebView"
         defaultProperty: "data"
         prototype: "QQuickViewController"
-        exports: ["QtWebView/WebView 1.0"]
-        exportMetaObjectRevisions: [0]
+        exports: ["QtWebView/WebView 1.0", "QtWebView/WebView 1.1"]
+        exportMetaObjectRevisions: [0, 1]
         Enum {
             name: "LoadStatus"
             values: {
@@ -33,7 +33,7 @@ Module {
             }
         }
         Property { name: "url"; type: "QUrl" }
-        Property { name: "loading"; type: "bool"; isReadonly: true }
+        Property { name: "loading"; revision: 1; type: "bool"; isReadonly: true }
         Property { name: "loadProgress"; type: "int"; isReadonly: true }
         Property { name: "title"; type: "string"; isReadonly: true }
         Property { name: "canGoBack"; type: "bool"; isReadonly: true }
