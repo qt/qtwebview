@@ -31,7 +31,7 @@ sourcedirs += ../ ../../imports/ ../
 exampledirs += ../../../examples/webview
 imagedirs  += images
 
-examplesinstallpath = webview
+examplesinstallpath = qtwebview/webview
 depends = qtcore qtdoc qtquick qtqml
 
 navigation.landingpage    = "Qt WebView"
