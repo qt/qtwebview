@@ -46,6 +46,10 @@ import QtQuick.Controls.Styles 1.2
 
 
 ApplicationWindow {
+    property bool showProgress: webView.loading
+                                && Qt.platform.os !== "ios"
+                                && Qt.platform.os !== "winphone"
+                                && Qt.platform.os !== "winrt"
     visible: true
     x: initialX
     y: initialY
@@ -108,7 +112,7 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     style: LoadProgressStyle { }
                     z: Qt.platform.os === "android" ? -1 : 1
-                    visible: webView.loading && Qt.platform.os !== "ios"
+                    visible: showProgress
                     minimumValue: 0
                     maximumValue: 100
                     value: webView.loadProgress > 100 ? 0 : webView.loadProgress
@@ -137,7 +141,7 @@ ApplicationWindow {
 
     statusBar: StatusBar {
         id: statusBar
-        visible: webView.loading && Qt.platform.os !== "ios"
+        visible: showProgress
         RowLayout {
             anchors.fill: parent
             Label { text: webView.loadProgress == 100 ? qsTr("Done") : qsTr("Loading: ") + webView.loadProgress + "%" }
