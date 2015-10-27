@@ -55,6 +55,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \fn void QtWebView::initialize()
+    \keyword qtwebview-initialize
 
     This function initializes resources or sets options that are required by the different back-ends.
 

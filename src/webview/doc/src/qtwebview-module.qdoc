@@ -25,46 +25,26 @@
 **
 ****************************************************************************/
 
-
 /*!
-  \page qtwebview-index.html
-  \title Qt WebView
-  \brief A light-weight web view.
+  \module QtWebView
+  \title Qt WebView C++ Classes and Namespaces
+  \ingroup modules
+  \brief Provides a helper function to set up and use the WebView.
+  \qtvariable webview
 
-  Qt WebView provides a way to display web content in an application without
-  necessarily including a full web browser stack by using native APIs where
-  this makes sense.
+  The Qt WebView module provides functionality to initialize the backend
+  for using the \l [QML] WebView QML type.
 
-  This is especially important on platforms such as iOS, where policy dictates
-  that all web content is displayed using the operating system's web view.
+  To include the module's definitions, use the following directive:
 
-  \section1 Prerequisites
+  \code
+  #include <QtWebView>
+  \endcode
 
-  To make the Qt WebView module function correctly across all platforms, it's necessary
-  to call \l {qtwebview-initialize}{QtWebView::initialize}() right after creating the
-  QGuiApplication instance.
+  To link against the module, add the following line to your project
+  file:
 
-  \section1 QML Types
-
-  The module provides a single QML component for displaying web content in
-  the application: \l{WebView}.
-
-  \section1 Limitations
-
-  Due to platform limitations, overlapping the WebView with other QML components
-  is not supported. Doing this will have unpredictable results which may differ
-  from platform to platform.
-
-  \section1 Examples
-
-  Take a look at the \l{Qt WebView Examples} for a demonstration on
-  how the APIs can be used in applications.
-
-  \section1 API Reference
-
-  \list
-  \li \l{Qt WebView QML Types}
-  \li \l{Qt WebView C++ Classes and Namespaces}
-  \endlist
-
+  \badcode
+  QT += webview
+  \endcode
 */
