@@ -106,11 +106,11 @@ QQuickWebView::~QQuickWebView()
 /*!
   \qmlproperty url QtWebView::WebView::url
 
-  The url of currently loaded web page. Changing this will trigger
+  The URL of currently loaded web page. Changing this will trigger
   loading new content.
 
-  The url is used as-is. Urls that originate from user input should
-  be parsed with QUrl::fromUserInput.
+  The URL is used as-is. URLs that originate from user input should
+  be parsed with QUrl::fromUserInput().
 */
 
 void QQuickWebView::setUrl(const QUrl &url)
@@ -120,6 +120,7 @@ void QQuickWebView::setUrl(const QUrl &url)
 
 /*!
   \qmlproperty string QtWebView::WebView::title
+  \readonly
 
   The title of the currently loaded web page.
 */
@@ -136,8 +137,9 @@ QUrl QQuickWebView::url() const
 
 /*!
   \qmlproperty bool QtWebView::WebView::canGoBack
+  \readonly
 
-  True if it's currently possible to navigate back in the web history.
+  Holds \c true if it's currently possible to navigate back in the web history.
 */
 
 bool QQuickWebView::canGoBack() const
@@ -147,8 +149,9 @@ bool QQuickWebView::canGoBack() const
 
 /*!
   \qmlproperty bool QtWebView::WebView::canGoForward
+  \readonly
 
-  True if it's currently possible to navigate forward in the web history.
+  Holds \c true if it's currently possible to navigate forward in the web history.
 */
 
 bool QQuickWebView::canGoForward() const
@@ -158,6 +161,7 @@ bool QQuickWebView::canGoForward() const
 
 /*!
   \qmlproperty int QtWebView::WebView::loadProgress
+  \readonly
 
   The current load progress of the web content, represented as
   an integer between 0 and 100.
@@ -169,9 +173,26 @@ int QQuickWebView::loadProgress() const
 
 /*!
   \qmlproperty bool QtWebView::WebView::loading
+  \readonly
 
-  True if the WebView is currently in the process of loading
-  new content, and false if not.
+  Holds \c true if the WebView is currently in the process of loading
+  new content, \c false otherwise.
+
+  \sa loadingChanged()
+*/
+
+/*!
+  \qmlsignal QtWebView::WebView::loadingChanged(WebViewLoadRequest loadRequest)
+
+  This signal is emitted when the state of loading the web content changes.
+  By handling this signal it's possible, for example, to react to page load
+  errors.
+
+  The \a loadRequest parameter holds the \e url and \e status of the request,
+  as well as an \e errorString containing an error message for a failed
+  request.
+
+  \sa WebViewLoadRequest
 */
 bool QQuickWebView::isLoading() const
 {
@@ -201,7 +222,7 @@ void QQuickWebView::goForward()
 /*!
     \qmlmethod void QtWebView::WebView::reload()
 
-    Reloads the current url.
+    Reloads the current \l url.
 */
 void QQuickWebView::reload()
 {
@@ -211,7 +232,7 @@ void QQuickWebView::reload()
 /*!
     \qmlmethod void QtWebView::WebView::stop()
 
-    Stops loading the current url.
+    Stops loading the current \l url.
 */
 void QQuickWebView::stop()
 {
@@ -223,16 +244,16 @@ void QQuickWebView::stop()
 
     Loads the specified \a html content to the web view.
 
-    This method offers a lower-level alternative to the \c{url} property,
+    This method offers a lower-level alternative to the \l url property,
     which references HTML pages via URL.
 
     External objects such as stylesheets or images referenced in the HTML
     document should be located relative to \a baseUrl. For example, if \a html
     is retrieved from \c http://www.example.com/documents/overview.html, which
-    is the base url, then an image referenced with the relative url, \c diagram.png,
+    is the base URL, then an image referenced with the relative url, \c diagram.png,
     should be at \c{http://www.example.com/documents/diagram.png}.
 
-    \sa QtWebView::WebView::url
+    \sa url
 */
 void QQuickWebView::loadHtml(const QString &html, const QUrl &baseUrl)
 {
@@ -243,7 +264,8 @@ void QQuickWebView::loadHtml(const QString &html, const QUrl &baseUrl)
     \qmlmethod void QtWebView::WebView::runJavaScript(string script, variant callback)
 
     Runs the specified JavaScript.
-    In case a callback function is provided, it will be invoked after the script finished running.
+    In case a \a callback function is provided, it will be invoked after the \a script
+    finished running.
 
     \badcode
     runJavaScript("document.title", function(result) { console.log(result); });
