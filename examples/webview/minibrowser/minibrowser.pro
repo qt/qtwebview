@@ -8,6 +8,8 @@ SOURCES += main.cpp
 
 RESOURCES += qml.qrc
 
+EXAMPLE_FILES += doc
+
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
 
