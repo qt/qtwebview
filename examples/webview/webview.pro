@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS += minibrowser
+qtHaveModule(webview): SUBDIRS += minibrowser
