@@ -31,12 +31,14 @@
   \title Qt WebView
   \brief A light-weight web view.
 
-  Qt WebView provides a way to display web content in an application without
+  Qt WebView provides a way to display web content in a QML application without
   necessarily including a full web browser stack by using native APIs where
-  this makes sense.
+  it makes sense.
 
-  This is especially important on platforms such as iOS, where policy dictates
-  that all web content is displayed using the operating system's web view.
+  This is useful on mobile platforms such as \l {Qt for Android}{Android},
+  \l {Qt for iOS}{iOS}, and \l {Qt for WinRT}{WinRT}; especially
+  on iOS, where policy dictates that all web content is displayed using the
+  operating system's web view.
 
   \section1 Prerequisites
 
