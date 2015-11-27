@@ -36,6 +36,9 @@
 
 package org.qtproject.qt5.android.view;
 
+import android.content.pm.PackageManager;
+import android.view.View;
+import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -56,6 +59,7 @@ public class QtAndroidWebViewController
 {
     private final Activity m_activity;
     private final long m_id;
+    private boolean m_hasLocationPermission;
     private WebView m_webView = null;
     private static final String TAG = "QtAndroidWebViewController";
     private final int INIT_STATE = 0;
@@ -169,6 +173,12 @@ public class QtAndroidWebViewController
             super.onReceivedTitle(view, title);
             c_onReceivedTitle(m_id, title);
         }
+
+        @Override
+        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback)
+        {
+            callback.invoke(origin, m_hasLocationPermission, false);
+        }
     }
 
     public QtAndroidWebViewController(final Activity activity, final long id)
@@ -180,6 +190,7 @@ public class QtAndroidWebViewController
             @Override
             public void run() {
                 m_webView = new WebView(m_activity);
+                m_hasLocationPermission = hasLocationPermission(m_webView);
                 WebSettings webSettings = m_webView.getSettings();
 
                 if (Build.VERSION.SDK_INT > 10) {
@@ -194,6 +205,9 @@ public class QtAndroidWebViewController
                         }
                     } catch (Exception e) { /* Do nothing */ e.printStackTrace(); }
                 }
+
+                //allowing access to location without actual ACCESS_FINE_LOCATION may throw security exception
+                webSettings.setGeolocationEnabled(m_hasLocationPermission);
 
                 webSettings.setJavaScriptEnabled(true);
                 if (m_webSettingsSetDisplayZoomControls != null) {
@@ -423,5 +437,12 @@ public class QtAndroidWebViewController
             @Override
             public void run() { try { m_webViewOnResume.invoke(m_webView); } catch (Exception e) { e.printStackTrace(); } }
         });
+    }
+
+    private static boolean hasLocationPermission(View view)
+    {
+        final String name = view.getContext().getPackageName();
+        final PackageManager pm = view.getContext().getPackageManager();
+        return pm.checkPermission("android.permission.ACCESS_FINE_LOCATION", name) == PackageManager.PERMISSION_GRANTED;
     }
 }

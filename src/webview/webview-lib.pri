@@ -2,6 +2,8 @@ ANDROID_BUNDLED_JAR_DEPENDENCIES = \
     jar/QtAndroidWebView-bundled.jar
 ANDROID_JAR_DEPENDENCIES = \
     jar/QtAndroidWebView.jar
+ANDROID_PERMISSIONS = \
+    android.permission.ACCESS_FINE_LOCATION
 
 INCLUDEPATH += $$PWD
 
