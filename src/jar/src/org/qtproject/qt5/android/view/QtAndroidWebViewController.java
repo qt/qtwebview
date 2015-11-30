@@ -445,4 +445,14 @@ public class QtAndroidWebViewController
         final PackageManager pm = view.getContext().getPackageManager();
         return pm.checkPermission("android.permission.ACCESS_FINE_LOCATION", name) == PackageManager.PERMISSION_GRANTED;
     }
+
+    public void destroy()
+    {
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                m_webView.destroy();
+            }
+        });
+    }
 }
