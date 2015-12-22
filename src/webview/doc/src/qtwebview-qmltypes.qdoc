@@ -27,7 +27,7 @@
 
 
 /*!
-  \qmlmodule QtWebView 1.0
+  \qmlmodule QtWebView 1.1
   \title Qt WebView QML Types
   \ingroup qmlmodules
   \brief Provides QML types for Qt WebView.
@@ -39,7 +39,7 @@
   import statement:
 
   \badcode
-  import QtWebView 1.0
+  import QtWebView 1.1
   \endcode
 
   \section1 QML Types
