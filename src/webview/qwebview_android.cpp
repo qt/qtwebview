@@ -51,20 +51,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class SetClipBoundsRunnable : public QRunnable
-{
-public:
-    SetClipBoundsRunnable(const QJNIObjectPrivate &view, const QRect &cr) : m_view(view), m_cr(cr) { }
-    void run()
-    {
-        QJNIObjectPrivate cr("android/graphics/Rect", "(IIII)V", 0, 0, m_cr.width(), m_cr.height());
-        m_view.callMethod<void>("setClipBounds", "(Landroid/graphics/Rect;)V", cr.object());
-    }
-private:
-    QJNIObjectPrivate m_view;
-    const QRect m_cr;
-};
-
 static inline bool setClipRect(const QJNIObjectPrivate &view, const QRect &clipRect)
 {
     if (QtAndroidPrivate::androidSdkVersion() < 18)
@@ -73,8 +59,10 @@ static inline bool setClipRect(const QJNIObjectPrivate &view, const QRect &clipR
     if (!view.isValid())
         return false;
 
-    SetClipBoundsRunnable *r = new SetClipBoundsRunnable(view, clipRect);
-    QtAndroidPrivate::runOnUiThread(r, QJNIEnvironmentPrivate());
+    QtAndroidPrivate::runOnAndroidThread([view, clipRect] {
+        QJNIObjectPrivate cr("android/graphics/Rect", "(IIII)V", 0, 0, clipRect.width(), clipRect.height());
+        view.callMethod<void>("setClipBounds", "(Landroid/graphics/Rect;)V", cr.object());
+    }, QJNIEnvironmentPrivate());
 
     return true;
 }
