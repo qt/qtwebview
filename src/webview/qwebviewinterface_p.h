@@ -82,4 +82,6 @@ public:
                                       int callbackId) = 0;
 };
 
+QT_END_NAMESPACE
+
 #endif // QWEBVIEWINTERFACE_H
