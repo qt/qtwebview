@@ -44,11 +44,11 @@ QT_BEGIN_NAMESPACE
     \instantiates QQuickWebViewLoadRequest
     \inqmlmodule QtWebView
 
-    \brief A utility class for the QtWebView::WebView::loadingChanged signal.
+    \brief A utility type for \l {WebView}'s \l {WebView::}{loadingChanged()} signal.
 
-    This class contains load status information for the requested URL.
+    The WebViewLoadRequest type contains load status information for the requested URL.
 
-    \sa QtWebView::WebView::loadingChanged
+    \sa {WebView::loadingChanged()}{WebView.loadingChanged()}
 */
 QQuickWebViewLoadRequest::QQuickWebViewLoadRequest(const QWebViewLoadRequestPrivate &d)
     : d_ptr(new QWebViewLoadRequestPrivate(d))
@@ -62,7 +62,8 @@ QQuickWebViewLoadRequest::~QQuickWebViewLoadRequest()
 }
 
 /*!
-    \qmlproperty url QtWebView::WebView::WebViewLoadRequest::url
+    \qmlproperty url QtWebView::WebViewLoadRequest::url
+    \readonly
 
     The URL of the load request.
  */
@@ -74,14 +75,15 @@ QUrl QQuickWebViewLoadRequest::url() const
 
 /*!
     \qmlproperty enumeration WebViewLoadRequest::status
+    \readonly
 
     This enumeration represents the load status of a web page load request.
 
-    \value QtWebView::WebView::LoadStartedStatus The page is currently loading.
-    \value QtWebView::WebView::LoadSucceededStatus The page was loaded successfully.
-    \value QtWebView::WebView::LoadFailedStatus The page could not be loaded.
+    \value WebView.LoadStartedStatus The page is currently loading.
+    \value WebView.LoadSucceededStatus The page was loaded successfully.
+    \value WebView.LoadFailedStatus The page could not be loaded.
 
-    \sa QtWebView::WebView::loadingChanged
+    \sa {WebView::loadingChanged()}{WebView.loadingChanged}
 */
 QQuickWebView::LoadStatus QQuickWebViewLoadRequest::status() const
 {
@@ -90,9 +92,10 @@ QQuickWebView::LoadStatus QQuickWebViewLoadRequest::status() const
 }
 
 /*!
-    \qmlproperty string QtWebView::WebView::WebViewLoadRequest::errorString
+    \qmlproperty string QtWebView::WebViewLoadRequest::errorString
+    \readonly
 
-    Holds the error message if the load request fails.
+    Holds the error message if the load request failed.
 */
 QString QQuickWebViewLoadRequest::errorString() const
 {

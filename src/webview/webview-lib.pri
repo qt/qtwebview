@@ -2,6 +2,8 @@ ANDROID_BUNDLED_JAR_DEPENDENCIES = \
     jar/QtAndroidWebView-bundled.jar
 ANDROID_JAR_DEPENDENCIES = \
     jar/QtAndroidWebView.jar
+ANDROID_PERMISSIONS = \
+    android.permission.ACCESS_FINE_LOCATION
 
 INCLUDEPATH += $$PWD
 
@@ -48,7 +50,8 @@ android {
         $$COMMON_HEADERS \
         qwebview_ios_p.h
 
-} else:osx {
+} else:osx_webview_experimental {
+    DEFINES += QT_WEBVIEW_EXPERIMENTAL
     LIBS_PRIVATE += -framework Cocoa -framework WebKit
     SOURCES += \
        $$COMMON_SOURCES

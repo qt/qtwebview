@@ -1,4 +1,5 @@
 TEMPLATE = app
+TARGET = minibrowser
 
 QT += qml quick webview
 
@@ -8,8 +9,7 @@ SOURCES += main.cpp
 
 RESOURCES += qml.qrc
 
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+EXAMPLE_FILES += doc
 
-# Default rules for deployment.
-include(deployment.pri)
+target.path = $$[QT_INSTALL_EXAMPLES]/webview/minibrowser
+INSTALLS += target

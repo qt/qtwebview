@@ -55,6 +55,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \fn void QtWebView::initialize()
+    \keyword qtwebview-initialize
 
     This function initializes resources or sets options that are required by the different back-ends.
 
@@ -66,7 +67,7 @@ void QtWebView::initialize()
 {
 #if defined(QT_WEBVIEW_WEBENGINE_BACKEND)
     QtWebEngine::initialize();
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_OSX) && defined(QT_WEBVIEW_EXPERIMENTAL)
     // On OS X, correct WebView / QtQuick compositing and stacking requires running
     // Qt in layer-backed mode, which again resuires rendering on the Gui thread.
     qWarning("Setting QT_MAC_WANTS_LAYER=1 and QSG_RENDER_LOOP=basic");

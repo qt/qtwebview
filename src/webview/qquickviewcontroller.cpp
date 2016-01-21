@@ -44,6 +44,8 @@
 #include <QtQuick/private/qquickitem_p.h>
 #include <QtQuick/private/qquickitemchangelistener_p.h>
 
+QT_BEGIN_NAMESPACE
+
 static const QQuickItemPrivate::ChangeTypes changeMask = QQuickItemPrivate::Geometry
                                                          | QQuickItemPrivate::Children
                                                          | QQuickItemPrivate::Parent;
@@ -105,7 +107,7 @@ void QQuickViewChangeListener::itemChildRemoved(QQuickItem *item, QQuickItem *ch
     removeAncestorListeners(child, changeMask);
 }
 
-void QQuickViewChangeListener::itemParentChanged(QQuickItem */*item*/, QQuickItem *newParent)
+void QQuickViewChangeListener::itemParentChanged(QQuickItem * /*item*/, QQuickItem *newParent)
 {
     removeAncestorListeners(m_item->parentItem(), changeMask);
     // Adds this as a listener for newParent and its ancestors.
@@ -232,3 +234,5 @@ void QQuickViewController::onSceneGraphInvalidated()
 
     m_view->setVisible(false);
 }
+
+QT_END_NAMESPACE

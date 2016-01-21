@@ -42,6 +42,7 @@
 #include <QPointer>
 #include <QHash>
 #include <QRegularExpression>
+#include <QScreen>
 #include <qfunctions_winrt.h>
 #include <private/qeventdispatcher_winrt_p.h>
 
@@ -476,33 +477,40 @@ void QWinRTWebViewPrivate::setGeometry(const QRect &geometry)
     QEventDispatcherWinRT::runOnXamlThread([this, &geometry]() {
         HRESULT hr;
         double scaleFactor;
-#ifdef Q_OS_WINPHONE
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE_APP)
         ComPtr<IDisplayInformation2> displayInformation;
         hr = d->displayInformation.As(&displayInformation);
         Q_ASSERT_SUCCEEDED(hr);
         hr = displayInformation->get_RawPixelsPerViewPixel(&scaleFactor);
         Q_ASSERT_SUCCEEDED(hr);
+        scaleFactor = 1.0 / scaleFactor;
+        Q_ASSERT(d->window);
+        const QScreen *screen = d->window->screen();
+        Q_ASSERT(screen);
+        const QPoint screenTopLeft = screen->availableGeometry().topLeft();
+        const QPointF topLeft = QPointF(geometry.topLeft() + screenTopLeft) * scaleFactor;
+        const QSizeF size = QSizeF(geometry.size()) * scaleFactor;
 #else
         ResolutionScale resolutionScale;
         hr = d->displayInformation->get_ResolutionScale(&resolutionScale);
         Q_ASSERT_SUCCEEDED(hr);
-        scaleFactor = double(resolutionScale) / 100;
+        scaleFactor = 100.0 / double(resolutionScale);
+        const QPointF topLeft = QPointF(geometry.topLeft()) * scaleFactor;
+        const QSizeF size = QSizeF(geometry.size()) * scaleFactor;
 #endif
-        scaleFactor = 1 / scaleFactor;
-
         ComPtr<IUIElement> uiElement;
         hr = d->base.As(&uiElement);
         Q_ASSERT_SUCCEEDED(hr);
-        hr = d->canvas->SetLeft(uiElement.Get(), geometry.x() * scaleFactor);
+        hr = d->canvas->SetLeft(uiElement.Get(), topLeft.x());
         Q_ASSERT_SUCCEEDED(hr);
-        hr = d->canvas->SetTop(uiElement.Get(), geometry.y() * scaleFactor);
+        hr = d->canvas->SetTop(uiElement.Get(), topLeft.y());
         Q_ASSERT_SUCCEEDED(hr);
         ComPtr<IFrameworkElement> frameworkElement;
         hr = d->base.As(&frameworkElement);
         Q_ASSERT_SUCCEEDED(hr);
-        hr = frameworkElement->put_Width(geometry.width() * scaleFactor);
+        hr = frameworkElement->put_Width(size.width());
         Q_ASSERT_SUCCEEDED(hr);
-        hr = frameworkElement->put_Height(geometry.height() * scaleFactor);
+        hr = frameworkElement->put_Height(size.height());
         Q_ASSERT_SUCCEEDED(hr);
         return hr;
     });

@@ -7,7 +7,7 @@ QT += qml quick
 SOURCES += \
     $$PWD/webview.cpp
 
-android|mac|winrt {
+android|ios|winrt|osx_webview_experimental {
     QT += webview-private
 } else:qtHaveModule(webengine) {
     QT += webengine webengine-private
