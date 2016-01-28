@@ -69,10 +69,13 @@ android {
         qwebview_winrt_p.h
 } else:qtHaveModule(webengine) {
     QT += webengine webengine-private
-    DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
     SOURCES += \
-        qwebview_default.cpp
-
+        $$COMMON_SOURCES \
+        qwebview_webengine.cpp
+    PRIVATE_HEADERS += \
+        $$COMMON_HEADERS \
+        qwebview_webengine_p.h
+    DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
 }
 
 HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERS

@@ -317,3 +317,8 @@ void QQuickWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadReque
     QQuickWebViewLoadRequest qqLoadRequest(loadRequest);
     Q_EMIT loadingChanged(&qqLoadRequest);
 }
+
+QJSValue QQuickWebView::takeCallback(int id)
+{
+    return callbacks->takeCallback(id);
+}
