@@ -1,7 +1,5 @@
 include($$PWD/webview-lib.pri)
 
-load(qt_build_config)
-
 TARGET = QtWebView
 
 QT += core-private gui-private qml-private quick-private quick qml
