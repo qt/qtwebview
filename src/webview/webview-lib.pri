@@ -32,8 +32,8 @@ COMMON_SOURCES += \
     qwebviewloadrequest.cpp
 
 android {
-    QT += core-private
-    LIBS += -ljnigraphics
+    QT_FOR_PRIVATE += core-private
+    LIBS_PRIVATE += -ljnigraphics
     SOURCES += \
         $$COMMON_SOURCES \
         qwebview_android.cpp
@@ -68,7 +68,7 @@ android {
         $$COMMON_HEADERS \
         qwebview_winrt_p.h
 } else:qtHaveModule(webengine) {
-    QT += webengine webengine-private
+    QT_PRIVATE += webengine-private
     SOURCES += \
         $$COMMON_SOURCES \
         qwebview_webengine.cpp
