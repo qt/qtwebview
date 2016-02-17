@@ -665,6 +665,7 @@ HRESULT QWinRTWebViewPrivate::onNavigationCompleted(IWebView *, IWebViewNavigati
     const QString errorString = webErrorStatusString(errorStatus);
 
     emit loadingChanged(QWebViewLoadRequestPrivate(url, status, errorString));
+    emit titleChanged(title());
     emit loadProgressChanged(100);
     return S_OK;
 }
