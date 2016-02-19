@@ -95,6 +95,7 @@ void QQuickViewChangeListener::itemGeometryChanged(QQuickItem *, const QRectF &,
 
 void QQuickViewChangeListener::itemChildRemoved(QQuickItem *item, QQuickItem *child)
 {
+    Q_UNUSED(item)
     Q_ASSERT(item != m_item);
 
     const bool ancestor = isAncestor(child);
