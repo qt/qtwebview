@@ -108,7 +108,7 @@ Q_SIGNALS:
     void requestFocus(bool focus);
 
 protected:
-    void init();
+    void init() Q_DECL_OVERRIDE;
     void runJavaScriptPrivate(const QString &script,
                               int callbackId) Q_DECL_OVERRIDE;
 
