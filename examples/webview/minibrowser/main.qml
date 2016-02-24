@@ -115,7 +115,7 @@ ApplicationWindow {
                     visible: showProgress
                     minimumValue: 0
                     maximumValue: 100
-                    value: webView.loadProgress > 100 ? 0 : webView.loadProgress
+                    value: webView.loadProgress == 100 ? 0 : webView.loadProgress
                 }
             }
 
