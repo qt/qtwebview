@@ -38,7 +38,8 @@
 #include "qwebview_p.h"
 #include "qwebviewloadrequest_p.h"
 
-#include <QtQuick/qquickitem.h>
+#include <QtQuick/qquickwindow.h>
+#include <QtQuick/qquickrendercontrol.h>
 #include <QtCore/qmap.h>
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -252,9 +253,11 @@ void QIosWebViewPrivate::setParentView(QObject *view)
     if (!uiWebView)
         return;
 
-    QWindow *window = qobject_cast<QWindow *>(view);
-    if (window != 0) {
-        UIView *parentView = reinterpret_cast<UIView *>(window->winId());
+    QQuickWindow *qw = qobject_cast<QQuickWindow *>(view);
+    if (qw) {
+        // Before setting the parent view, make sure we have the real window.
+        QWindow *rw = QQuickRenderControl::renderWindowFor(qw);
+        UIView *parentView = reinterpret_cast<UIView *>(rw ? rw->winId() : qw->winId());
         [parentView addSubview:uiWebView];
     } else {
         [uiWebView removeFromSuperview];
@@ -268,7 +271,22 @@ QObject *QIosWebViewPrivate::parentView() const
 
 void QIosWebViewPrivate::setGeometry(const QRect &geometry)
 {
-    [uiWebView setFrame:toCGRect(geometry)];
+    if (!uiWebView)
+        return;
+
+    QWindow *w = qobject_cast<QWindow *>(m_parentView);
+    if (w == 0)
+        return;
+
+    // Find the top left position of this item in global coordinates.
+    const QPoint &tl = w->mapToGlobal(geometry.topLeft());
+    // Map the top left position to the render windows coordinates.
+    QQuickWindow *qw = qobject_cast<QQuickWindow *>(m_parentView);
+    QWindow *rw = QQuickRenderControl::renderWindowFor(qw);
+    // New geometry
+    const QRect &newGeometry = rw ? QRect(rw->mapFromGlobal(tl), geometry.size()) : geometry;
+    // Sets location and size in the superviews coordinate system.
+    [uiWebView setFrame:toCGRect(newGeometry)];
 }
 
 void QIosWebViewPrivate::setVisibility(QWindow::Visibility visibility)
