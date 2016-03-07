@@ -26,6 +26,7 @@
 #include <QtWebView/private/qquickwebview_p.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qstandardpaths.h>
+#include <QtWebView/qtwebviewfunctions.h>
 
 QString getTestFilePath(const QString &testFile)
 {
@@ -95,6 +96,7 @@ QQuickWebView *tst_QQuickWebView::newWebView()
 
 void tst_QQuickWebView::init()
 {
+    QtWebView::initialize();
     m_window.reset(new TestWindow(newWebView()));
 }
 
