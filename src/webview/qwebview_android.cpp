@@ -175,13 +175,7 @@ void QAndroidWebViewPrivate::setGeometry(const QRect &geometry)
     if (m_window == 0)
         return;
 
-    QRect newGeometry = geometry;
-    const QWindow *parent = m_window->parent();
-
-    if (parent != 0)
-        newGeometry.moveTo(parent->mapToGlobal(geometry.topLeft()));
-
-    m_window->setGeometry(newGeometry);
+    m_window->setGeometry(geometry);
 }
 
 void QAndroidWebViewPrivate::setVisibility(QWindow::Visibility visibility)
