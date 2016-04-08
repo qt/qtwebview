@@ -111,6 +111,8 @@ QQuickWebView::~QQuickWebView()
 
   The URL is used as-is. URLs that originate from user input should
   be parsed with QUrl::fromUserInput().
+
+  \note The WebView does not support loading content through the Qt Resource system.
 */
 
 void QQuickWebView::setUrl(const QUrl &url)
@@ -253,6 +255,8 @@ void QQuickWebView::stop()
     is the base URL, then an image referenced with the relative url, \c diagram.png,
     should be at \c{http://www.example.com/documents/diagram.png}.
 
+    \note The WebView does not support loading content through the Qt Resource system.
+
     \sa url
 */
 void QQuickWebView::loadHtml(const QString &html, const QUrl &baseUrl)
@@ -312,4 +316,9 @@ void QQuickWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadReque
 {
     QQuickWebViewLoadRequest qqLoadRequest(loadRequest);
     Q_EMIT loadingChanged(&qqLoadRequest);
+}
+
+QJSValue QQuickWebView::takeCallback(int id)
+{
+    return callbacks->takeCallback(id);
 }

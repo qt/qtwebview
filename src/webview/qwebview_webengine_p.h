@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QQUICKWEBVIEW_H
-#define QQUICKWEBVIEW_H
+#ifndef QWEBVIEW_ANDROID_P_H
+#define QWEBVIEW_ANDROID_P_H
 
 //
 //  W A R N I N G
@@ -48,76 +48,61 @@
 // We mean it.
 //
 
-#include <QtWebView/private/qwebviewinterface_p.h>
-#include <QtWebView/private/qwebview_p.h>
-#include <QtWebView/private/qquickviewcontroller_p.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qurl.h>
+#include <QtGui/qwindow.h>
+
+#include <QtQml/qqmlcomponent.h>
+
+#include "qwebview_p_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class QQuickWebViewLoadRequest;
-class QWebViewLoadRequestPrivate;
+class QQuickWebEngineView;
+class QQuickWebEngineLoadRequest;
 
-class Q_WEBVIEW_EXPORT QQuickWebView : public QQuickViewController, public QWebViewInterface
+class QWebEngineWebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
-    Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged)
-    Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged REVISION 1)
-    Q_PROPERTY(int loadProgress READ loadProgress NOTIFY loadProgressChanged)
-    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged)
-    Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged)
-    Q_ENUMS(LoadStatus)
-
 public:
-    enum LoadStatus { // Changes here needs to be done in QWebView as well
-        LoadStartedStatus,
-        LoadStoppedStatus,
-        LoadSucceededStatus,
-        LoadFailedStatus
-    };
-
-    QQuickWebView(QQuickItem *parent = 0);
-    ~QQuickWebView();
+    explicit QWebEngineWebViewPrivate(QObject *p = 0);
+    ~QWebEngineWebViewPrivate() Q_DECL_OVERRIDE;
 
     QUrl url() const Q_DECL_OVERRIDE;
     void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
-    int loadProgress() const Q_DECL_OVERRIDE;
-    QString title() const Q_DECL_OVERRIDE;
     bool canGoBack() const Q_DECL_OVERRIDE;
-    bool isLoading() const Q_DECL_OVERRIDE;
     bool canGoForward() const Q_DECL_OVERRIDE;
+    QString title() const Q_DECL_OVERRIDE;
+    int loadProgress() const Q_DECL_OVERRIDE;
+    bool isLoading() const Q_DECL_OVERRIDE;
+
+    void setParentView(QObject *parentView) Q_DECL_OVERRIDE;
+    QObject *parentView() const Q_DECL_OVERRIDE;
+    void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
+    void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
+    void setVisible(bool visible) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
     void goBack() Q_DECL_OVERRIDE;
     void goForward() Q_DECL_OVERRIDE;
     void reload() Q_DECL_OVERRIDE;
     void stop() Q_DECL_OVERRIDE;
-    Q_REVISION(1) void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
-    Q_REVISION(1) void runJavaScript(const QString& script,
-                                     const QJSValue &callback = QJSValue());
+    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
 
-Q_SIGNALS:
-    void titleChanged();
-    void urlChanged();
-    Q_REVISION(1) void loadingChanged(QQuickWebViewLoadRequest *loadRequest);
-    void loadProgressChanged();
+private Q_SLOTS:
+    void q_urlChanged();
+    void q_loadProgressChanged();
+    void q_titleChanged();
+    void q_loadingChanged(QQuickWebEngineLoadRequest *loadRequest);
 
 protected:
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) Q_DECL_OVERRIDE;
 
-private Q_SLOTS:
-    void onRunJavaScriptResult(int id, const QVariant &variant);
-    void onFocusRequest(bool focus);
-    void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-
 private:
-    friend class QWebEngineWebViewPrivate;
-    static QJSValue takeCallback(int id);
-
-    QWebView* m_webView;
+    QScopedPointer<QQuickWebEngineView> m_webEngineView;
 };
 
 QT_END_NAMESPACE
 
-#endif // QQUICKWEBVIEW_H
+#endif // QWEBVIEW_ANDROID_P_H
