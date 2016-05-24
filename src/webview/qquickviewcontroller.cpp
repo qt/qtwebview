@@ -41,6 +41,7 @@
 #include <QtQuick/QQuickWindow>
 #include <QtCore/QDebug>
 
+#include <QtQuick/qquickrendercontrol.h>
 #include <QtQuick/private/qquickitem_p.h>
 #include <QtQuick/private/qquickitemchangelistener_p.h>
 
@@ -182,8 +183,33 @@ void QQuickViewController::updatePolish()
     if (m_view == 0)
         return;
 
-    const QRectF &cr = clipRect();
-    m_view->setGeometry(cr.isValid() ? mapRectToScene(cr).toRect() : QRect(-1, -1, 1, 1));
+    QSize itemSize = QSize(width(), height());
+    if (!itemSize.isValid())
+        return;
+
+    QQuickWindow *w = window();
+    if (w == 0)
+        return;
+
+    // Find this item's geometry in the scene.
+    QRect itemGeometry = mapRectToScene(QRect(QPoint(0, 0), itemSize)).toRect();
+    // Check if we should be clipped to our parent's shape
+    // Note: This is crude but it should give an acceptable result on all platforms.
+    QQuickItem *p = parentItem();
+    const bool clip = p != 0 ? p->clip() : false;
+    if (clip) {
+        const QSize &parentSize = QSize(p->width(), p->height());
+        const QRect &parentGeometry = p->mapRectToScene(QRect(QPoint(0, 0), parentSize)).toRect();
+        itemGeometry &= parentGeometry;
+        itemSize = itemGeometry.size();
+    }
+
+    // Find the top left position of this item, in global coordinates.
+    const QPoint &tl = w->mapToGlobal(itemGeometry.topLeft());
+    // Get the actual render window, in case we're rendering into a off-screen window.
+    QWindow *rw = QQuickRenderControl::renderWindowFor(w);
+
+    m_view->setGeometry(rw ? QRect(rw->mapFromGlobal(tl), itemSize) : itemGeometry);
     m_view->setVisible(isVisible());
 }
 
@@ -220,7 +246,9 @@ void QQuickViewController::onWindowChanged(QQuickWindow* window)
         connect(window, &QQuickWindow::sceneGraphInvalidated, this, &QQuickViewController::onSceneGraphInvalidated);
     }
 
-    m_view->setParentView(window);
+    // Check if there's an actual window available.
+    QWindow *rw = QQuickRenderControl::renderWindowFor(window);
+    m_view->setParentView(rw ? rw : window);
 }
 
 void QQuickViewController::onVisibleChanged()

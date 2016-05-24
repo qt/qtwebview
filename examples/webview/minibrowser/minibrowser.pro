@@ -3,8 +3,6 @@ TARGET = minibrowser
 
 QT += qml quick webview
 
-winrt: WINRT_MANIFEST.capabilities += internetClient
-
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc
