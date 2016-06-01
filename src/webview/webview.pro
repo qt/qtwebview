@@ -1,7 +1,7 @@
 TARGET = QtWebView
 
 QT =
-QT_FOR_PRIVATE = quick-private
+QT_FOR_PRIVATE = quick-private gui-private
 
 include($$PWD/webview-lib.pri)
 
