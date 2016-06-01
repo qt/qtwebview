@@ -39,12 +39,15 @@ package org.qtproject.qt5.android.view;
 import android.content.pm.PackageManager;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
+import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import java.lang.Runnable;
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import java.lang.String;
 import android.webkit.WebSettings;
 import android.util.Log;
@@ -104,6 +107,25 @@ public class QtAndroidWebViewController
     private class QtAndroidWebViewClient extends WebViewClient
     {
         QtAndroidWebViewClient() { super(); }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url)
+        {
+            // handle http: and http:, etc., as usual
+            if (URLUtil.isValidUrl(url))
+                return false;
+
+            // try to handle geo:, tel:, mailto: and other schemes
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                view.getContext().startActivity(intent);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
 
         @Override
         public void onLoadResource(WebView view, String url)
