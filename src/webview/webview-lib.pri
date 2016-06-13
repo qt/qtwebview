@@ -41,26 +41,28 @@ android {
         $$COMMON_HEADERS \
         qwebview_android_p.h
 
-} else:ios {
+} else:if(ios|osx_webview_experimental) {
     SOURCES += \
         $$COMMON_SOURCES
     OBJECTIVE_SOURCES += \
-        qwebview_ios.mm
+        qwebview_darwin.mm
     PRIVATE_HEADERS += \
         $$COMMON_HEADERS \
-        qwebview_ios_p.h
+        qwebview_darwin_p.h
+    LIBS_PRIVATE += -framework WebKit
 
-} else:osx_webview_experimental {
-    DEFINES += QT_WEBVIEW_EXPERIMENTAL
-    LIBS_PRIVATE += -framework Cocoa -framework WebKit
-    SOURCES += \
-       $$COMMON_SOURCES
-    OBJECTIVE_SOURCES += \
-        qwebview_osx.mm
-    PRIVATE_HEADERS += \
-        $$COMMON_HEADERS \
-        qwebview_osx_p.h
+    ios {
+        LIBS_PRIVATE += -framework UIKit
+        PRIVATE_HEADERS += qwebview_ios_p.h
+        OBJECTIVE_SOURCES += qwebview_ios.mm
+    }
 
+    osx {
+        LIBS_PRIVATE += -framework AppKit
+        PRIVATE_HEADERS += qwebview_osx_p.h
+        OBJECTIVE_SOURCES += qwebview_osx.mm
+        osx_webview_experimental: DEFINES += QT_WEBVIEW_EXPERIMENTAL
+    }
 } else: winrt {
     NO_PCH_SOURCES += qwebview_winrt.cpp
     SOURCES += $$COMMON_SOURCES

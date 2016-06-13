@@ -35,6 +35,7 @@
 ****************************************************************************/
 
 #include "qwebview_ios_p.h"
+#include "qwebview_darwin_p.h"
 #include "qwebview_p.h"
 #include "qwebviewloadrequest_p.h"
 
@@ -52,64 +53,10 @@
 
 QT_BEGIN_NAMESPACE
 
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-    return new QIosWebViewPrivate(q);
-}
-
 static inline CGRect toCGRect(const QRectF &rect)
 {
     return CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
 }
-
-// -------------------------------------------------------------------------
-
-@interface QIOSNativeViewSelectedRecognizer : UIGestureRecognizer <UIGestureRecognizerDelegate>
-{
-@public
-    QNativeViewController *m_item;
-}
-@end
-
-@implementation QIOSNativeViewSelectedRecognizer
-
-- (id)initWithQWindowControllerItem:(QNativeViewController *)item
-{
-    self = [super initWithTarget:self action:@selector(nativeViewSelected:)];
-    if (self) {
-        self.cancelsTouchesInView = NO;
-        self.delaysTouchesEnded = NO;
-        m_item = item;
-    }
-    return self;
-}
-
-- (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)other
-{
-    Q_UNUSED(other);
-    return NO;
-}
-
-- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)other
-{
-    Q_UNUSED(other);
-    return NO;
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    Q_UNUSED(touches);
-    Q_UNUSED(event);
-    self.state = UIGestureRecognizerStateRecognized;
-}
-
-- (void)nativeViewSelected:(UIGestureRecognizer *)gestureRecognizer
-{
-    Q_UNUSED(gestureRecognizer);
-    m_item->setFocus(true);
-}
-
-@end
 
 // -------------------------------------------------------------------------
 

@@ -125,11 +125,6 @@ class QOsxWebViewPrivate;
 
 @end
 
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-    return new QOsxWebViewPrivate(q);
-}
-
 QOsxWebViewPrivate::QOsxWebViewPrivate(QWebView *q)
     : QWebViewPrivate(q)
 {
