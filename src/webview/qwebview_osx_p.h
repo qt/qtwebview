@@ -65,14 +65,14 @@ public:
     QOsxWebViewPrivate(QWebView *q);
     ~QOsxWebViewPrivate();
 
-    QUrl url() const;
-    void setUrl(const QUrl &url);
-    bool canGoBack() const;
-    bool canGoForward() const;
-    QString title() const;
-    int loadProgress() const;
-    bool isLoading() const;
-    void runJavaScriptPrivate(const QString& script, int callbackId);
+    QUrl url() const Q_DECL_OVERRIDE;
+    void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
+    bool canGoBack() const Q_DECL_OVERRIDE;
+    bool canGoForward() const Q_DECL_OVERRIDE;
+    QString title() const Q_DECL_OVERRIDE;
+    int loadProgress() const Q_DECL_OVERRIDE;
+    bool isLoading() const Q_DECL_OVERRIDE;
+    void runJavaScriptPrivate(const QString& script, int callbackId) Q_DECL_OVERRIDE;
 
     void setParentView(QObject *view) Q_DECL_OVERRIDE;
     QObject *parentView() const Q_DECL_OVERRIDE;
@@ -81,10 +81,10 @@ public:
     void setVisible(bool visible) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
-    void goBack();
-    void goForward();
-    void reload();
-    void stop();
+    void goBack() Q_DECL_OVERRIDE;
+    void goForward() Q_DECL_OVERRIDE;
+    void reload() Q_DECL_OVERRIDE;
+    void stop() Q_DECL_OVERRIDE;
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
 
 public:

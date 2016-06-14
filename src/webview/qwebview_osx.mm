@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 
 class QOsxWebViewPrivate;
 
-@interface QtFrameLoadDelegate : NSObject {
+@interface QtFrameLoadDelegate : NSObject <WebFrameLoadDelegate> {
     QOsxWebViewPrivate *qtWebViewPrivate;
 }
 - (QtFrameLoadDelegate *)initWithQWebViewPrivate:(QOsxWebViewPrivate *)webViewPrivate;
