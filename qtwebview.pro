@@ -1,3 +1,3 @@
-requires(android|ios|winrt|osx_webview_experimental|qtHaveModule(webengine))
+requires(android|ios|winrt|qtHaveModule(webengine))
 
 load(qt_parts)

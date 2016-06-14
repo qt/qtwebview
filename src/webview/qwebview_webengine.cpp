@@ -67,10 +67,12 @@ static QByteArray qmlSource()
                              "}\n");
 }
 
+#ifndef Q_OS_MACOS
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
     return new QWebEngineWebViewPrivate(q);
 }
+#endif
 
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QObject *p)
     : QWebViewPrivate(p)

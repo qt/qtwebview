@@ -9,7 +9,8 @@ INCLUDEPATH += $$PWD
 
 PUBLIC_HEADERS += \
     qwebview_global.h \
-    qtwebviewfunctions.h
+    qtwebviewfunctions.h \
+    qtwebviewfunctions_p.h
 
 SOURCES += \
     qtwebviewfunctions.cpp
@@ -41,7 +42,7 @@ android {
         $$COMMON_HEADERS \
         qwebview_android_p.h
 
-} else:if(ios|osx_webview_experimental) {
+} else:if(ios|macos) {
     SOURCES += \
         $$COMMON_SOURCES
     OBJECTIVE_SOURCES += \
@@ -61,7 +62,7 @@ android {
         LIBS_PRIVATE += -framework AppKit
         PRIVATE_HEADERS += qwebview_osx_p.h
         OBJECTIVE_SOURCES += qwebview_osx.mm
-        osx_webview_experimental: DEFINES += QT_WEBVIEW_EXPERIMENTAL
+        CONFIG += use_webengine_backend
     }
 } else: winrt {
     NO_PCH_SOURCES += qwebview_winrt.cpp
@@ -70,13 +71,15 @@ android {
         $$COMMON_HEADERS \
         qwebview_winrt_p.h
 } else:qtHaveModule(webengine) {
+    CONFIG += use_webengine_backend
+}
+
+use_webengine_backend {
     QT_PRIVATE += webengine-private
-    SOURCES += \
-        $$COMMON_SOURCES \
-        qwebview_webengine.cpp
-    PRIVATE_HEADERS += \
-        $$COMMON_HEADERS \
-        qwebview_webengine_p.h
+    SOURCES *= $$COMMON_SOURCES
+    SOURCES += qwebview_webengine.cpp
+    PRIVATE_HEADERS *= $$COMMON_HEADERS
+    PRIVATE_HEADERS += qwebview_webengine_p.h
     DEFINES += QT_WEBVIEW_WEBENGINE_BACKEND
 }
 

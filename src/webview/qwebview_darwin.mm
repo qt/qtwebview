@@ -37,6 +37,8 @@
 #include "qwebview_darwin_p.h"
 #include "qwebview_p.h"
 #include "qwebviewloadrequest_p.h"
+#include "qtwebviewfunctions.h"
+#include "qtwebviewfunctions_p.h"
 
 #include <QtCore/qdatetime.h>
 #include <QtCore/qmap.h>
@@ -59,6 +61,7 @@
 
 #ifdef Q_OS_OSX
 #include "qwebview_osx_p.h"
+#include "qwebview_webengine_p.h"
 
 #include <AppKit/AppKit.h>
 
@@ -82,16 +85,19 @@ inline QSysInfo::MacVersion qt_OS_limit(QSysInfo::MacVersion osxVersion,
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
 #if QT_MAC_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
-    if (QSysInfo::MacintoshVersion >= qt_OS_limit(QSysInfo::MV_10_10, QSysInfo::MV_IOS_8_0))
+    if (QSysInfo::MacintoshVersion >= qt_OS_limit(QSysInfo::MV_10_10, QSysInfo::MV_IOS_8_0)
+            && QtWebViewPrivate::useNativeWebView())
         return new QDarwinWebViewPrivate(q);
 #endif
 
 #if defined(Q_OS_IOS)
     return new QIosWebViewPrivate(q);
-#elif defined(Q_OS_OSX) && defined(QT_WEBVIEW_EXPERIMENTAL)
-    return new QOsxWebViewPrivate(q);
 #else
-    return nullptr;
+#  if defined(Q_OS_MACOS)
+    if (QtWebViewPrivate::useNativeWebView())
+        return new QOsxWebViewPrivate(q);
+#  endif
+    return new QWebEngineWebViewPrivate(q);
 #endif
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,64 +34,29 @@
 **
 ****************************************************************************/
 
-#include "qtwebviewfunctions.h"
-#include "qtwebviewfunctions_p.h"
+#ifndef QTWEBVIEWFUNCTIONS_P_H
+#define QTWEBVIEWFUNCTIONS_P_H
 
-#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-#include <QtWebEngine/qtwebengineglobal.h>
-#endif // QT_WEBVIEW_WEBENGINE_BACKEND
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#ifdef Q_OS_OSX
-#include <QtCore/qbytearray.h>
-#endif
+#include <QtWebView/qwebview_global.h>
 
 QT_BEGIN_NAMESPACE
 
-/*!
-    \namespace QtWebView
-    \inmodule QtWebView
-    \brief The QtWebView namespace provides functions that makes it easier to set-up and use the WebView.
-    \inheaderfile QtWebView
-*/
-
-/*!
-    \fn void QtWebView::initialize()
-    \keyword qtwebview-initialize
-
-    This function initializes resources or sets options that are required by the different back-ends.
-
-    \note The \c initialize() function needs to be called immediately after the QGuiApplication
-    instance is created.
- */
-
-void QtWebView::initialize()
+namespace QtWebViewPrivate
 {
-#if defined(Q_OS_MACOS)
-    if (QtWebViewPrivate::useNativeWebView()) {
-        // On macOS, correct WebView / QtQuick compositing and stacking requires running
-        // Qt in layer-backed mode, which again resuires rendering on the Gui thread.
-        qWarning("Setting QT_MAC_WANTS_LAYER=1 and QSG_RENDER_LOOP=basic");
-        qputenv("QT_MAC_WANTS_LAYER", "1");
-        qputenv("QSG_RENDER_LOOP", "basic");
-    } else
-#endif
-#if defined(QT_WEBVIEW_WEBENGINE_BACKEND)
-    QtWebEngine::initialize();
-#endif
-}
-
-/*!
- * \fn QtWebView::useNativeWebView()
- * \internal
- */
-
-bool QtWebViewPrivate::useNativeWebView()
-{
-#ifdef Q_OS_MACOS
-    return qEnvironmentVariableIsSet("QT_MAC_USE_NATIVE_WEBVIEW");
-#else
-    return true;
-#endif
+    bool useNativeWebView();
 }
 
 QT_END_NAMESPACE
+
+#endif // QTWEBVIEWFUNCTIONS_P_H
