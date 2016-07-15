@@ -58,7 +58,7 @@ public:
     ~QQuickViewChangeListener();
 
     inline void itemGeometryChanged(QQuickItem *,
-                                    const QRectF &,
+                                    QQuickGeometryChange,
                                     const QRectF &) Q_DECL_OVERRIDE;
     void itemChildRemoved(QQuickItem *item, QQuickItem *child) Q_DECL_OVERRIDE;
     void itemParentChanged(QQuickItem *item, QQuickItem *parent) Q_DECL_OVERRIDE;
@@ -89,7 +89,7 @@ QQuickViewChangeListener::~QQuickViewChangeListener()
     removeAncestorListeners(m_item->parentItem(), changeMask);
 }
 
-void QQuickViewChangeListener::itemGeometryChanged(QQuickItem *, const QRectF &, const QRectF &)
+void QQuickViewChangeListener::itemGeometryChanged(QQuickItem *, QQuickGeometryChange, const QRectF &)
 {
     m_item->polish();
 }
