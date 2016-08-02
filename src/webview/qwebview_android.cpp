@@ -401,6 +401,11 @@ static void c_onReceivedError(JNIEnv *env,
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
 {
+    static bool initialized = false;
+    if (initialized)
+        return JNI_VERSION_1_6;
+    initialized = true;
+
     typedef union {
         JNIEnv *nativeEnvironment;
         void *venv;

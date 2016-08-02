@@ -45,6 +45,7 @@
 #include <QScreen>
 #include <qfunctions_winrt.h>
 #include <private/qeventdispatcher_winrt_p.h>
+#include <private/qhighdpiscaling_p.h>
 
 #include <wrl.h>
 #include <windows.graphics.display.h>
@@ -488,8 +489,8 @@ void QWinRTWebViewPrivate::setGeometry(const QRect &geometry)
         const QScreen *screen = d->window->screen();
         Q_ASSERT(screen);
         const QPoint screenTopLeft = screen->availableGeometry().topLeft();
-        const QPointF topLeft = QPointF(geometry.topLeft() + screenTopLeft) * scaleFactor;
-        const QSizeF size = QSizeF(geometry.size()) * scaleFactor;
+        const QPointF topLeft = QHighDpi::toNativePixels(QPointF(geometry.topLeft() + screenTopLeft) * scaleFactor, screen);
+        const QSizeF size = QHighDpi::toNativePixels(QSizeF(geometry.size()) * scaleFactor, screen);
 #else
         ResolutionScale resolutionScale;
         hr = d->displayInformation->get_ResolutionScale(&resolutionScale);

@@ -82,6 +82,10 @@ Q_GLOBAL_STATIC(CallbackStorage, callbacks)
     APIs on the platforms where this is available, thus it does not necessarily require
     including a full web browser stack as part of the application.
 
+    To make the Qt WebView module function correctly across all platforms, it is necessary
+    to call \l {qtwebview-initialize}{QtWebView::initialize}() right after creating the
+    QGuiApplication instance.
+
     \note Due to platform limitations overlapping the WebView and other QML components
     is not supported.
 */
