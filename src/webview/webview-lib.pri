@@ -50,7 +50,7 @@ android {
     PRIVATE_HEADERS += \
         $$COMMON_HEADERS \
         qwebview_darwin_p.h
-    LIBS_PRIVATE += -framework WebKit
+    LIBS_PRIVATE += -framework Foundation -framework WebKit
 
     ios {
         LIBS_PRIVATE += -framework UIKit
