@@ -45,15 +45,12 @@
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qjsonobject.h>
 #include <QtCore/qurl.h>
-#include <QtCore/qdebug.h>
-#include <QtCore/qrunnable.h>
+
+#include <QtQml/qqml.h>
 
 #include <QtQuick/qquickwindow.h>
 #include <QtQuick/qquickview.h>
 #include <QtQuick/qquickitem.h>
-
-#include <QtQml/qqmlengine.h>
-#include <QtQml/qqmlcontext.h>
 
 #include <QtWebEngine/private/qquickwebengineview_p.h>
 #include <QtWebEngine/private/qquickwebengineloadrequest_p.h>
@@ -74,9 +71,8 @@ QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QObject *p)
     : QWebViewPrivate(p)
-    , m_webEngineView(0)
 {
-
+    m_webEngineView.m_parent = this;
 }
 
 QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate()
@@ -85,70 +81,52 @@ QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate()
 
 QUrl QWebEngineWebViewPrivate::url() const
 {
-    if (!m_webEngineView)
-        return QUrl();
-
     return m_webEngineView->url();
 }
 
 void QWebEngineWebViewPrivate::setUrl(const QUrl &url)
 {
-    if (m_webEngineView)
-        m_webEngineView->setUrl(url);
+    m_webEngineView->setUrl(url);
 }
 
 void QWebEngineWebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
 {
-    if (m_webEngineView)
-        m_webEngineView->loadHtml(html, baseUrl);
+    m_webEngineView->loadHtml(html, baseUrl);
 }
 
 bool QWebEngineWebViewPrivate::canGoBack() const
 {
-    if (!m_webEngineView)
-        return false;
-
     return m_webEngineView->canGoBack();
 }
 
 void QWebEngineWebViewPrivate::goBack()
 {
-    if (m_webEngineView)
-        m_webEngineView->goBack();
+    m_webEngineView->goBack();
 }
 
 bool QWebEngineWebViewPrivate::canGoForward() const
 {
-    if (!m_webEngineView)
-        return false;
-
     return m_webEngineView->canGoForward();
 }
 
 void QWebEngineWebViewPrivate::goForward()
 {
-    if (m_webEngineView)
-        m_webEngineView->goForward();
+    m_webEngineView->goForward();
 }
 
 void QWebEngineWebViewPrivate::reload()
 {
-    if (m_webEngineView)
-        m_webEngineView->reload();
+    m_webEngineView->reload();
 }
 
 QString QWebEngineWebViewPrivate::title() const
 {
-    if (!m_webEngineView)
-        return QString();
-
     return m_webEngineView->title();
 }
 
 void QWebEngineWebViewPrivate::setGeometry(const QRect &geometry)
 {
-    if (m_webEngineView)
-        m_webEngineView->setSize(geometry.size());
+    m_webEngineView->setSize(geometry.size());
 }
 
 void QWebEngineWebViewPrivate::setVisibility(QWindow::Visibility visibility)
@@ -159,77 +137,37 @@ void QWebEngineWebViewPrivate::setVisibility(QWindow::Visibility visibility)
 void QWebEngineWebViewPrivate::runJavaScriptPrivate(const QString &script,
                                                     int callbackId)
 {
-    if (m_webEngineView)
-        m_webEngineView->runJavaScript(script, QQuickWebView::takeCallback(callbackId));
+    m_webEngineView->runJavaScript(script, QQuickWebView::takeCallback(callbackId));
 }
 
 void QWebEngineWebViewPrivate::setVisible(bool visible)
 {
-    if (m_webEngineView)
-        m_webEngineView->setVisible(visible);
+    m_webEngineView->setVisible(visible);
 }
 
 int QWebEngineWebViewPrivate::loadProgress() const
 {
-    if (!m_webEngineView)
-        return 0;
-
     return m_webEngineView->loadProgress();
 }
 
 bool QWebEngineWebViewPrivate::isLoading() const
 {
-    if (!m_webEngineView)
-        return false;
-
     return m_webEngineView->isLoading();
 }
 
 void QWebEngineWebViewPrivate::setParentView(QObject *parentView)
 {
-    if (m_webEngineView != 0 || parentView == 0)
-        return;
-
-    QObject *p = parent();
-    QQuickItem *parentItem = 0;
-    while (p != 0) {
-        p = p->parent();
-        parentItem = qobject_cast<QQuickWebView *>(p);
-        if (parentItem != 0)
-            break;
-    }
-
-    if (!parentItem)
-        return;
-
-    QQmlContext *ctx = QQmlEngine::contextForObject(parentItem);
-    if (!ctx)
-        return;
-
-    QQmlEngine *engine = ctx->engine();
-    if (!engine)
-        return;
-
-    QQmlComponent *component = new QQmlComponent(engine);
-    component->setData(qmlSource(), QUrl::fromLocalFile(QLatin1String("")));
-    QQuickWebEngineView *webEngineView = qobject_cast<QQuickWebEngineView *>(component->create());
-    connect(webEngineView, &QQuickWebEngineView::urlChanged, this, &QWebEngineWebViewPrivate::q_urlChanged);
-    connect(webEngineView, &QQuickWebEngineView::loadProgressChanged, this, &QWebEngineWebViewPrivate::q_loadProgressChanged);
-    connect(webEngineView, &QQuickWebEngineView::loadingChanged, this, &QWebEngineWebViewPrivate::q_loadingChanged);
-    connect(webEngineView, &QQuickWebEngineView::titleChanged, this, &QWebEngineWebViewPrivate::q_titleChanged);
-    webEngineView->setParentItem(parentItem);
-    m_webEngineView.reset(webEngineView);
+    Q_UNUSED(parentView);
 }
 
 QObject *QWebEngineWebViewPrivate::parentView() const
 {
-    return m_webEngineView ? m_webEngineView->window() : 0;
+    return m_webEngineView->window();
 }
 
 void QWebEngineWebViewPrivate::stop()
 {
-    if (m_webEngineView)
-        m_webEngineView->stop();
+    m_webEngineView->stop();
 }
 
 void QWebEngineWebViewPrivate::q_urlChanged()
@@ -254,6 +192,37 @@ void QWebEngineWebViewPrivate::q_loadingChanged(QQuickWebEngineLoadRequest *load
                                   loadRequest->errorString());
 
     Q_EMIT loadingChanged(lr);
+}
+
+void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
+{
+    Q_ASSERT(!m_webEngineView);
+    QObject *p = qobject_cast<QObject *>(m_parent);
+    QQuickItem *parentItem = Q_NULLPTR;
+    while (p) {
+        p = p->parent();
+        parentItem = qobject_cast<QQuickWebView *>(p);
+        if (parentItem)
+            break;
+    }
+
+    if (!parentItem)
+        return;
+
+    QQmlEngine *engine = qmlEngine(parentItem);
+    if (!engine)
+        return;
+
+    QQmlComponent *component = new QQmlComponent(engine);
+    component->setData(qmlSource(), QUrl::fromLocalFile(QLatin1String("")));
+    QQuickWebEngineView *webEngineView = qobject_cast<QQuickWebEngineView *>(component->create());
+    Q_ASSERT(webEngineView);
+    QObject::connect(webEngineView, &QQuickWebEngineView::urlChanged, m_parent, &QWebEngineWebViewPrivate::q_urlChanged);
+    QObject::connect(webEngineView, &QQuickWebEngineView::loadProgressChanged, m_parent, &QWebEngineWebViewPrivate::q_loadProgressChanged);
+    QObject::connect(webEngineView, &QQuickWebEngineView::loadingChanged, m_parent, &QWebEngineWebViewPrivate::q_loadingChanged);
+    QObject::connect(webEngineView, &QQuickWebEngineView::titleChanged, m_parent, &QWebEngineWebViewPrivate::q_titleChanged);
+    webEngineView->setParentItem(parentItem);
+    m_webEngineView.reset(webEngineView);
 }
 
 QT_END_NAMESPACE
