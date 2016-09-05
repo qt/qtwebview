@@ -121,7 +121,7 @@ public:
 
     ~HStringList()
     {
-        foreach (const HSTRING &hString, d)
+        for (const HSTRING &hString : qAsConst(d))
             WindowsDeleteString(hString);
     }
 
