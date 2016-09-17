@@ -99,14 +99,14 @@ void QQuickViewChangeListener::itemChildRemoved(QQuickItem *item, QQuickItem *ch
     Q_UNUSED(item)
     Q_ASSERT(item != m_item);
 
-    const bool ancestor = isAncestor(child);
+    const bool remove = (child == m_item) || isAncestor(child);
 
-    // if the child isn't an ancestor of the view item, then we don't care.
-    if (!ancestor)
+    // if the child isn't the view item or its ancestor, then we don't care.
+    if (!remove)
         return;
 
     // Remove any listener we attached to the child and its ancestors.
-    removeAncestorListeners(child, changeMask);
+    removeAncestorListeners(item, changeMask);
 }
 
 void QQuickViewChangeListener::itemParentChanged(QQuickItem * /*item*/, QQuickItem *newParent)
