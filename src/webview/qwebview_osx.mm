@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 
 class QOsxWebViewPrivate;
 
-#if QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_11)
+#if QT_MACOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_11)
 #define QtFrameLoadDelegateProtocol <WebFrameLoadDelegate>
 #else
 // WebFrameLoadDelegate is an informal protocol in <= 10.10 SDK.

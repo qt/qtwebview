@@ -84,7 +84,7 @@ inline QSysInfo::MacVersion qt_OS_limit(QSysInfo::MacVersion osxVersion,
 
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
-#if QT_MAC_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
+#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
     if (QSysInfo::MacintoshVersion >= qt_OS_limit(QSysInfo::MV_10_10, QSysInfo::MV_IOS_8_0)
             && QtWebViewPrivate::useNativeWebView())
         return new QDarwinWebViewPrivate(q);
@@ -152,7 +152,7 @@ static inline CGRect toCGRect(const QRectF &rect)
 
 // -------------------------------------------------------------------------
 
-#if QT_MAC_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
+#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
 
 class QWebViewInterface;
 
