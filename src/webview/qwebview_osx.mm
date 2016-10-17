@@ -45,10 +45,6 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <WebKit/WebKit.h>
 
-QT_BEGIN_NAMESPACE
-
-class QOsxWebViewPrivate;
-
 #if QT_MACOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_11)
 #define QtFrameLoadDelegateProtocol <WebFrameLoadDelegate>
 #else
@@ -131,6 +127,8 @@ class QOsxWebViewPrivate;
 }
 
 @end
+
+QT_BEGIN_NAMESPACE
 
 QOsxWebViewPrivate::QOsxWebViewPrivate(QWebView *q)
     : QWebViewPrivate(q)

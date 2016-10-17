@@ -106,6 +106,7 @@ static inline CGRect toCGRect(const QRectF &rect)
     return CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
+QT_END_NAMESPACE
 // -------------------------------------------------------------------------
 
 #ifdef Q_OS_IOS
@@ -153,8 +154,6 @@ static inline CGRect toCGRect(const QRectF &rect)
 // -------------------------------------------------------------------------
 
 #if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
-
-class QWebViewInterface;
 
 @interface QtWKWebViewDelegate : NSObject<WKNavigationDelegate> {
     QDarwinWebViewPrivate *qDarwinWebViewPrivate;
@@ -241,6 +240,8 @@ class QWebViewInterface;
 }
 
 @end
+
+QT_BEGIN_NAMESPACE
 
 QDarwinWebViewPrivate::QDarwinWebViewPrivate(QObject *p)
     : QWebViewPrivate(p)
