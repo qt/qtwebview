@@ -109,9 +109,9 @@ void QQuickViewChangeListener::itemChildRemoved(QQuickItem *item, QQuickItem *ch
     removeAncestorListeners(item, changeMask);
 }
 
-void QQuickViewChangeListener::itemParentChanged(QQuickItem * /*item*/, QQuickItem *newParent)
+void QQuickViewChangeListener::itemParentChanged(QQuickItem *item, QQuickItem *newParent)
 {
-    removeAncestorListeners(m_item->parentItem(), changeMask);
+    removeAncestorListeners(item->parentItem(), changeMask);
     // Adds this as a listener for newParent and its ancestors.
     addAncestorListeners(newParent, changeMask);
 }
