@@ -35,6 +35,7 @@
 ****************************************************************************/
 
 #include "qwebview_p.h"
+#include <QtCore/QVariant>
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 
 QT_BEGIN_NAMESPACE
