@@ -48,7 +48,6 @@ import QtQuick.Controls.Styles 1.2
 ApplicationWindow {
     property bool showProgress: webView.loading
                                 && Qt.platform.os !== "ios"
-                                && Qt.platform.os !== "winphone"
                                 && Qt.platform.os !== "winrt"
     visible: true
     x: initialX
