@@ -66,13 +66,13 @@
 @end
 #endif
 
-QT_BEGIN_NAMESPACE
-
 Q_FORWARD_DECLARE_OBJC_CLASS(WKWebView);
 
 #ifdef Q_OS_IOS
 Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
 #endif
+
+QT_BEGIN_NAMESPACE
 
 class QDarwinWebViewPrivate : public QWebViewPrivate
 {

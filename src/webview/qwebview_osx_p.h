@@ -54,9 +54,9 @@
 
 #include "qwebview_p_p.h"
 
-QT_BEGIN_NAMESPACE
-
 Q_FORWARD_DECLARE_OBJC_CLASS(WebView);
+
+QT_BEGIN_NAMESPACE
 
 class QOsxWebViewPrivate : public QWebViewPrivate
 {

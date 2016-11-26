@@ -100,7 +100,19 @@ protected:
                               int callbackId) Q_DECL_OVERRIDE;
 
 private:
-    QScopedPointer<QQuickWebEngineView> m_webEngineView;
+    struct QQuickWebEngineViewPtr
+    {
+        inline QQuickWebEngineView *operator->() const
+        {
+            if (!m_webEngineView)
+                init();
+            return m_webEngineView.data();
+        }
+        void init() const;
+
+        QWebEngineWebViewPrivate *m_parent;
+        mutable QScopedPointer<QQuickWebEngineView> m_webEngineView;
+    } m_webEngineView;
 };
 
 QT_END_NAMESPACE

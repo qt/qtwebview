@@ -38,18 +38,21 @@
 #include "qwebview_osx_p.h"
 #include "qwebviewloadrequest_p.h"
 
-
+#include <QtCore/qglobal.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qvariant.h>
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <WebKit/WebKit.h>
 
-QT_BEGIN_NAMESPACE
+#if QT_MACOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_11)
+#define QtFrameLoadDelegateProtocol <WebFrameLoadDelegate>
+#else
+// WebFrameLoadDelegate is an informal protocol in <= 10.10 SDK.
+#define QtFrameLoadDelegateProtocol
+#endif
 
-class QOsxWebViewPrivate;
-
-@interface QtFrameLoadDelegate : NSObject <WebFrameLoadDelegate> {
+@interface QtFrameLoadDelegate : NSObject QtFrameLoadDelegateProtocol {
     QOsxWebViewPrivate *qtWebViewPrivate;
 }
 - (QtFrameLoadDelegate *)initWithQWebViewPrivate:(QOsxWebViewPrivate *)webViewPrivate;
@@ -124,6 +127,8 @@ class QOsxWebViewPrivate;
 }
 
 @end
+
+QT_BEGIN_NAMESPACE
 
 QOsxWebViewPrivate::QOsxWebViewPrivate(QWebView *q)
     : QWebViewPrivate(q)
