@@ -1,6 +1,6 @@
 CONFIG += testcase parallel_test
 TARGET = tst_qwebview
-osx:CONFIG -= app_bundle
+macos:CONFIG -= app_bundle
 
 !qtHaveModule(quick) {
   DEFINES += QT_NO_QQUICKWEBVIEW_TESTS

@@ -48,19 +48,11 @@
 #include <WebKit/WebKit.h>
 
 #ifdef Q_OS_IOS
-#include "qwebview_ios_p.h"
-
-#include <UIKit/UIKit.h>
-
-#import <UIKit/UIView.h>
-#import <UIKit/UIWindow.h>
-#import <UIKit/UIViewController.h>
-#import <UIKit/UITapGestureRecognizer.h>
+#import <UIKit/UIKit.h>
 #import <UIKit/UIGestureRecognizerSubclass.h>
 #endif
 
-#ifdef Q_OS_OSX
-#include "qwebview_osx_p.h"
+#ifdef Q_OS_MACOS
 #include "qwebview_webengine_p.h"
 
 #include <AppKit/AppKit.h>
@@ -70,35 +62,13 @@ typedef NSView UIView;
 
 QT_BEGIN_NAMESPACE
 
-inline QSysInfo::MacVersion qt_OS_limit(QSysInfo::MacVersion osxVersion,
-                                        QSysInfo::MacVersion iosVersion)
-{
-#ifdef Q_OS_OSX
-    Q_UNUSED(iosVersion)
-    return osxVersion;
-#else
-    Q_UNUSED(osxVersion)
-    return iosVersion;
-#endif
-}
-
 QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
 {
-#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
-    if (QSysInfo::MacintoshVersion >= qt_OS_limit(QSysInfo::MV_10_10, QSysInfo::MV_IOS_8_0)
-            && QtWebViewPrivate::useNativeWebView())
-        return new QDarwinWebViewPrivate(q);
+#ifdef Q_OS_MACOS
+    if (!QtWebViewPrivate::useNativeWebView())
+        return new QWebEngineWebViewPrivate(q);
 #endif
-
-#if defined(Q_OS_IOS)
-    return new QIosWebViewPrivate(q);
-#else
-#  if defined(Q_OS_MACOS)
-    if (QtWebViewPrivate::useNativeWebView())
-        return new QOsxWebViewPrivate(q);
-#  endif
-    return new QWebEngineWebViewPrivate(q);
-#endif
+    return new QDarwinWebViewPrivate(q);
 }
 
 static inline CGRect toCGRect(const QRectF &rect)
@@ -152,8 +122,6 @@ QT_END_NAMESPACE
 #endif
 
 // -------------------------------------------------------------------------
-
-#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_10, __IPHONE_8_0)
 
 @interface QtWKWebViewDelegate : NSObject<WKNavigationDelegate> {
     QDarwinWebViewPrivate *qDarwinWebViewPrivate;
@@ -433,6 +401,5 @@ void QDarwinWebViewPrivate::runJavaScriptPrivate(const QString &script, int call
             Q_EMIT javaScriptResult(callbackId, fromJSValue(result));
     }];
 }
-#endif
 
 QT_END_NAMESPACE

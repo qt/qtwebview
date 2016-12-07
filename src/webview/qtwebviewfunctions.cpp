@@ -41,7 +41,7 @@
 #include <QtWebEngine/qtwebengineglobal.h>
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 #include <QtCore/qbytearray.h>
 #endif
 

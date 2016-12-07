@@ -13,7 +13,7 @@ INCLUDEPATH += \
 
 QT += testlib network quick webview-private
 
-osx: CONFIG -= app_bundle
+macos: CONFIG -= app_bundle
 
 DISTFILES += \
     $$PWD/qquickwebview/dummy.qml

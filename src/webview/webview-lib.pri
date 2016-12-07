@@ -52,18 +52,7 @@ android {
         qwebview_darwin_p.h
     LIBS_PRIVATE += -framework Foundation -framework WebKit
 
-    ios {
-        LIBS_PRIVATE += -framework UIKit
-        PRIVATE_HEADERS += qwebview_ios_p.h
-        OBJECTIVE_SOURCES += qwebview_ios.mm
-    }
-
-    osx {
-        LIBS_PRIVATE += -framework AppKit
-        PRIVATE_HEADERS += qwebview_osx_p.h
-        OBJECTIVE_SOURCES += qwebview_osx.mm
-        CONFIG += use_webengine_backend
-    }
+    macos: CONFIG += use_webengine_backend
 } else: winrt {
     NO_PCH_SOURCES += qwebview_winrt.cpp
     SOURCES += $$COMMON_SOURCES
