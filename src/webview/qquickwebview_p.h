@@ -103,6 +103,7 @@ Q_SIGNALS:
     void loadProgressChanged();
 
 protected:
+    void itemChange(ItemChange change, const ItemChangeData &value) Q_DECL_OVERRIDE;
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) Q_DECL_OVERRIDE;
 

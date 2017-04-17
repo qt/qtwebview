@@ -291,6 +291,14 @@ void QQuickWebView::runJavaScriptPrivate(const QString &script, int callbackId)
     m_webView->runJavaScriptPrivate(script, callbackId);
 }
 
+void QQuickWebView::itemChange(ItemChange change, const ItemChangeData &value)
+{
+    if (change == QQuickItem::ItemActiveFocusHasChanged) {
+        m_webView->setFocus(value.boolValue);
+    }
+    QQuickItem::itemChange(change, value);
+}
+
 void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)
 {
     if (id == -1)

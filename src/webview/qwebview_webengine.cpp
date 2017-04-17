@@ -147,6 +147,12 @@ void QWebEngineWebViewPrivate::setVisible(bool visible)
     m_webEngineView->setVisible(visible);
 }
 
+void QWebEngineWebViewPrivate::setFocus(bool focus)
+{
+    if (focus)
+        m_webEngineView->forceActiveFocus();
+}
+
 int QWebEngineWebViewPrivate::loadProgress() const
 {
     return m_webEngineView->loadProgress();
