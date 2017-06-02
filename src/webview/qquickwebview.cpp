@@ -39,6 +39,7 @@
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/QDebug>
 
 namespace {
 
