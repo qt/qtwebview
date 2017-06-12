@@ -39,6 +39,7 @@
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/QDebug>
 
 namespace {
 
@@ -289,6 +290,14 @@ void QQuickWebView::runJavaScript(const QString &script, const QJSValue &callbac
 void QQuickWebView::runJavaScriptPrivate(const QString &script, int callbackId)
 {
     m_webView->runJavaScriptPrivate(script, callbackId);
+}
+
+void QQuickWebView::itemChange(ItemChange change, const ItemChangeData &value)
+{
+    if (change == QQuickItem::ItemActiveFocusHasChanged) {
+        m_webView->setFocus(value.boolValue);
+    }
+    QQuickItem::itemChange(change, value);
 }
 
 void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)

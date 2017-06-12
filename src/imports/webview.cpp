@@ -40,6 +40,13 @@
 #include <QtWebView/private/qquickwebviewloadrequest_p.h>
 #include <QtWebView/private/qquickwebview_p.h>
 
+static void initResources()
+{
+#ifdef QT_STATIC
+    Q_INIT_RESOURCE(qmake_QtWebView);
+#endif
+}
+
 QT_BEGIN_NAMESPACE
 
 class QWebViewModule : public QQmlExtensionPlugin
@@ -47,6 +54,7 @@ class QWebViewModule : public QQmlExtensionPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
 public:
+    QWebViewModule(QObject *parent = 0) : QQmlExtensionPlugin(parent) { initResources(); }
     void registerTypes(const char *uri)
     {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWebView"));
