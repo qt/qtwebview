@@ -253,7 +253,14 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
 {
     if (url.isValid()) {
         requestFrameCount = 0;
-        [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
+        if (!url.isLocalFile()) {
+            [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
+        } else {
+            // We need to pass local files via loadFileURL and the read access should cover
+            // the directory that the file is in, to facilitate loading referenced images etc
+            [wkWebView loadFileURL:url.toNSURL()
+           allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
+        }
     }
 }
 
