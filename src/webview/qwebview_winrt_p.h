@@ -71,7 +71,7 @@ class QWinRTWebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
 public:
-    explicit QWinRTWebViewPrivate(QObject *parent = Q_NULLPTR);
+    explicit QWinRTWebViewPrivate(QObject *parent = nullptr);
     ~QWinRTWebViewPrivate() Q_DECL_OVERRIDE;
 
     QUrl url() const Q_DECL_OVERRIDE;

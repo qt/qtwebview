@@ -206,7 +206,7 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
 {
     Q_ASSERT(!m_webEngineView);
     QObject *p = qobject_cast<QObject *>(m_parent);
-    QQuickItem *parentItem = Q_NULLPTR;
+    QQuickItem *parentItem = nullptr;
     while (p) {
         p = p->parent();
         parentItem = qobject_cast<QQuickWebView *>(p);
