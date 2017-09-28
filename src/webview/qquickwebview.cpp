@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -302,7 +302,7 @@ void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)
 
     QQmlEngine *engine = qmlEngine(this);
     if (engine == 0) {
-        qWarning() << "No JavaScript engine, unable to handle JavaScript callback!";
+        qWarning("No JavaScript engine, unable to handle JavaScript callback!");
         return;
     }
 
