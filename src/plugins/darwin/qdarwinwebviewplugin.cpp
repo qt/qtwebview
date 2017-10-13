@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,37 +34,35 @@
 **
 ****************************************************************************/
 
-#include "qtwebviewfunctions.h"
-
-#include "qwebviewfactory_p.h"
-#include "qwebviewplugin_p.h"
+#include "qdarwinwebview_p.h"
+#include <private/qwebviewplugin_p.h>
+#include <QtCore/qbytearray.h>
 
 QT_BEGIN_NAMESPACE
 
-/*!
-    \namespace QtWebView
-    \inmodule QtWebView
-    \brief The QtWebView namespace provides functions that makes it easier to set-up and use the WebView.
-    \inheaderfile QtWebView
-*/
-
-/*!
-    \fn void QtWebView::initialize()
-    \keyword qtwebview-initialize
-
-    This function initializes resources or sets options that are required by the different back-ends.
-
-    \note The \c initialize() function needs to be called immediately after the QGuiApplication
-    instance is created.
- */
-
-void QtWebView::initialize()
+class QDarwinWebViewPlugin : public QWebViewPlugin
 {
-    if (QWebViewFactory::requiresExtraInitializationSteps()) {
-        QWebViewPlugin *plugin = QWebViewFactory::getPlugin();
-        Q_ASSERT(plugin);
-        plugin->prepare();
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID QWebViewPluginInterface_iid FILE "darwin.json")
+
+public:
+    QAbstractWebView *create(const QString &key) const override
+    {
+        return (key == QLatin1String("webview")) ? new QDarwinWebViewPrivate() : nullptr;
     }
-}
+
+    void prepare() const override
+    {
+#ifdef Q_OS_MACOS
+        // On macOS, correct WebView / QtQuick compositing and stacking requires running
+        // Qt in layer-backed mode, which again resuires rendering on the Gui thread.
+        qWarning("Setting QT_MAC_WANTS_LAYER=1 and QSG_RENDER_LOOP=basic");
+        qputenv("QT_MAC_WANTS_LAYER", "1");
+        qputenv("QSG_RENDER_LOOP", "basic");
+#endif // Q_OS_MACOS
+    }
+};
 
 QT_END_NAMESPACE
+
+#include "qdarwinwebviewplugin.moc"

@@ -34,37 +34,48 @@
 **
 ****************************************************************************/
 
-#include "qtwebviewfunctions.h"
+#ifndef QABSTRACTWEBVIEW_P_H
+#define QABSTRACTWEBVIEW_P_H
 
-#include "qwebviewfactory_p.h"
-#include "qwebviewplugin_p.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "qwebviewinterface_p.h"
+#include "qnativeviewcontroller_p.h"
 
 QT_BEGIN_NAMESPACE
 
-/*!
-    \namespace QtWebView
-    \inmodule QtWebView
-    \brief The QtWebView namespace provides functions that makes it easier to set-up and use the WebView.
-    \inheaderfile QtWebView
-*/
+class QWebView;
+class QWebViewLoadRequestPrivate;
 
-/*!
-    \fn void QtWebView::initialize()
-    \keyword qtwebview-initialize
-
-    This function initializes resources or sets options that are required by the different back-ends.
-
-    \note The \c initialize() function needs to be called immediately after the QGuiApplication
-    instance is created.
- */
-
-void QtWebView::initialize()
+class Q_WEBVIEW_EXPORT QAbstractWebView
+        : public QObject
+        , public QWebViewInterface
+        , public QNativeViewController
 {
-    if (QWebViewFactory::requiresExtraInitializationSteps()) {
-        QWebViewPlugin *plugin = QWebViewFactory::getPlugin();
-        Q_ASSERT(plugin);
-        plugin->prepare();
-    }
-}
+    Q_OBJECT
+
+Q_SIGNALS:
+    void titleChanged(const QString &title);
+    void urlChanged(const QUrl &url);
+    void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
+    void loadProgressChanged(int progress);
+    void javaScriptResult(int id, const QVariant &result);
+    void requestFocus(bool focus);
+
+protected:
+    explicit QAbstractWebView(QObject *p = 0) : QObject(p) { }
+};
 
 QT_END_NAMESPACE
+
+#endif // QABSTRACTWEBVIEW_P_H
+

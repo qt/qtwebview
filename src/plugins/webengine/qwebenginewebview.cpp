@@ -34,9 +34,9 @@
 **
 ****************************************************************************/
 
-#include "qwebview_webengine_p.h"
-#include "qwebview_p.h"
-#include "qwebviewloadrequest_p.h"
+#include "qwebenginewebview_p.h"
+#include <private/qwebview_p.h>
+#include <private/qwebviewloadrequest_p.h>
 
 #include <QtWebView/private/qquickwebview_p.h>
 
@@ -64,15 +64,8 @@ static QByteArray qmlSource()
                              "}\n");
 }
 
-#ifndef Q_OS_MACOS
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-    return new QWebEngineWebViewPrivate(q);
-}
-#endif
-
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QObject *p)
-    : QWebViewPrivate(p)
+    : QAbstractWebView(p)
 {
     m_webEngineView.m_parent = this;
 }

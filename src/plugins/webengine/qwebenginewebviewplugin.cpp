@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,50 +34,30 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBVIEW_P_P_H
-#define QWEBVIEW_P_P_H
+#include "qwebenginewebview_p.h"
+#include <private/qwebviewplugin_p.h>
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include "qwebviewinterface_p.h"
-#include "qnativeviewcontroller_p.h"
+#include <QtWebEngine/qtwebengineglobal.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWebView;
-class QWebViewLoadRequestPrivate;
-
-class Q_WEBVIEW_EXPORT QWebViewPrivate
-        : public QObject
-        , public QWebViewInterface
-        , public QNativeViewController
+class QWebEngineWebViewPlugin : public QWebViewPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID QWebViewPluginInterface_iid FILE "webengine.json")
+
 public:
-    static QWebViewPrivate *create(QWebView *q);
+    QAbstractWebView *create(const QString &key) const override
+    {
+        return (key == QLatin1String("webview")) ? new QWebEngineWebViewPrivate() : nullptr;
+    }
 
-Q_SIGNALS:
-    void titleChanged(const QString &title);
-    void urlChanged(const QUrl &url);
-    void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-    void loadProgressChanged(int progress);
-    void javaScriptResult(int id, const QVariant &result);
-    void requestFocus(bool focus);
-
-protected:
-    explicit QWebViewPrivate(QObject *p = 0) : QObject(p) { }
+    void prepare() const override
+    {
+        QtWebEngine::initialize();
+    }
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_P_P_H
-
+#include "qwebenginewebviewplugin.moc"

@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBVIEW_DARWIN_P_H
-#define QWEBVIEW_DARWIN_P_H
+#ifndef QWEBENGINEWEBVIEW_P_H
+#define QWEBENGINEWEBVIEW_P_H
 
 //
 //  W A R N I N G
@@ -52,34 +52,21 @@
 #include <QtCore/qurl.h>
 #include <QtGui/qwindow.h>
 
-#include "qwebview_p_p.h"
+#include <QtQml/qqmlcomponent.h>
 
-#if defined(Q_OS_IOS) && defined(__OBJC__)
-#include <UIKit/UIGestureRecognizer.h>
-
-@interface QIOSNativeViewSelectedRecognizer : UIGestureRecognizer <UIGestureRecognizerDelegate>
-{
-@public
-    QNativeViewController *m_item;
-}
-- (id)initWithQWindowControllerItem:(QNativeViewController *)item;
-@end
-#endif
-
-Q_FORWARD_DECLARE_OBJC_CLASS(WKWebView);
-
-#ifdef Q_OS_IOS
-Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
-#endif
+#include <private/qabstractwebview_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QDarwinWebViewPrivate : public QWebViewPrivate
+class QQuickWebEngineView;
+class QQuickWebEngineLoadRequest;
+
+class QWebEngineWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QDarwinWebViewPrivate(QObject *p = 0);
-    ~QDarwinWebViewPrivate() Q_DECL_OVERRIDE;
+    explicit QWebEngineWebViewPrivate(QObject *p = 0);
+    ~QWebEngineWebViewPrivate() Q_DECL_OVERRIDE;
 
     QUrl url() const Q_DECL_OVERRIDE;
     void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
@@ -89,7 +76,7 @@ public:
     int loadProgress() const Q_DECL_OVERRIDE;
     bool isLoading() const Q_DECL_OVERRIDE;
 
-    void setParentView(QObject *view) Q_DECL_OVERRIDE;
+    void setParentView(QObject *parentView) Q_DECL_OVERRIDE;
     QObject *parentView() const Q_DECL_OVERRIDE;
     void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
     void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
@@ -103,19 +90,32 @@ public Q_SLOTS:
     void stop() Q_DECL_OVERRIDE;
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
 
+private Q_SLOTS:
+    void q_urlChanged();
+    void q_loadProgressChanged();
+    void q_titleChanged();
+    void q_loadingChanged(QQuickWebEngineLoadRequest *loadRequest);
+
 protected:
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) Q_DECL_OVERRIDE;
 
-public:
-    WKWebView *wkWebView;
-#ifdef Q_OS_IOS
-    UIGestureRecognizer *m_recognizer;
-#endif
-    int requestFrameCount;
-    QPointer<QObject> m_parentView;
+private:
+    struct QQuickWebEngineViewPtr
+    {
+        inline QQuickWebEngineView *operator->() const
+        {
+            if (!m_webEngineView)
+                init();
+            return m_webEngineView.data();
+        }
+        void init() const;
+
+        QWebEngineWebViewPrivate *m_parent;
+        mutable QScopedPointer<QQuickWebEngineView> m_webEngineView;
+    } m_webEngineView;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_DARWIN_P_H
+#endif // QWEBENGINEWEBVIEW_P_H

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBVIEW_ANDROID_P_H
-#define QWEBVIEW_ANDROID_P_H
+#ifndef QWINRTWEBVIEW_P_H
+#define QWINRTWEBVIEW_P_H
 
 //
 //  W A R N I N G
@@ -48,25 +48,31 @@
 // We mean it.
 //
 
-#include <QtCore/qobject.h>
-#include <QtCore/qurl.h>
-#include <QtGui/qwindow.h>
+#include <private/qabstractwebview_p.h>
 
-#include <QtQml/qqmlcomponent.h>
-
-#include "qwebview_p_p.h"
+namespace ABI {
+    namespace Windows {
+        namespace UI {
+            namespace Xaml {
+                namespace Controls {
+                    struct IWebView;
+                    struct IWebViewNavigationStartingEventArgs;
+                    struct IWebViewNavigationCompletedEventArgs;
+                }
+            }
+        }
+    }
+}
 
 QT_BEGIN_NAMESPACE
 
-class QQuickWebEngineView;
-class QQuickWebEngineLoadRequest;
-
-class QWebEngineWebViewPrivate : public QWebViewPrivate
+struct WinRTWebView;
+class QWinRTWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QWebEngineWebViewPrivate(QObject *p = 0);
-    ~QWebEngineWebViewPrivate() Q_DECL_OVERRIDE;
+    explicit QWinRTWebViewPrivate(QObject *parent = nullptr);
+    ~QWinRTWebViewPrivate() Q_DECL_OVERRIDE;
 
     QUrl url() const Q_DECL_OVERRIDE;
     void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
@@ -76,12 +82,11 @@ public:
     int loadProgress() const Q_DECL_OVERRIDE;
     bool isLoading() const Q_DECL_OVERRIDE;
 
-    void setParentView(QObject *parentView) Q_DECL_OVERRIDE;
+    void setParentView(QObject *view) Q_DECL_OVERRIDE;
     QObject *parentView() const Q_DECL_OVERRIDE;
     void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
     void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
     void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void setFocus(bool focus) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
     void goBack() Q_DECL_OVERRIDE;
@@ -90,32 +95,15 @@ public Q_SLOTS:
     void stop() Q_DECL_OVERRIDE;
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
 
-private Q_SLOTS:
-    void q_urlChanged();
-    void q_loadProgressChanged();
-    void q_titleChanged();
-    void q_loadingChanged(QQuickWebEngineLoadRequest *loadRequest);
-
 protected:
-    void runJavaScriptPrivate(const QString& script,
-                              int callbackId) Q_DECL_OVERRIDE;
+    void runJavaScriptPrivate(const QString &script, int callbackId) Q_DECL_OVERRIDE;
 
 private:
-    struct QQuickWebEngineViewPtr
-    {
-        inline QQuickWebEngineView *operator->() const
-        {
-            if (!m_webEngineView)
-                init();
-            return m_webEngineView.data();
-        }
-        void init() const;
-
-        QWebEngineWebViewPrivate *m_parent;
-        mutable QScopedPointer<QQuickWebEngineView> m_webEngineView;
-    } m_webEngineView;
+    HRESULT onNavigationStarted(ABI::Windows::UI::Xaml::Controls::IWebView *, ABI::Windows::UI::Xaml::Controls::IWebViewNavigationStartingEventArgs *);
+    HRESULT onNavigationCompleted(ABI::Windows::UI::Xaml::Controls::IWebView *, ABI::Windows::UI::Xaml::Controls::IWebViewNavigationCompletedEventArgs *);
+    QScopedPointer<WinRTWebView> d;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_ANDROID_P_H
+#endif // QWINRTWEBVIEW_P_H

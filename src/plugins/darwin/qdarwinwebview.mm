@@ -34,11 +34,10 @@
 **
 ****************************************************************************/
 
-#include "qwebview_darwin_p.h"
-#include "qwebview_p.h"
-#include "qwebviewloadrequest_p.h"
+#include "qdarwinwebview_p.h"
+#include <private/qwebview_p.h>
+#include <private/qwebviewloadrequest_p.h>
 #include "qtwebviewfunctions.h"
-#include "qtwebviewfunctions_p.h"
 
 #include <QtCore/private/qglobal_p.h>
 #include <QtCore/qdatetime.h>
@@ -54,23 +53,12 @@
 #endif
 
 #ifdef Q_OS_MACOS
-#include "qwebview_webengine_p.h"
-
 #include <AppKit/AppKit.h>
 
 typedef NSView UIView;
 #endif
 
 QT_BEGIN_NAMESPACE
-
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-#ifdef Q_OS_MACOS
-    if (!QtWebViewPrivate::useNativeWebView())
-        return new QWebEngineWebViewPrivate(q);
-#endif
-    return new QDarwinWebViewPrivate(q);
-}
 
 static inline CGRect toCGRect(const QRectF &rect)
 {
@@ -257,7 +245,7 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
 QT_BEGIN_NAMESPACE
 
 QDarwinWebViewPrivate::QDarwinWebViewPrivate(QObject *p)
-    : QWebViewPrivate(p)
+    : QAbstractWebView(p)
     , wkWebView(nil)
 #ifdef Q_OS_IOS
     , m_recognizer(0)

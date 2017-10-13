@@ -34,9 +34,9 @@
 **
 ****************************************************************************/
 
-#include "qwebview_android_p.h"
-#include "qwebview_p.h"
-#include "qwebviewloadrequest_p.h" // TODO:
+#include "qandroidwebview_p.h"
+#include <private/qwebview_p.h>
+#include <private/qwebviewloadrequest_p.h>
 #include <QtCore/private/qjnihelpers_p.h>
 #include <QtCore/private/qjni_p.h>
 
@@ -49,11 +49,6 @@
 #include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
-
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-    return new QAndroidWebViewPrivate(q);
-}
 
 static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt5/android/view/QtAndroidWebViewController";
 
@@ -78,7 +73,7 @@ typedef QMap<quintptr, QAndroidWebViewPrivate *> WebViews;
 Q_GLOBAL_STATIC(WebViews, g_webViews)
 
 QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
-    : QWebViewPrivate(p)
+    : QAbstractWebView(p)
     , m_id(reinterpret_cast<quintptr>(this))
     , m_callbackId(0)
     , m_window(0)

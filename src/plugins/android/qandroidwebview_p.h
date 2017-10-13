@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBVIEW_P_H
-#define QWEBVIEW_P_H
+#ifndef QANDROIDWEBVIEW_P_H
+#define QANDROIDWEBVIEW_P_H
 
 //
 //  W A R N I N G
@@ -48,34 +48,21 @@
 // We mean it.
 //
 
-#include "qabstractwebview_p.h"
-#include "qwebviewinterface_p.h"
-#include "qnativeviewcontroller_p.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
-#include <QtGui/qimage.h>
-#include <QtQml/qjsvalue.h>
+#include <QtGui/qwindow.h>
+#include <QtCore/private/qjni_p.h>
+
+#include <private/qabstractwebview_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWebViewLoadRequestPrivate;
-
-class Q_WEBVIEW_EXPORT QWebView
-        : public QObject
-        , public QWebViewInterface
-        , public QNativeViewController
+class QAndroidWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    enum LoadStatus { // Changes here needs to be done in QQuickWebView as well
-        LoadStartedStatus,
-        LoadStoppedStatus,
-        LoadSucceededStatus,
-        LoadFailedStatus
-    };
-
-    explicit QWebView(QObject *p = 0);
-    ~QWebView() Q_DECL_OVERRIDE;
+    explicit QAndroidWebViewPrivate(QObject *p = 0);
+    ~QAndroidWebViewPrivate() Q_DECL_OVERRIDE;
 
     QUrl url() const Q_DECL_OVERRIDE;
     void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
@@ -90,7 +77,6 @@ public:
     void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
     void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
     void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void setFocus(bool focus) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
     void goBack() Q_DECL_OVERRIDE;
@@ -99,37 +85,21 @@ public Q_SLOTS:
     void stop() Q_DECL_OVERRIDE;
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
 
-Q_SIGNALS:
-    void titleChanged();
-    void urlChanged();
-    void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-    void loadProgressChanged();
-    void javaScriptResult(int id, const QVariant &result);
-    void requestFocus(bool focus);
-
 protected:
-    void init() Q_DECL_OVERRIDE;
-    void runJavaScriptPrivate(const QString &script,
+    void runJavaScriptPrivate(const QString& script,
                               int callbackId) Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
-    void onTitleChanged(const QString &title);
-    void onUrlChanged(const QUrl &url);
-    void onLoadProgressChanged(int progress);
-    void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
+    void onApplicationStateChanged(Qt::ApplicationState state);
 
 private:
-    friend class QQuickViewController;
-    friend class QQuickWebView;
-
-    QAbstractWebView *d;
-
-    // provisional data
-    int m_progress;
-    QString m_title;
-    QUrl m_url;
+    quintptr m_id;
+    quint64 m_callbackId;
+    QWindow *m_window;
+    QJNIObjectPrivate m_viewController;
+    QJNIObjectPrivate m_webView;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_P_H
+#endif // QANDROIDWEBVIEW_P_H

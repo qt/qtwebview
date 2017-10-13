@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,37 +34,41 @@
 **
 ****************************************************************************/
 
-#include "qtwebviewfunctions.h"
+#ifndef QWEBVIEWPLUGIN_H
+#define QWEBVIEWPLUGIN_H
 
-#include "qwebviewfactory_p.h"
-#include "qwebviewplugin_p.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "qwebview_global.h"
+#include "qabstractwebview_p.h"
+
+#include <QtCore/qobject.h>
+
+#define QWebViewPluginInterface_iid "org.qt-project.Qt.QWebViewPluginInterface"
 
 QT_BEGIN_NAMESPACE
 
-/*!
-    \namespace QtWebView
-    \inmodule QtWebView
-    \brief The QtWebView namespace provides functions that makes it easier to set-up and use the WebView.
-    \inheaderfile QtWebView
-*/
-
-/*!
-    \fn void QtWebView::initialize()
-    \keyword qtwebview-initialize
-
-    This function initializes resources or sets options that are required by the different back-ends.
-
-    \note The \c initialize() function needs to be called immediately after the QGuiApplication
-    instance is created.
- */
-
-void QtWebView::initialize()
+class Q_WEBVIEW_EXPORT QWebViewPlugin : public QObject
 {
-    if (QWebViewFactory::requiresExtraInitializationSteps()) {
-        QWebViewPlugin *plugin = QWebViewFactory::getPlugin();
-        Q_ASSERT(plugin);
-        plugin->prepare();
-    }
-}
+    Q_OBJECT
+public:
+    explicit QWebViewPlugin(QObject *parent = 0);
+    virtual ~QWebViewPlugin();
+
+    virtual QAbstractWebView *create(const QString &key) const = 0;
+
+    virtual void prepare() const;
+};
 
 QT_END_NAMESPACE
+
+#endif // QWEBVIEWPLUGIN_H

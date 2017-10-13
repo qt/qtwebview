@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWebView module of the Qt Toolkit.
@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBVIEW_WINRT_P_H
-#define QWEBVIEW_WINRT_P_H
+#ifndef QDARWINWEBVIEW_P_H
+#define QDARWINWEBVIEW_P_H
 
 //
 //  W A R N I N G
@@ -48,31 +48,38 @@
 // We mean it.
 //
 
-#include "qwebview_p.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qurl.h>
+#include <QtGui/qwindow.h>
 
-namespace ABI {
-    namespace Windows {
-        namespace UI {
-            namespace Xaml {
-                namespace Controls {
-                    struct IWebView;
-                    struct IWebViewNavigationStartingEventArgs;
-                    struct IWebViewNavigationCompletedEventArgs;
-                }
-            }
-        }
-    }
+#include <private/qabstractwebview_p.h>
+
+#if defined(Q_OS_IOS) && defined(__OBJC__)
+#include <UIKit/UIGestureRecognizer.h>
+
+@interface QIOSNativeViewSelectedRecognizer : UIGestureRecognizer <UIGestureRecognizerDelegate>
+{
+@public
+    QNativeViewController *m_item;
 }
+- (id)initWithQWindowControllerItem:(QNativeViewController *)item;
+@end
+#endif
+
+Q_FORWARD_DECLARE_OBJC_CLASS(WKWebView);
+
+#ifdef Q_OS_IOS
+Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
+#endif
 
 QT_BEGIN_NAMESPACE
 
-struct WinRTWebView;
-class QWinRTWebViewPrivate : public QWebViewPrivate
+class QDarwinWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QWinRTWebViewPrivate(QObject *parent = nullptr);
-    ~QWinRTWebViewPrivate() Q_DECL_OVERRIDE;
+    explicit QDarwinWebViewPrivate(QObject *p = 0);
+    ~QDarwinWebViewPrivate() Q_DECL_OVERRIDE;
 
     QUrl url() const Q_DECL_OVERRIDE;
     void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
@@ -87,6 +94,7 @@ public:
     void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
     void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
     void setVisible(bool visible) Q_DECL_OVERRIDE;
+    void setFocus(bool focus) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
     void goBack() Q_DECL_OVERRIDE;
@@ -96,14 +104,18 @@ public Q_SLOTS:
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
 
 protected:
-    void runJavaScriptPrivate(const QString &script, int callbackId) Q_DECL_OVERRIDE;
+    void runJavaScriptPrivate(const QString& script,
+                              int callbackId) Q_DECL_OVERRIDE;
 
-private:
-    HRESULT onNavigationStarted(ABI::Windows::UI::Xaml::Controls::IWebView *, ABI::Windows::UI::Xaml::Controls::IWebViewNavigationStartingEventArgs *);
-    HRESULT onNavigationCompleted(ABI::Windows::UI::Xaml::Controls::IWebView *, ABI::Windows::UI::Xaml::Controls::IWebViewNavigationCompletedEventArgs *);
-    QScopedPointer<WinRTWebView> d;
+public:
+    WKWebView *wkWebView;
+#ifdef Q_OS_IOS
+    UIGestureRecognizer *m_recognizer;
+#endif
+    int requestFrameCount;
+    QPointer<QObject> m_parentView;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWEBVIEW_WINRT_P_H
+#endif // QDARWINWEBVIEW_P_H

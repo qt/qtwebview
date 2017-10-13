@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#include "qwebview_winrt_p.h"
-#include "qwebviewloadrequest_p.h"
+#include "qwinrtwebview_p.h"
+#include <private/qwebviewloadrequest_p.h>
 
 #include <functional>
 
@@ -263,11 +263,6 @@ static QString webErrorStatusString(WebErrorStatus status)
     return QString();
 }
 
-QWebViewPrivate *QWebViewPrivate::create(QWebView *q)
-{
-    return new QWinRTWebViewPrivate(q);
-}
-
 struct WinRTWebView
 {
     ComPtr<IWebView> base;
@@ -293,7 +288,7 @@ static const wchar_t webviewXaml[] = LSTRING(
 );
 
 QWinRTWebViewPrivate::QWinRTWebViewPrivate(QObject *parent)
-    : QWebViewPrivate(parent), d(new WinRTWebView)
+    : QAbstractWebView(parent), d(new WinRTWebView)
 {
     d->isLoading = false;
 

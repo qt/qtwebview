@@ -34,29 +34,23 @@
 **
 ****************************************************************************/
 
-#ifndef QTWEBVIEWFUNCTIONS_P_H
-#define QTWEBVIEWFUNCTIONS_P_H
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtWebView/qwebview_global.h>
+#include "qandroidwebview_p.h"
+#include <private/qwebviewplugin_p.h>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWebViewPrivate
+class QAndroidWebViewPlugin : public QWebViewPlugin
 {
-    bool useNativeWebView();
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID QWebViewPluginInterface_iid FILE "android.json")
+
+public:
+    QAbstractWebView *create(const QString &key) const override
+    {
+        return (key == QLatin1String("webview")) ? new QAndroidWebViewPrivate() : nullptr;
+    }
+};
 
 QT_END_NAMESPACE
 
-#endif // QTWEBVIEWFUNCTIONS_P_H
+#include "qandroidwebviewplugin.moc"
