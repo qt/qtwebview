@@ -40,6 +40,7 @@
 #include "qtwebviewfunctions.h"
 #include "qtwebviewfunctions_p.h"
 
+#include <QtCore/private/qglobal_p.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qvariant.h>
@@ -253,14 +254,19 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
 {
     if (url.isValid()) {
         requestFrameCount = 0;
-        if (!url.isLocalFile()) {
-            [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
-        } else {
+
+#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(101100, 90000)
+        if (url.isLocalFile()) {
             // We need to pass local files via loadFileURL and the read access should cover
             // the directory that the file is in, to facilitate loading referenced images etc
-            [wkWebView loadFileURL:url.toNSURL()
-           allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
+            if (__builtin_available(macOS 10.11, iOS 9, *)) {
+                [wkWebView loadFileURL:url.toNSURL()
+               allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
+                return;
+            }
         }
+#endif
+        [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
     }
 }
 
