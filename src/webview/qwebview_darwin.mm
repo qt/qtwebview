@@ -191,8 +191,12 @@ QT_END_NAMESPACE
     if (--qDarwinWebViewPrivate->requestFrameCount == 0) {
         [self pageDone];
         NSString *errorString = [error localizedDescription];
+        NSURL *failingURL = error.userInfo[@"NSErrorFailingURLKey"];
+        const QUrl url = [failingURL isKindOfClass:[NSURL class]]
+            ? QUrl::fromNSURL(failingURL)
+            : qDarwinWebViewPrivate->url();
         Q_EMIT qDarwinWebViewPrivate->loadingChanged(
-                    QWebViewLoadRequestPrivate(qDarwinWebViewPrivate->url(),
+                    QWebViewLoadRequestPrivate(url,
                                                QWebView::LoadFailedStatus,
                                                QString::fromNSString(errorString)));
     }
