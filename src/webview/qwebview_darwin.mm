@@ -202,6 +202,46 @@ QT_END_NAMESPACE
     }
 }
 
+- (void)webView:(WKWebView *)webView
+decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+                decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+                __attribute__((availability(ios_app_extension,unavailable)))
+{
+    Q_UNUSED(webView);
+    NSURL *url = navigationAction.request.URL;
+    const BOOL handled = (^{
+#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(101300, 110000)
+        if (__builtin_available(macOS 10.13, iOS 11.0, *)) {
+            return [WKWebView handlesURLScheme:url.scheme];
+        } else
+#endif
+        {
+            // +[WKWebView handlesURLScheme:] is a stub that calls
+            // WebCore::SchemeRegistry::isBuiltinScheme();
+            // replicate that as closely as possible
+            return [@[
+                @"about", @"applewebdata", @"blob", @"data",
+                @"file", @"http", @"https", @"javascript",
+#ifdef Q_OS_MACOS
+                @"safari-extension",
+#endif
+                @"webkit-fake-url", @"wss", @"x-apple-content-filter",
+#ifdef Q_OS_MACOS
+                @"x-apple-ql-id"
+#endif
+                ] containsObject:url.scheme];
+        }
+    })();
+    if (!handled) {
+#ifdef Q_OS_MACOS
+        [[NSWorkspace sharedWorkspace] openURL:url];
+#elif defined(Q_OS_IOS)
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+#endif
+    }
+    decisionHandler(handled ? WKNavigationActionPolicyAllow : WKNavigationActionPolicyCancel);
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change
                        context:(void *)context {
     Q_UNUSED(object);

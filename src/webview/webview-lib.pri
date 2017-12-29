@@ -51,6 +51,7 @@ android {
         $$COMMON_HEADERS \
         qwebview_darwin_p.h
     LIBS_PRIVATE += -framework Foundation -framework WebKit
+    macos: LIBS_PRIVATE += -framework AppKit
     ios: LIBS_PRIVATE += -framework UIKit
 
     macos: CONFIG += use_webengine_backend
