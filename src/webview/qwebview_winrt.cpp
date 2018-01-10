@@ -49,6 +49,7 @@
 
 #include <wrl.h>
 #include <windows.graphics.display.h>
+#include <windows.system.h>
 #include <windows.ui.xaml.h>
 #include <windows.ui.xaml.controls.h>
 #include <windows.ui.xaml.markup.h>
@@ -59,6 +60,7 @@ using namespace Microsoft::WRL::Wrappers;
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Foundation::Collections;
 using namespace ABI::Windows::Graphics::Display;
+using namespace ABI::Windows::System;
 using namespace ABI::Windows::UI;
 using namespace ABI::Windows::UI::Xaml;
 using namespace ABI::Windows::UI::Xaml::Controls;
@@ -275,6 +277,7 @@ struct WinRTWebView
     ComPtr<ICanvasStatics> canvas;
     ComPtr<IUriRuntimeClassFactory> uriFactory;
     ComPtr<IDisplayInformation> displayInformation;
+    ComPtr<ILauncherStatics> launcherStatics;
 
     QPointer<QWindow> window;
     QHash<IAsyncOperation<HSTRING> *, int> callbacks;
@@ -309,6 +312,9 @@ QWinRTWebViewPrivate::QWinRTWebViewPrivate(QObject *parent)
         hr = element.As(&d->base);
         Q_ASSERT_SUCCEEDED(hr);
         hr = d->base.As(&d->ext);
+        Q_ASSERT_SUCCEEDED(hr);
+        hr = RoGetActivationFactory(HString::MakeReference(RuntimeClass_Windows_System_Launcher).Get(),
+            IID_PPV_ARGS(&d->launcherStatics));
         Q_ASSERT_SUCCEEDED(hr);
 
         hr = d->ext->add_NavigationStarting(
@@ -383,6 +389,11 @@ void QWinRTWebViewPrivate::setUrl(const QUrl &url)
         hr = d->uriFactory->CreateUri(uriString.Get(), &uri);
         Q_ASSERT_SUCCEEDED(hr);
         hr = d->base->Navigate(uri.Get());
+        // Directly running into an abort means, that the URI is not supported. Ask the user what to do
+        if (hr == E_ABORT) {
+            ComPtr<IAsyncOperation<bool>> op;
+            hr = d->launcherStatics->LaunchUriAsync(uri.Get(), &op);
+        }
         Q_ASSERT_SUCCEEDED(hr);
         return hr;
     });
