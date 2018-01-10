@@ -315,7 +315,7 @@ QWinRTWebViewPrivate::QWinRTWebViewPrivate(QObject *parent)
                     Callback<ITypedEventHandler<WebView *, WebViewNavigationStartingEventArgs *>>(this, &QWinRTWebViewPrivate::onNavigationStarted).Get(),
                     &d->navigationStartingToken);
         Q_ASSERT_SUCCEEDED(hr);
-        d->ext->add_NavigationCompleted(
+        hr = d->ext->add_NavigationCompleted(
                     Callback<ITypedEventHandler<WebView *, WebViewNavigationCompletedEventArgs *>>(this, &QWinRTWebViewPrivate::onNavigationCompleted).Get(),
                     &d->navigationCompletedToken);
         Q_ASSERT_SUCCEEDED(hr);
