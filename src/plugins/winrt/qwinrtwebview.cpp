@@ -279,6 +279,7 @@ struct WinRTWebView
 
     EventRegistrationToken navigationStartingToken;
     EventRegistrationToken navigationCompletedToken;
+    EventRegistrationToken unviewableContentToken;
     bool isLoading : 1;
 };
 
@@ -320,6 +321,10 @@ QWinRTWebViewPrivate::QWinRTWebViewPrivate(QObject *parent)
                     Callback<ITypedEventHandler<WebView *, WebViewNavigationCompletedEventArgs *>>(this, &QWinRTWebViewPrivate::onNavigationCompleted).Get(),
                     &d->navigationCompletedToken);
         Q_ASSERT_SUCCEEDED(hr);
+        hr = d->ext->add_UnviewableContentIdentified(
+                    Callback<ITypedEventHandler<WebView *, WebViewUnviewableContentIdentifiedEventArgs *>>(this, &QWinRTWebViewPrivate::onUnviewableContent).Get(),
+                    &d->unviewableContentToken);
+        Q_ASSERT_SUCCEEDED(hr);
 
         ComPtr<IDisplayInformationStatics> displayInformationStatics;
         hr = RoGetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Graphics_Display_DisplayInformation).Get(),
@@ -347,6 +352,9 @@ QWinRTWebViewPrivate::~QWinRTWebViewPrivate()
         Q_ASSERT_SUCCEEDED(hr);
         hr = d->ext->remove_NavigationCompleted(d->navigationCompletedToken);
         Q_ASSERT_SUCCEEDED(hr);
+        hr = d->ext->remove_UnviewableContentIdentified(d->unviewableContentToken);
+        Q_ASSERT_SUCCEEDED(hr);
+
         ComPtr<IVector<UIElement *>> children;
         hr = d->host->get_Children(&children);
         Q_ASSERT_SUCCEEDED(hr);
@@ -678,5 +686,17 @@ HRESULT QWinRTWebViewPrivate::onNavigationCompleted(IWebView *, IWebViewNavigati
     emit loadingChanged(QWebViewLoadRequestPrivate(url, status, errorString));
     emit titleChanged(title());
     emit loadProgressChanged(100);
+    return S_OK;
+}
+
+HRESULT QWinRTWebViewPrivate::onUnviewableContent(IWebView *, IWebViewUnviewableContentIdentifiedEventArgs *args)
+{
+    HRESULT hr;
+    ComPtr<IUriRuntimeClass> uri;
+    hr = args->get_Uri(&uri);
+    Q_ASSERT_SUCCEEDED(hr);
+    ComPtr<IAsyncOperation<bool>> op;
+    hr = d->launcherStatics->LaunchUriAsync(uri.Get(), &op);
+    Q_ASSERT_SUCCEEDED(hr);
     return S_OK;
 }

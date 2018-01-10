@@ -58,6 +58,7 @@ namespace ABI {
                     struct IWebView;
                     struct IWebViewNavigationStartingEventArgs;
                     struct IWebViewNavigationCompletedEventArgs;
+                    struct IWebViewUnviewableContentIdentifiedEventArgs;
                 }
             }
         }
@@ -101,6 +102,8 @@ protected:
 private:
     HRESULT onNavigationStarted(ABI::Windows::UI::Xaml::Controls::IWebView *, ABI::Windows::UI::Xaml::Controls::IWebViewNavigationStartingEventArgs *);
     HRESULT onNavigationCompleted(ABI::Windows::UI::Xaml::Controls::IWebView *, ABI::Windows::UI::Xaml::Controls::IWebViewNavigationCompletedEventArgs *);
+    HRESULT onUnviewableContent(ABI::Windows::UI::Xaml::Controls::IWebView *,
+                             ABI::Windows::UI::Xaml::Controls::IWebViewUnviewableContentIdentifiedEventArgs *);
     QScopedPointer<WinRTWebView> d;
 };
 
