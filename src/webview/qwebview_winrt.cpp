@@ -348,6 +348,10 @@ QWinRTWebViewPrivate::~QWinRTWebViewPrivate()
 {
     QEventDispatcherWinRT::runOnXamlThread([this]() {
         HRESULT hr;
+        hr = d->ext->remove_NavigationStarting(d->navigationStartingToken);
+        Q_ASSERT_SUCCEEDED(hr);
+        hr = d->ext->remove_NavigationCompleted(d->navigationCompletedToken);
+        Q_ASSERT_SUCCEEDED(hr);
         ComPtr<IVector<UIElement *>> children;
         hr = d->host->get_Children(&children);
         Q_ASSERT_SUCCEEDED(hr);
