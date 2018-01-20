@@ -40,6 +40,7 @@
 #include "qtwebviewfunctions.h"
 #include "qtwebviewfunctions_p.h"
 
+#include <QtCore/private/qglobal_p.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qvariant.h>
@@ -190,11 +191,55 @@ QT_END_NAMESPACE
     if (--qDarwinWebViewPrivate->requestFrameCount == 0) {
         [self pageDone];
         NSString *errorString = [error localizedDescription];
+        NSURL *failingURL = error.userInfo[@"NSErrorFailingURLKey"];
+        const QUrl url = [failingURL isKindOfClass:[NSURL class]]
+            ? QUrl::fromNSURL(failingURL)
+            : qDarwinWebViewPrivate->url();
         Q_EMIT qDarwinWebViewPrivate->loadingChanged(
-                    QWebViewLoadRequestPrivate(qDarwinWebViewPrivate->url(),
+                    QWebViewLoadRequestPrivate(url,
                                                QWebView::LoadFailedStatus,
                                                QString::fromNSString(errorString)));
     }
+}
+
+- (void)webView:(WKWebView *)webView
+decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+                decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+                __attribute__((availability(ios_app_extension,unavailable)))
+{
+    Q_UNUSED(webView);
+    NSURL *url = navigationAction.request.URL;
+    const BOOL handled = (^{
+#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(101300, 110000)
+        if (__builtin_available(macOS 10.13, iOS 11.0, *)) {
+            return [WKWebView handlesURLScheme:url.scheme];
+        } else
+#endif
+        {
+            // +[WKWebView handlesURLScheme:] is a stub that calls
+            // WebCore::SchemeRegistry::isBuiltinScheme();
+            // replicate that as closely as possible
+            return [@[
+                @"about", @"applewebdata", @"blob", @"data",
+                @"file", @"http", @"https", @"javascript",
+#ifdef Q_OS_MACOS
+                @"safari-extension",
+#endif
+                @"webkit-fake-url", @"wss", @"x-apple-content-filter",
+#ifdef Q_OS_MACOS
+                @"x-apple-ql-id"
+#endif
+                ] containsObject:url.scheme];
+        }
+    })();
+    if (!handled) {
+#ifdef Q_OS_MACOS
+        [[NSWorkspace sharedWorkspace] openURL:url];
+#elif defined(Q_OS_IOS)
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+#endif
+    }
+    decisionHandler(handled ? WKNavigationActionPolicyAllow : WKNavigationActionPolicyCancel);
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change
@@ -253,14 +298,19 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
 {
     if (url.isValid()) {
         requestFrameCount = 0;
-        if (!url.isLocalFile()) {
-            [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
-        } else {
+
+#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(101100, 90000)
+        if (url.isLocalFile()) {
             // We need to pass local files via loadFileURL and the read access should cover
             // the directory that the file is in, to facilitate loading referenced images etc
-            [wkWebView loadFileURL:url.toNSURL()
-           allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
+            if (__builtin_available(macOS 10.11, iOS 9, *)) {
+                [wkWebView loadFileURL:url.toNSURL()
+               allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
+                return;
+            }
         }
+#endif
+        [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
     }
 }
 
