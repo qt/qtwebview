@@ -5,7 +5,8 @@ PLUGIN_CLASS_NAME = QDarwinWebViewPlugin
 load(qt_plugin)
 
 QT += core gui webview-private
-LIBS_PRIVATE += -framework Foundation -framework AppKit -framework WebKit
+LIBS_PRIVATE += -framework Foundation -framework WebKit
+macos: LIBS_PRIVATE += -framework AppKit
 ios: LIBS_PRIVATE += -framework UIKit
 
 HEADERS += \

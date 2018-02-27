@@ -287,18 +287,14 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
     if (url.isValid()) {
         requestFrameCount = 0;
 
-#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(101100, 90000)
         if (url.isLocalFile()) {
             // We need to pass local files via loadFileURL and the read access should cover
             // the directory that the file is in, to facilitate loading referenced images etc
-            if (__builtin_available(macOS 10.11, iOS 9, *)) {
-                [wkWebView loadFileURL:url.toNSURL()
-               allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
-                return;
-            }
+            [wkWebView loadFileURL:url.toNSURL()
+           allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
+        } else {
+            [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
         }
-#endif
-        [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
     }
 }
 
