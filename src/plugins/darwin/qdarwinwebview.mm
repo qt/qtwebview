@@ -213,6 +213,10 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
     Q_UNUSED(webView);
     NSURL *url = navigationAction.request.URL;
     const BOOL handled = (^{
+        // For links with target="_blank", open externally
+        if (!navigationAction.targetFrame)
+            return NO;
+
 #if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(101300, 110000)
         if (__builtin_available(macOS 10.13, iOS 11.0, *)) {
             return [WKWebView handlesURLScheme:url.scheme];
