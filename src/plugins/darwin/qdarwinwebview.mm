@@ -117,12 +117,16 @@ QT_END_NAMESPACE
 }
 - (QtWKWebViewDelegate *)initWithQAbstractWebView:(QDarwinWebViewPrivate *)webViewPrivate;
 - (void)pageDone;
+- (void)handleError:(NSError *)error;
 
 // protocol:
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation;
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation;
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation
       withError:(NSError *)error;
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation
+      withError:(NSError *)error;
+
 @end
 
 @implementation QtWKWebViewDelegate
@@ -139,6 +143,18 @@ QT_END_NAMESPACE
 {
     Q_EMIT qDarwinWebViewPrivate->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
     Q_EMIT qDarwinWebViewPrivate->titleChanged(qDarwinWebViewPrivate->title());
+}
+
+- (void)handleError:(NSError *)error
+{
+    [self pageDone];
+    NSString *errorString = [error localizedDescription];
+    NSURL *failingURL = error.userInfo[@"NSErrorFailingURLKey"];
+    const QUrl url = [failingURL isKindOfClass:[NSURL class]]
+                        ? QUrl::fromNSURL(failingURL) : qDarwinWebViewPrivate->url();
+    Q_EMIT qDarwinWebViewPrivate->loadingChanged(
+                QWebViewLoadRequestPrivate(url, QWebView::LoadFailedStatus,
+                                           QString::fromNSString(errorString)));
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
@@ -176,18 +192,17 @@ QT_END_NAMESPACE
 {
     Q_UNUSED(webView);
     Q_UNUSED(navigation);
-    if (--qDarwinWebViewPrivate->requestFrameCount == 0) {
-        [self pageDone];
-        NSString *errorString = [error localizedDescription];
-        NSURL *failingURL = error.userInfo[@"NSErrorFailingURLKey"];
-        const QUrl url = [failingURL isKindOfClass:[NSURL class]]
-            ? QUrl::fromNSURL(failingURL)
-            : qDarwinWebViewPrivate->url();
-        Q_EMIT qDarwinWebViewPrivate->loadingChanged(
-                    QWebViewLoadRequestPrivate(url,
-                                               QWebView::LoadFailedStatus,
-                                               QString::fromNSString(errorString)));
-    }
+    if (--qDarwinWebViewPrivate->requestFrameCount == 0)
+        [self handleError:error];
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation
+      withError:(NSError *)error
+{
+    Q_UNUSED(webView);
+    Q_UNUSED(navigation);
+    if (--qDarwinWebViewPrivate->requestFrameCount == 0)
+        [self handleError:error];
 }
 
 - (void)webView:(WKWebView *)webView
