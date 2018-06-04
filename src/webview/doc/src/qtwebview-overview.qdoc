@@ -62,6 +62,14 @@
   Take a look at the \l{Qt WebView Examples} for a demonstration on
   how the APIs can be used in applications.
 
+  \section1 Licenses
+
+  Qt WebView is available under commercial licenses from \l{The Qt Company}.
+  In addition, it is available under the
+  \l{GNU Lesser General Public License, version 3}, or
+  the \l{GNU General Public License, version 2}.
+  See \l{Qt Licensing} for further details.
+
   \section1 API Reference
 
   \list
