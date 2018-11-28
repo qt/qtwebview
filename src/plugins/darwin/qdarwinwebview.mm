@@ -160,49 +160,50 @@ QT_END_NAMESPACE
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
 {
     Q_UNUSED(webView);
-    Q_UNUSED(navigation);
     // WKNavigationDelegate gives us per-frame notifications while the QWebView API
-    // should provide per-page notifications. Keep track of started frame loads
-    // and emit notifications when the final frame completes.
-    if (++qDarwinWebViewPrivate->requestFrameCount == 1) {
-        Q_EMIT qDarwinWebViewPrivate->loadingChanged(
-                    QWebViewLoadRequestPrivate(qDarwinWebViewPrivate->url(),
-                                               QWebView::LoadStartedStatus,
-                                               QString()));
-    }
+    // should provide per-page notifications. Therefore we keep track of the last frame
+    // to be started, if that finishes or fails then we indicate that it has loaded.
+    if (qDarwinWebViewPrivate->wkNavigation != navigation)
+        qDarwinWebViewPrivate->wkNavigation = navigation;
+    else
+        return;
 
+    Q_EMIT qDarwinWebViewPrivate->loadingChanged(
+                QWebViewLoadRequestPrivate(qDarwinWebViewPrivate->url(),
+                                           QWebView::LoadStartedStatus,
+                                           QString()));
     Q_EMIT qDarwinWebViewPrivate->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
     Q_UNUSED(webView);
-    Q_UNUSED(navigation);
-    if (--qDarwinWebViewPrivate->requestFrameCount == 0) {
-        [self pageDone];
-        Q_EMIT qDarwinWebViewPrivate->loadingChanged(
-                    QWebViewLoadRequestPrivate(qDarwinWebViewPrivate->url(),
-                                               QWebView::LoadSucceededStatus,
-                                               QString()));
-    }
+    if (qDarwinWebViewPrivate->wkNavigation != navigation)
+        return;
+
+    [self pageDone];
+    Q_EMIT qDarwinWebViewPrivate->loadingChanged(
+                QWebViewLoadRequestPrivate(qDarwinWebViewPrivate->url(),
+                                           QWebView::LoadSucceededStatus,
+                                           QString()));
 }
 
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation
       withError:(NSError *)error
 {
     Q_UNUSED(webView);
-    Q_UNUSED(navigation);
-    if (--qDarwinWebViewPrivate->requestFrameCount == 0)
-        [self handleError:error];
+    if (qDarwinWebViewPrivate->wkNavigation != navigation)
+        return;
+    [self handleError:error];
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation
       withError:(NSError *)error
 {
     Q_UNUSED(webView);
-    Q_UNUSED(navigation);
-    if (--qDarwinWebViewPrivate->requestFrameCount == 0)
-        [self handleError:error];
+    if (qDarwinWebViewPrivate->wkNavigation != navigation)
+        return;
+    [self handleError:error];
 }
 
 - (void)webView:(WKWebView *)webView
@@ -304,8 +305,6 @@ QUrl QDarwinWebViewPrivate::url() const
 void QDarwinWebViewPrivate::setUrl(const QUrl &url)
 {
     if (url.isValid()) {
-        requestFrameCount = 0;
-
         if (url.isLocalFile()) {
             // We need to pass local files via loadFileURL and the read access should cover
             // the directory that the file is in, to facilitate loading referenced images etc

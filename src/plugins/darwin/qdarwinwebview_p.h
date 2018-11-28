@@ -67,6 +67,7 @@
 #endif
 
 Q_FORWARD_DECLARE_OBJC_CLASS(WKWebView);
+Q_FORWARD_DECLARE_OBJC_CLASS(WKNavigation);
 
 #ifdef Q_OS_IOS
 Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
@@ -109,10 +110,10 @@ protected:
 
 public:
     WKWebView *wkWebView;
+    WKNavigation *wkNavigation;
 #ifdef Q_OS_IOS
     UIGestureRecognizer *m_recognizer;
 #endif
-    int requestFrameCount;
     QPointer<QObject> m_parentView;
 };
 
