@@ -244,7 +244,13 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
 #ifdef Q_OS_MACOS
         [[NSWorkspace sharedWorkspace] openURL:url];
 #elif defined(Q_OS_IOS)
-        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        // Check if it can be opened first, if it is a file scheme then it can't
+        // be opened, therefore if it is a _blank target in that case we need to open
+        // inside the current webview
+        if ([[UIApplication sharedApplication] canOpenURL:url])
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        else if (!navigationAction.targetFrame)
+            [webView loadRequest:navigationAction.request];
 #endif
     }
     decisionHandler(handled ? WKNavigationActionPolicyAllow : WKNavigationActionPolicyCancel);
