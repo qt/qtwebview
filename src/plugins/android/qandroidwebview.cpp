@@ -103,6 +103,19 @@ QAndroidWebViewPrivate::~QAndroidWebViewPrivate()
     m_viewController.callMethod<void>("destroy");
 }
 
+QString QAndroidWebViewPrivate::httpUserAgent() const
+{
+    return QString( m_viewController.callObjectMethod<jstring>("getUserAgent").toString());
+}
+
+void QAndroidWebViewPrivate::setHttpUserAgent(const QString &userAgent)
+{
+    m_viewController.callMethod<void>("setUserAgent",
+                                      "(Ljava/lang/String;)V",
+                                      QJNIObjectPrivate::fromString(userAgent).object());
+    Q_EMIT httpUserAgentChanged(userAgent);
+}
+
 QUrl QAndroidWebViewPrivate::url() const
 {
     return QUrl::fromUserInput(m_viewController.callObjectMethod<jstring>("getUrl").toString());

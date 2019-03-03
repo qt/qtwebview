@@ -250,6 +250,20 @@ public class QtAndroidWebViewController
         }
     }
 
+    public void setUserAgent(final String userAgent)
+    {
+        if (userAgent == null){
+            return;
+        }
+
+        resetLoadingState(STARTED_STATE);
+        c_onPageStarted(m_id, null, null);
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() { m_webView.getSettings().setUserAgentString(userAgent); }
+        });
+    }
+
     public void loadUrl(final String url)
     {
         if (url == null) {
