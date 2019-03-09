@@ -61,9 +61,12 @@ QT_BEGIN_NAMESPACE
 void QtWebView::initialize()
 {
     if (QWebViewFactory::requiresExtraInitializationSteps()) {
+        // There might be plugins available, but their dependencies might not be met,
+        // so make sure we have a valid plugin before using it.
+        // Note: A warning will be printed later if we're unable to load the plugin.
         QWebViewPlugin *plugin = QWebViewFactory::getPlugin();
-        Q_ASSERT(plugin);
-        plugin->prepare();
+        if (plugin)
+            plugin->prepare();
     }
 }
 
