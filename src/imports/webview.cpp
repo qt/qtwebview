@@ -59,8 +59,9 @@ public:
         qmlRegisterType<QQuickWebView, 14>(uri, 1, 14, "WebView");
         qmlRegisterUncreatableType<QQuickWebViewLoadRequest>(uri, 1, 1, "WebViewLoadRequest", msg);
 
-        // Make sure we're always available under version x.QT_VERSION_MINOR
-        qmlRegisterModule(uri, 1, QT_VERSION_MINOR);
+        // The minor version used to be the current Qt 5 minor. For compatibility it is the last
+        // Qt 5 release.
+        qmlRegisterModule(uri, 1, 15);
     }
 
     void initializeEngine(QQmlEngine *engine, const char *uri)
