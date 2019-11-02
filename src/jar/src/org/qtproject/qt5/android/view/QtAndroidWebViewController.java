@@ -250,18 +250,43 @@ public class QtAndroidWebViewController
         }
     }
 
-    public void setUserAgent(final String userAgent)
+    public String getUserAgent()
     {
-        if (userAgent == null){
-            return;
-        }
-
-        resetLoadingState(STARTED_STATE);
-        c_onPageStarted(m_id, null, null);
+        final String[] ua = {""};
+        final Semaphore sem = new Semaphore(0);
         m_activity.runOnUiThread(new Runnable() {
             @Override
-            public void run() { m_webView.getSettings().setUserAgentString(userAgent); }
+            public void run() {
+                ua[0] = m_webView.getSettings().getUserAgentString();
+                sem.release();
+            }
         });
+
+        try {
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ua[0];
+    }
+
+    public void setUserAgent(final String uaString)
+    {
+        final Semaphore sem = new Semaphore(0);
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                m_webView.getSettings().setUserAgentString(uaString);
+                sem.release();
+            }
+        });
+
+        try {
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadUrl(final String url)
