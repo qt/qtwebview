@@ -223,9 +223,9 @@ void QQuickViewController::scheduleUpdatePolish()
     polish();
 }
 
-void QQuickViewController::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+void QQuickViewController::geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
-    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+    QQuickItem::geometryChange(newGeometry, oldGeometry);
     if (newGeometry.isValid())
         polish();
 }
