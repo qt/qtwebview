@@ -263,8 +263,8 @@ static void c_onRunJavaScriptResult(JNIEnv *env,
                                     jlong callbackId,
                                     jstring result)
 {
-    Q_UNUSED(env)
-    Q_UNUSED(thiz)
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
 
     const WebViews &wv = (*g_webViews);
     QAndroidWebViewPrivate *wc = static_cast<QAndroidWebViewPrivate *>(wv[id]);
@@ -293,8 +293,8 @@ static void c_onPageFinished(JNIEnv *env,
                              jlong id,
                              jstring url)
 {
-    Q_UNUSED(env)
-    Q_UNUSED(thiz)
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
     const WebViews &wv = (*g_webViews);
     QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
@@ -312,9 +312,9 @@ static void c_onPageStarted(JNIEnv *env,
                             jstring url,
                             jobject icon)
 {
-    Q_UNUSED(env)
-    Q_UNUSED(thiz)
-    Q_UNUSED(icon)
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+    Q_UNUSED(icon);
     const WebViews &wv = (*g_webViews);
     QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
@@ -337,8 +337,8 @@ static void c_onProgressChanged(JNIEnv *env,
                                 jlong id,
                                 jint newProgress)
 {
-    Q_UNUSED(env)
-    Q_UNUSED(thiz)
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
     const WebViews &wv = (*g_webViews);
     QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
@@ -352,10 +352,10 @@ static void c_onReceivedIcon(JNIEnv *env,
                              jlong id,
                              jobject icon)
 {
-    Q_UNUSED(env)
-    Q_UNUSED(thiz)
-    Q_UNUSED(id)
-    Q_UNUSED(icon)
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+    Q_UNUSED(id);
+    Q_UNUSED(icon);
 
     const WebViews &wv = (*g_webViews);
     QAndroidWebViewPrivate *wc = wv[id];
@@ -375,8 +375,8 @@ static void c_onReceivedTitle(JNIEnv *env,
                               jlong id,
                               jstring title)
 {
-    Q_UNUSED(env)
-    Q_UNUSED(thiz)
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
     const WebViews &wv = (*g_webViews);
     QAndroidWebViewPrivate *wc = wv[id];
     if (!wc)
@@ -393,9 +393,9 @@ static void c_onReceivedError(JNIEnv *env,
                               jstring description,
                               jstring url)
 {
-    Q_UNUSED(env)
-    Q_UNUSED(thiz)
-    Q_UNUSED(errorCode)
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+    Q_UNUSED(errorCode);
 
     const WebViews &wv = (*g_webViews);
     QAndroidWebViewPrivate *wc = wv[id];

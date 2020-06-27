@@ -65,7 +65,7 @@ public:
     void setVisible(bool visible) override { Q_UNUSED(visible); }
 
     QString httpUserAgent() const override { return QString(); }
-    void setHttpUserAgent(const QString &userAgent) override { Q_UNUSED(userAgent) }
+    void setHttpUserAgent(const QString &userAgent) override { Q_UNUSED(userAgent); }
     QUrl url() const override { return QUrl(); }
     void setUrl(const QUrl &url) override { Q_UNUSED(url); }
     bool canGoBack() const override { return false; }

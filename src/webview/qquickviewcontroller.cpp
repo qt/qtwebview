@@ -95,7 +95,7 @@ void QQuickViewChangeListener::itemGeometryChanged(QQuickItem *, QQuickGeometryC
 
 void QQuickViewChangeListener::itemChildRemoved(QQuickItem *item, QQuickItem *child)
 {
-    Q_UNUSED(item)
+    Q_UNUSED(item);
     Q_ASSERT(item != m_item);
 
     const bool remove = (child == m_item) || isAncestor(child);
