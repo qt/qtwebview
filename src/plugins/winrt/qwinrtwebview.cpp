@@ -136,7 +136,7 @@ public:
     }
 
 private:
-    QVector<HSTRING> d;
+    QList<HSTRING> d;
 };
 
 static QUrl qurlFromUri(IUriRuntimeClass *uri)
