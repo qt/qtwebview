@@ -50,7 +50,7 @@
 
 QT_BEGIN_NAMESPACE
 
-static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt5/android/view/QtAndroidWebViewController";
+static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt/android/view/QtAndroidWebViewController";
 
 //static bool favIcon(JNIEnv *env, jobject icon, QImage *image)
 //{

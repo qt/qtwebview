@@ -34,7 +34,7 @@
 **
 ****************************************************************************/
 
-package org.qtproject.qt5.android.view;
+package org.qtproject.qt.android.view;
 
 import android.content.pm.PackageManager;
 import android.view.View;

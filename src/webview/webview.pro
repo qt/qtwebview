@@ -36,7 +36,7 @@ QMAKE_DOCS = \
              $$PWD/doc/qtwebview.qdocconf
 
 ANDROID_BUNDLED_JAR_DEPENDENCIES = \
-    jar/QtAndroidWebView.jar
+    jar/Qt$${QT_MAJOR_VERSION}AndroidWebView.jar
 ANDROID_PERMISSIONS = \
     android.permission.ACCESS_FINE_LOCATION
 ANDROID_LIB_DEPENDENCIES = \
