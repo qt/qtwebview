@@ -70,9 +70,9 @@ public Q_SLOTS:
     void onVisibleChanged();
 
 protected:
-    void componentComplete() Q_DECL_OVERRIDE;
-    void updatePolish() Q_DECL_OVERRIDE;
-    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) Q_DECL_OVERRIDE;
+    void componentComplete() override;
+    void updatePolish() override;
+    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
     void setView(QNativeViewController *view);
 
 private:

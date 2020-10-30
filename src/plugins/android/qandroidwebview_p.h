@@ -62,34 +62,34 @@ class QAndroidWebViewPrivate : public QAbstractWebView
     Q_OBJECT
 public:
     explicit QAndroidWebViewPrivate(QObject *p = 0);
-    ~QAndroidWebViewPrivate() Q_DECL_OVERRIDE;
+    ~QAndroidWebViewPrivate() override;
 
-    QString httpUserAgent() const Q_DECL_OVERRIDE;
-    void setHttpUserAgent(const QString &httpUserAgent) Q_DECL_OVERRIDE;
-    QUrl url() const Q_DECL_OVERRIDE;
-    void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
-    bool canGoBack() const Q_DECL_OVERRIDE;
-    bool canGoForward() const Q_DECL_OVERRIDE;
-    QString title() const Q_DECL_OVERRIDE;
-    int loadProgress() const Q_DECL_OVERRIDE;
-    bool isLoading() const Q_DECL_OVERRIDE;
+    QString httpUserAgent() const override;
+    void setHttpUserAgent(const QString &httpUserAgent) override;
+    QUrl url() const override;
+    void setUrl(const QUrl &url) override;
+    bool canGoBack() const override;
+    bool canGoForward() const override;
+    QString title() const override;
+    int loadProgress() const override;
+    bool isLoading() const override;
 
-    void setParentView(QObject *view) Q_DECL_OVERRIDE;
-    QObject *parentView() const Q_DECL_OVERRIDE;
-    void setGeometry(const QRect &geometry) Q_DECL_OVERRIDE;
-    void setVisibility(QWindow::Visibility visibility) Q_DECL_OVERRIDE;
-    void setVisible(bool visible) Q_DECL_OVERRIDE;
+    void setParentView(QObject *view) override;
+    QObject *parentView() const override;
+    void setGeometry(const QRect &geometry) override;
+    void setVisibility(QWindow::Visibility visibility) override;
+    void setVisible(bool visible) override;
 
 public Q_SLOTS:
-    void goBack() Q_DECL_OVERRIDE;
-    void goForward() Q_DECL_OVERRIDE;
-    void reload() Q_DECL_OVERRIDE;
-    void stop() Q_DECL_OVERRIDE;
-    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
+    void goBack() override;
+    void goForward() override;
+    void reload() override;
+    void stop() override;
+    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) override;
 
 protected:
     void runJavaScriptPrivate(const QString& script,
-                              int callbackId) Q_DECL_OVERRIDE;
+                              int callbackId) override;
 
 private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);

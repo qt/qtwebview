@@ -80,22 +80,22 @@ public:
     QQuickWebView(QQuickItem *parent = 0);
     ~QQuickWebView();
 
-    QString httpUserAgent() const Q_DECL_OVERRIDE;
-    void setHttpUserAgent(const QString &userAgent) Q_DECL_OVERRIDE;
-    QUrl url() const Q_DECL_OVERRIDE;
-    void setUrl(const QUrl &url) Q_DECL_OVERRIDE;
-    int loadProgress() const Q_DECL_OVERRIDE;
-    QString title() const Q_DECL_OVERRIDE;
-    bool canGoBack() const Q_DECL_OVERRIDE;
-    bool isLoading() const Q_DECL_OVERRIDE;
-    bool canGoForward() const Q_DECL_OVERRIDE;
+    QString httpUserAgent() const override;
+    void setHttpUserAgent(const QString &userAgent) override;
+    QUrl url() const override;
+    void setUrl(const QUrl &url) override;
+    int loadProgress() const override;
+    QString title() const override;
+    bool canGoBack() const override;
+    bool isLoading() const override;
+    bool canGoForward() const override;
 
 public Q_SLOTS:
-    void goBack() Q_DECL_OVERRIDE;
-    void goForward() Q_DECL_OVERRIDE;
-    void reload() Q_DECL_OVERRIDE;
-    void stop() Q_DECL_OVERRIDE;
-    Q_REVISION(1) void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) Q_DECL_OVERRIDE;
+    void goBack() override;
+    void goForward() override;
+    void reload() override;
+    void stop() override;
+    Q_REVISION(1) void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) override;
     Q_REVISION(1) void runJavaScript(const QString& script,
                                      const QJSValue &callback = QJSValue());
 
@@ -107,9 +107,9 @@ Q_SIGNALS:
     Q_REVISION(14) void httpUserAgentChanged();
 
 protected:
-    void itemChange(ItemChange change, const ItemChangeData &value) Q_DECL_OVERRIDE;
+    void itemChange(ItemChange change, const ItemChangeData &value) override;
     void runJavaScriptPrivate(const QString& script,
-                              int callbackId) Q_DECL_OVERRIDE;
+                              int callbackId) override;
 
 private Q_SLOTS:
     void onRunJavaScriptResult(int id, const QVariant &variant);

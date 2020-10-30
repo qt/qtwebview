@@ -58,9 +58,9 @@ public:
 
     inline void itemGeometryChanged(QQuickItem *,
                                     QQuickGeometryChange,
-                                    const QRectF &) Q_DECL_OVERRIDE;
-    void itemChildRemoved(QQuickItem *item, QQuickItem *child) Q_DECL_OVERRIDE;
-    void itemParentChanged(QQuickItem *item, QQuickItem *parent) Q_DECL_OVERRIDE;
+                                    const QRectF &) override;
+    void itemChildRemoved(QQuickItem *item, QQuickItem *child) override;
+    void itemParentChanged(QQuickItem *item, QQuickItem *parent) override;
 
 private:
     Q_DISABLE_COPY(QQuickViewChangeListener)
