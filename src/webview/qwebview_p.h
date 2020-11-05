@@ -53,6 +53,7 @@
 #include "qnativeviewcontroller_p.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
+#include <QtCore/qvariant.h>
 #include <QtGui/qimage.h>
 #include <QtQml/qjsvalue.h>
 
