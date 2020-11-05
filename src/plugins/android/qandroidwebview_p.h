@@ -61,7 +61,7 @@ class QAndroidWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QAndroidWebViewPrivate(QObject *p = 0);
+    explicit QAndroidWebViewPrivate(QObject *p = nullptr);
     ~QAndroidWebViewPrivate() override;
 
     QString httpUserAgent() const override;

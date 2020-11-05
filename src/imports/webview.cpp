@@ -47,7 +47,7 @@ class QWebViewModule : public QQmlExtensionPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
 public:
-    QWebViewModule(QObject *parent = 0) : QQmlExtensionPlugin(parent) { }
+    QWebViewModule(QObject *parent = nullptr) : QQmlExtensionPlugin(parent) { }
     void registerTypes(const char *uri)
     {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWebView"));

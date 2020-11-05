@@ -62,7 +62,7 @@ class Q_WEBVIEW_EXPORT QQuickViewController : public QQuickItem
 {
     Q_OBJECT
 public:
-    explicit QQuickViewController(QQuickItem *parent = 0);
+    explicit QQuickViewController(QQuickItem *parent = nullptr);
     ~QQuickViewController();
 
 public Q_SLOTS:

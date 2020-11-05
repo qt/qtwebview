@@ -61,7 +61,7 @@ class Q_WEBVIEW_EXPORT QWebViewPlugin : public QObject
 {
     Q_OBJECT
 public:
-    explicit QWebViewPlugin(QObject *parent = 0);
+    explicit QWebViewPlugin(QObject *parent = nullptr);
     virtual ~QWebViewPlugin();
 
     virtual QAbstractWebView *create(const QString &key) const = 0;

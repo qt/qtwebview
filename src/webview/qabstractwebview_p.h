@@ -73,7 +73,7 @@ Q_SIGNALS:
     void httpUserAgentChanged(const QString &httpUserAgent);
 
 protected:
-    explicit QAbstractWebView(QObject *p = 0) : QObject(p) { }
+    explicit QAbstractWebView(QObject *p = nullptr) : QObject(p) { }
 };
 
 QT_END_NAMESPACE

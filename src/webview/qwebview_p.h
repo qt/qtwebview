@@ -75,7 +75,7 @@ public:
         LoadFailedStatus
     };
 
-    explicit QWebView(QObject *p = 0);
+    explicit QWebView(QObject *p = nullptr);
     ~QWebView() override;
 
     QString httpUserAgent() const override;

@@ -77,7 +77,7 @@ public:
         LoadFailedStatus
     };
 
-    QQuickWebView(QQuickItem *parent = 0);
+    QQuickWebView(QQuickItem *parent = nullptr);
     ~QQuickWebView();
 
     QString httpUserAgent() const override;
