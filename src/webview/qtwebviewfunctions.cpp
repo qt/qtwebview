@@ -38,6 +38,7 @@
 
 #include "qwebviewfactory_p.h"
 #include "qwebviewplugin_p.h"
+#include <QtCore/qcoreapplication.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -48,17 +49,12 @@ QT_BEGIN_NAMESPACE
     \inheaderfile QtWebView
 */
 
-/*!
-    \fn void QtWebView::initialize()
-    \keyword qtwebview-initialize
+// This is a separate function so we can be sure that in non-static cases it can be registered
+// as a pre hook for QCoreApplication, ensuring this is called after the plugin paths have
+// been set to their defaults. For static builds then this will be called explicitly when
+// QtWebView::initialize() is called by the application
 
-    This function initializes resources or sets options that are required by the different back-ends.
-
-    \note The \c initialize() function needs to be called immediately after the QGuiApplication
-    instance is created.
- */
-
-void QtWebView::initialize()
+static void initializeImpl()
 {
     if (QWebViewFactory::requiresExtraInitializationSteps()) {
         // There might be plugins available, but their dependencies might not be met,
@@ -68,6 +64,27 @@ void QtWebView::initialize()
         if (plugin)
             plugin->prepare();
     }
+}
+
+#ifndef QT_STATIC
+Q_COREAPP_STARTUP_FUNCTION(initializeImpl);
+#endif
+
+/*!
+    \fn void QtWebView::initialize()
+    \keyword qtwebview-initialize
+
+    This function initializes resources or sets options that are required by the different back-ends.
+
+    \note The \c initialize() function needs to be called immediately before the QGuiApplication
+    instance is created.
+ */
+
+void QtWebView::initialize()
+{
+#ifdef QT_STATIC
+    initializeImpl();
+#endif
 }
 
 QT_END_NAMESPACE
