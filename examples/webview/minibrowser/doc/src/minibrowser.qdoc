@@ -37,8 +37,8 @@
     couple of controls to navigate through the browsing history.
 
     \note When using the Qt WebView module it is necessary to call QtWebView::initialize()
-    before creating the QGuiApplication instance. Calling QtWebView::initialize() will
-    ensure that the necessary pre-setup steps are run.
+    immediately before creating the QGuiApplication instance. Calling QtWebView::initialize()
+    will ensure that the necessary pre-setup steps are run.
 
     \snippet minibrowser/main.cpp 0
 
