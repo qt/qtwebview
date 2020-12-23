@@ -21,6 +21,8 @@ webview_qrc = \
    "</qresource>" \
    "</RCC>"
 
-write_file($$OUT_PWD/qmake_QtWebView.qrc, webview_qrc)|error()
-RESOURCES = $$OUT_PWD/qmake_QtWebView.qrc
+static {
+    write_file($$OUT_PWD/qmake_QtWebView.qrc, webview_qrc)|error()
+    RESOURCES = $$OUT_PWD/qmake_QtWebView.qrc
+}
 OTHER_FILES += qmldir
