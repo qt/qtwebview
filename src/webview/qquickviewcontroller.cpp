@@ -260,7 +260,9 @@ void QQuickViewController::onWindowChanged(QQuickWindow* window)
         connect(window, &QWindow::yChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QQuickWindow::sceneGraphInitialized, this, &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QQuickWindow::sceneGraphInvalidated, this, &QQuickViewController::onSceneGraphInvalidated);
-        connect(window, &QWindow::visibleChanged, this, [this](bool visible) { m_view->setVisible(visible); });
+        connect(window, &QWindow::visibilityChanged, this, [this](QWindow::Visibility visibility)
+            { m_view->setVisible(visibility != QWindow::Hidden); });
+        m_view->setVisible(window->visibility() != QWindow::Hidden);
         m_view->setParentView(window);
     }
 }
