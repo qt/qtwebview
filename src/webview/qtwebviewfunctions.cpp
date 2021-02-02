@@ -39,6 +39,8 @@
 #include "qwebviewfactory_p.h"
 #include "qwebviewplugin_p.h"
 
+#include <QtCore/QCoreApplication>
+
 QT_BEGIN_NAMESPACE
 
 /*!
