@@ -47,6 +47,9 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qvariant.h>
 
+#include <QtQuick/qquickrendercontrol.h>
+#include <QtQuick/qquickwindow.h>
+
 #include <CoreFoundation/CoreFoundation.h>
 #include <WebKit/WebKit.h>
 
@@ -362,8 +365,11 @@ void QDarwinWebViewPrivate::setParentView(QObject *view)
     if (!wkWebView)
         return;
 
+    // NOTE: We delay adding the uiView to the scene
+    // if the window is not backed by a platform window
+    // see: updateParent().
     QWindow *w = qobject_cast<QWindow *>(view);
-    if (w) {
+    if (w && w->handle()) {
         UIView *parentView = reinterpret_cast<UIView *>(w->winId());
         [parentView addSubview:wkWebView];
     } else {
@@ -397,6 +403,26 @@ void QDarwinWebViewPrivate::setVisible(bool visible)
 void QDarwinWebViewPrivate::setFocus(bool focus)
 {
     Q_EMIT requestFocus(focus);
+}
+
+void QDarwinWebViewPrivate::updatePolish()
+{
+    // This is a special case for when the WebView is inside a QQuickWidget...
+    // We delay adding the view until we can verify that we have a non-hidden platform window.
+    if (m_parentView && wkWebView.superview == nullptr) {
+        if (auto window = qobject_cast<QWindow *>(m_parentView)) {
+            if (window->visibility() != QWindow::Hidden) {
+                UIView *parentView = nullptr;
+                if (window->handle())
+                    parentView = reinterpret_cast<UIView *>(window->winId());
+                else if (auto rw = QQuickRenderControl::renderWindowFor(qobject_cast<QQuickWindow *>(window)))
+                    parentView = reinterpret_cast<UIView *>(rw->winId());
+
+                if (parentView)
+                    [parentView addSubview:wkWebView];
+            }
+        }
+    }
 }
 
 void QDarwinWebViewPrivate::goBack()
