@@ -34,6 +34,7 @@ public:
     virtual void setVisible(bool visible) = 0;
     virtual void init() { }
     virtual void setFocus(bool focus) { Q_UNUSED(focus); }
+    virtual void updatePolish() { }
 };
 
 QT_END_NAMESPACE
