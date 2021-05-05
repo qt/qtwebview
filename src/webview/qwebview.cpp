@@ -131,6 +131,11 @@ void QWebView::setFocus(bool focus)
     d->setFocus(focus);
 }
 
+void QWebView::updatePolish()
+{
+    d->updatePolish();
+}
+
 void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
 {
     d->loadHtml(html, baseUrl);

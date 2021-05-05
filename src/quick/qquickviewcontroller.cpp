@@ -176,6 +176,7 @@ void QQuickViewController::updatePolish()
 
     m_view->setGeometry(rw ? QRect(rw->mapFromGlobal(tl), itemSize) : itemGeometry);
     m_view->setVisible(isVisible());
+    m_view->updatePolish();
 }
 
 void QQuickViewController::setView(QNativeViewController *view)
@@ -221,6 +222,7 @@ void QQuickViewController::onWindowChanged(QQuickWindow *window)
                 &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QQuickWindow::sceneGraphInvalidated, this,
                 &QQuickViewController::onSceneGraphInvalidated);
+        connect(rw, &QWindow::visibilityChanged, this, &QQuickViewController::scheduleUpdatePolish);
         m_view->setParentView(rw);
     } else {
         connect(window, &QWindow::widthChanged, this, &QQuickViewController::scheduleUpdatePolish);
@@ -234,6 +236,7 @@ void QQuickViewController::onWindowChanged(QQuickWindow *window)
         connect(window, &QWindow::visibilityChanged, this, [this](QWindow::Visibility visibility) {
             m_view->setVisible(visibility != QWindow::Hidden);
         });
+        connect(window, &QWindow::visibilityChanged, this, &QQuickViewController::scheduleUpdatePolish);
         m_view->setVisible(window->visibility() != QWindow::Hidden);
         m_view->setParentView(window);
     }
