@@ -36,7 +36,7 @@ public:
     QScopedPointer<QQuickItem> webView;
 
 protected:
-    inline void resizeEvent(QResizeEvent*);
+    inline void resizeEvent(QResizeEvent*) override;
 };
 
 inline TestWindow::TestWindow(QQuickItem *webView)

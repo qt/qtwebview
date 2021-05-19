@@ -52,9 +52,9 @@
 #include <QtQuick/qquickview.h>
 #include <QtQuick/qquickitem.h>
 
-#include <QtWebEngine/private/qquickwebengineview_p.h>
-#include <QtWebEngine/private/qquickwebenginesettings_p.h>
-#include <QtWebEngine/private/qquickwebengineloadrequest_p.h>
+#include <QtWebEngineQuick/private/qquickwebengineview_p.h>
+#include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
+#include <QtWebEngineCore/qwebengineloadrequest.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -201,11 +201,11 @@ void QWebEngineWebViewPrivate::q_titleChanged()
     Q_EMIT titleChanged(m_webEngineView->title());
 }
 
-void QWebEngineWebViewPrivate::q_loadingChanged(QQuickWebEngineLoadRequest *loadRequest)
+void QWebEngineWebViewPrivate::q_loadingChanged(const QWebEngineLoadRequest &loadRequest)
 {
-    QWebViewLoadRequestPrivate lr(loadRequest->url(),
-                                  static_cast<QWebView::LoadStatus>(loadRequest->status()), // These "should" match...
-                                  loadRequest->errorString());
+    QWebViewLoadRequestPrivate lr(loadRequest.url(),
+                                  static_cast<QWebView::LoadStatus>(loadRequest.status()), // These "should" match...
+                                  loadRequest.errorString());
 
     Q_EMIT loadingChanged(lr);
 }

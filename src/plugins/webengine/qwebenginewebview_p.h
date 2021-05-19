@@ -55,13 +55,13 @@
 #include <QtQml/qqmlcomponent.h>
 
 #include <private/qabstractwebview_p.h>
-#include <QtWebEngine/QQuickWebEngineProfile>
+#include <QtWebEngineQuick/QQuickWebEngineProfile>
 
 
 QT_BEGIN_NAMESPACE
 
 class QQuickWebEngineView;
-class QQuickWebEngineLoadRequest;
+class QWebEngineLoadRequest;
 
 class QWebEngineWebViewPrivate : public QAbstractWebView
 {
@@ -98,7 +98,7 @@ private Q_SLOTS:
     void q_urlChanged();
     void q_loadProgressChanged();
     void q_titleChanged();
-    void q_loadingChanged(QQuickWebEngineLoadRequest *loadRequest);
+    void q_loadingChanged(const QWebEngineLoadRequest &loadRequest);
     void q_profileChanged();
     void q_httpUserAgentChanged();
 
