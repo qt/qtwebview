@@ -28,17 +28,17 @@
 #include <QtCore/qstandardpaths.h>
 #include <QtWebView/qtwebviewfunctions.h>
 
-QString getTestFilePath(const QString &testFile)
+QUrl getTestFilePath(const QString &testFile)
 {
     const QString tempTestFile = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/" + testFile;
     const bool exists = QFile::exists(tempTestFile);
     if (exists)
-        return tempTestFile;
+        return QUrl::fromLocalFile(tempTestFile);
 
     QFile tf(QString(":/") + testFile);
     const bool copied = tf.copy(tempTestFile);
 
-    return copied ? tempTestFile : testFile;
+    return QUrl::fromLocalFile(copied ? tempTestFile : testFile);
 }
 
 class tst_QQuickWebView : public QObject {
@@ -131,7 +131,7 @@ void tst_QQuickWebView::stopEnabledAfterLoadStarted()
     QCOMPARE(webView()->isLoading(), false);
 
     LoadStartedCatcher catcher(webView());
-    webView()->setUrl(QUrl(getTestFilePath("basic_page.html")));
+    webView()->setUrl(getTestFilePath("basic_page.html"));
     waitForSignal(&catcher, SIGNAL(finished()));
 
     QCOMPARE(webView()->isLoading(), true);
@@ -161,7 +161,7 @@ void tst_QQuickWebView::loadEmptyPageViewHidden()
 {
     QSignalSpy loadSpy(webView(), SIGNAL(loadingChanged(QQuickWebViewLoadRequest*)));
 
-    webView()->setUrl(QUrl(getTestFilePath("basic_page.html")));
+    webView()->setUrl(getTestFilePath("basic_page.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
 
     QCOMPARE(loadSpy.size(), 2);
@@ -171,7 +171,7 @@ void tst_QQuickWebView::loadNonexistentFileUrl()
 {
     QSignalSpy loadSpy(webView(), SIGNAL(loadingChanged(QQuickWebViewLoadRequest*)));
 
-    webView()->setUrl(QUrl(getTestFilePath("file_that_does_not_exist.html")));
+    webView()->setUrl(getTestFilePath("file_that_does_not_exist.html"));
     QVERIFY(waitForLoadFailed(webView()));
 
     QCOMPARE(loadSpy.size(), 2);
@@ -179,40 +179,40 @@ void tst_QQuickWebView::loadNonexistentFileUrl()
 
 void tst_QQuickWebView::backAndForward()
 {
-    const QString basicPage = getTestFilePath("basic_page.html");
-    const QString basicPage2 = getTestFilePath("basic_page2.html");
-    webView()->setUrl(QUrl(basicPage));
+    const QUrl basicPage = getTestFilePath("basic_page.html");
+    const QUrl basicPage2 = getTestFilePath("basic_page2.html");
+    webView()->setUrl(basicPage);
     QVERIFY(waitForLoadSucceeded(webView()));
 
-    QCOMPARE(webView()->url().path(), basicPage);
+    QCOMPARE(webView()->url(), basicPage);
 
-    webView()->setUrl(QUrl(basicPage2));
+    webView()->setUrl(basicPage2);
     QVERIFY(waitForLoadSucceeded(webView()));
 
-    QCOMPARE(webView()->url().path(), basicPage2);
+    QCOMPARE(webView()->url(), basicPage2);
 
     webView()->goBack();
     QVERIFY(waitForLoadSucceeded(webView()));
 
-    QCOMPARE(webView()->url().path(), basicPage);
+    QCOMPARE(webView()->url(), basicPage);
 
     webView()->goForward();
     QVERIFY(waitForLoadSucceeded(webView()));
 
-    QCOMPARE(webView()->url().path(), basicPage2);
+    QCOMPARE(webView()->url(), basicPage2);
 }
 
 void tst_QQuickWebView::reload()
 {
-    webView()->setUrl(QUrl(getTestFilePath("basic_page.html")));
+    webView()->setUrl(getTestFilePath("basic_page.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
 
-    QCOMPARE(webView()->url().path(), getTestFilePath("basic_page.html"));
+    QCOMPARE(webView()->url(), getTestFilePath("basic_page.html"));
 
     webView()->reload();
     QVERIFY(waitForLoadSucceeded(webView()));
 
-    QCOMPARE(webView()->url().path(), getTestFilePath("basic_page.html"));
+    QCOMPARE(webView()->url(), getTestFilePath("basic_page.html"));
 }
 
 void tst_QQuickWebView::stop()
@@ -220,7 +220,7 @@ void tst_QQuickWebView::stop()
     webView()->setUrl(QUrl(getTestFilePath("basic_page.html")));
     QVERIFY(waitForLoadSucceeded(webView()));
 
-    QCOMPARE(webView()->url().path(), getTestFilePath("basic_page.html"));
+    QCOMPARE(webView()->url(), getTestFilePath("basic_page.html"));
 
     webView()->stop();
 }
@@ -229,7 +229,7 @@ void tst_QQuickWebView::loadProgress()
 {
     QCOMPARE(webView()->loadProgress(), 0);
 
-    webView()->setUrl(QUrl(getTestFilePath("basic_page.html")));
+    webView()->setUrl(getTestFilePath("basic_page.html"));
     QSignalSpy loadProgressChangedSpy(webView(), SIGNAL(loadProgressChanged()));
     QVERIFY(waitForLoadSucceeded(webView()));
 
@@ -248,7 +248,7 @@ void tst_QQuickWebView::show()
 
 void tst_QQuickWebView::showWebView()
 {
-    webView()->setUrl(QUrl(getTestFilePath("direct-image-compositing.html")));
+    webView()->setUrl(getTestFilePath("direct-image-compositing.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
     m_window->show();
     // This should not crash.
@@ -282,12 +282,12 @@ void tst_QQuickWebView::multipleWebViewWindows()
     QQuickWebView *webView2 = newWebView();
     QScopedPointer<TestWindow> window2(new TestWindow(webView2));
 
-    webView1->setUrl(QUrl(getTestFilePath("scroll.html")));
+    webView1->setUrl(getTestFilePath("scroll.html"));
     QVERIFY(waitForLoadSucceeded(webView1));
     window1->show();
     webView1->setVisible(true);
 
-    webView2->setUrl(QUrl(getTestFilePath("basic_page.html")));
+    webView2->setUrl(getTestFilePath("basic_page.html"));
     QVERIFY(waitForLoadSucceeded(webView2));
     window2->show();
     webView2->setVisible(true);
@@ -305,12 +305,12 @@ void tst_QQuickWebView::multipleWebViews()
     webView2->setParentItem(m_window->contentItem());
 
     webView1->setSize(QSizeF(300, 400));
-    webView1->setUrl(QUrl(getTestFilePath("scroll.html")));
+    webView1->setUrl(getTestFilePath("scroll.html"));
     QVERIFY(waitForLoadSucceeded(webView1.data()));
     webView1->setVisible(true);
 
     webView2->setSize(QSizeF(300, 400));
-    webView2->setUrl(QUrl(getTestFilePath("basic_page.html")));
+    webView2->setUrl(getTestFilePath("basic_page.html"));
     QVERIFY(waitForLoadSucceeded(webView2.data()));
     webView2->setVisible(true);
     QTest::qWait(200);
@@ -321,14 +321,14 @@ void tst_QQuickWebView::titleUpdate()
     QSignalSpy titleSpy(webView(), SIGNAL(titleChanged()));
 
     // Load page with no title
-    webView()->setUrl(QUrl(getTestFilePath("basic_page2.html")));
+    webView()->setUrl(getTestFilePath("basic_page2.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
     QCOMPARE(titleSpy.size(), 1);
 
     titleSpy.clear();
 
     // No titleChanged signal for failed load
-    webView()->setUrl(QUrl(getTestFilePath("file_that_does_not_exist.html")));
+    webView()->setUrl(getTestFilePath("file_that_does_not_exist.html"));
     QVERIFY(waitForLoadFailed(webView()));
     QCOMPARE(titleSpy.size(), 0);
 

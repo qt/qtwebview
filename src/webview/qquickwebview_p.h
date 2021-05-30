@@ -89,6 +89,7 @@ public:
     bool canGoBack() const override;
     bool isLoading() const override;
     bool canGoForward() const override;
+    QWebView& webView() const { return *m_webView; };
 
 public Q_SLOTS:
     void goBack() override;

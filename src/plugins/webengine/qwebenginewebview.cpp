@@ -53,6 +53,7 @@
 #include <QtQuick/qquickitem.h>
 
 #include <QtWebEngine/private/qquickwebengineview_p.h>
+#include <QtWebEngine/private/qquickwebenginesettings_p.h>
 #include <QtWebEngine/private/qquickwebengineloadrequest_p.h>
 
 QT_BEGIN_NAMESPACE
@@ -245,19 +246,23 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
             break;
     }
 
-    if (!parentItem)
+    if (!parentItem) {
+        qWarning("Could not find QQuickWebView");
         return;
-
+    }
     QQmlEngine *engine = qmlEngine(parentItem);
-    if (!engine)
+    if (!engine) {
+        qWarning("Could not initialize qmlEngine");
         return;
-
+    }
     QQmlComponent *component = new QQmlComponent(engine);
     component->setData(qmlSource(), QUrl::fromLocalFile(QLatin1String("")));
     QQuickWebEngineView *webEngineView = qobject_cast<QQuickWebEngineView *>(component->create());
     Q_ASSERT(webEngineView);
     QQuickWebEngineProfile *profile = webEngineView->profile();
+    Q_ASSERT(profile);
     m_parent->m_profile = profile;
+    webEngineView->settings()->setErrorPageEnabled(false);
     // When the httpUserAgent is set as a property then it will be set before
     // init() is called
     if (m_parent->m_httpUserAgent.isEmpty())
