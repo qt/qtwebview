@@ -127,7 +127,7 @@ void tst_QWebView::runJavaScript()
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
     QCOMPARE(view.title(), title);
-    QJSValue callback = engine.evaluate(QString("function(result) { %1 = result; }").arg(tstProperty));
+    QJSValue callback = engine.evaluate(QString("(function(result) { %1 = result; })").arg(tstProperty));
     QVERIFY2(!callback.isError(), qPrintable(callback.toString()));
     QVERIFY(!callback.isUndefined());
     QVERIFY(callback.isCallable());
