@@ -323,8 +323,13 @@ void tst_QQuickWebView::titleUpdate()
     // Load page with no title
     webView()->setUrl(getTestFilePath("basic_page2.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+    // webengine emits titleChanged even if there is no title
+    // QTBUG-94151
     QCOMPARE(titleSpy.size(), 1);
-
+#else
+    QCOMPARE(titleSpy.size(), 0);
+#endif
     titleSpy.clear();
 
     // No titleChanged signal for failed load

@@ -231,8 +231,9 @@ void tst_QWebView::loadRequest()
             const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
             QCOMPARE(lr.m_status, QWebView::LoadFailedStatus);
         }
-
-        QCOMPARE(view.loadProgress(), 0);
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+        QCOMPARE(view.loadProgress(), 0); // darwin plugin returns 100
+#endif
     }
 }
 

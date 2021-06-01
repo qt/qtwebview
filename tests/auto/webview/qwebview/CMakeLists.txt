@@ -15,7 +15,7 @@ qt_internal_extend_target(tst_qwebview CONDITION NOT TARGET Qt::Quick
         QT_NO_QQUICKWEBVIEW_TESTS
 )
 
-qt_internal_extend_target(tst_qwebview CONDITION TARGET Qt::WebEngineQuick AND NOT ANDROID
+qt_internal_extend_target(tst_qwebview CONDITION TARGET Qt::WebEngineQuick
     DEFINES
         QT_WEBVIEW_WEBENGINE_BACKEND
     PUBLIC_LIBRARIES

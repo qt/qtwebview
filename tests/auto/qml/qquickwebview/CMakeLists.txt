@@ -42,3 +42,8 @@ qt_internal_add_resource(tst_qquickwebview "testdata1"
     FILES
         ${testdata1_resource_files}
 )
+
+qt_internal_extend_target(tst_qquickwebview CONDITION TARGET Qt::WebEngineQuick
+    DEFINES
+        QT_WEBVIEW_WEBENGINE_BACKEND
+)
