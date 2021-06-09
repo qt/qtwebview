@@ -61,7 +61,7 @@
 QT_BEGIN_NAMESPACE
 
 class QQuickWebEngineView;
-class QWebEngineLoadRequest;
+class QWebEngineLoadingInfo;
 
 class QWebEngineWebViewPrivate : public QAbstractWebView
 {
@@ -98,7 +98,7 @@ private Q_SLOTS:
     void q_urlChanged();
     void q_loadProgressChanged();
     void q_titleChanged();
-    void q_loadingChanged(const QWebEngineLoadRequest &loadRequest);
+    void q_loadingChanged(const QWebEngineLoadingInfo &loadRequest);
     void q_profileChanged();
     void q_httpUserAgentChanged();
 

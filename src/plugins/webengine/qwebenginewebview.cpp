@@ -54,7 +54,7 @@
 
 #include <QtWebEngineQuick/private/qquickwebengineview_p.h>
 #include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
-#include <QtWebEngineCore/qwebengineloadrequest.h>
+#include <QtWebEngineCore/qwebengineloadinginfo.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -201,7 +201,7 @@ void QWebEngineWebViewPrivate::q_titleChanged()
     Q_EMIT titleChanged(m_webEngineView->title());
 }
 
-void QWebEngineWebViewPrivate::q_loadingChanged(const QWebEngineLoadRequest &loadRequest)
+void QWebEngineWebViewPrivate::q_loadingChanged(const QWebEngineLoadingInfo &loadRequest)
 {
     QWebViewLoadRequestPrivate lr(loadRequest.url(),
                                   static_cast<QWebView::LoadStatus>(loadRequest.status()), // These "should" match...
