@@ -99,9 +99,9 @@ void tst_QWebView::load()
     file.close();
 
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-    QQuickWebView qview;
     QQmlEngine engine;
     QQmlContext *rootContext = engine.rootContext();
+    QQuickWebView qview;
     QQmlEngine::setContextForObject(&qview, rootContext);
     QWebView &view = qview.webView();
 #else
@@ -127,9 +127,9 @@ void tst_QWebView::runJavaScript()
     const QString tstProperty = QString(QLatin1String("Qt.tst_data"));
     const QString title = QString(QLatin1String("WebViewTitle"));
 
-    QQuickWebView view;
     QQmlEngine engine;
     QQmlContext *rootContext = engine.rootContext();
+    QQuickWebView view;
     QQmlEngine::setContextForObject(&view, rootContext);
 
     QCOMPARE(view.loadProgress(), 0);
@@ -149,9 +149,9 @@ void tst_QWebView::runJavaScript()
 void tst_QWebView::loadHtml()
 {
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-    QQuickWebView qview;
     QQmlEngine engine;
     QQmlContext *rootContext = engine.rootContext();
+    QQuickWebView qview;
     QQmlEngine::setContextForObject(&qview, rootContext);
     QWebView &view = qview.webView();
 #else
@@ -176,9 +176,9 @@ void tst_QWebView::loadRequest()
         const QString fileName = file.fileName();
         file.close();
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-        QQuickWebView qview;
         QQmlEngine engine;
         QQmlContext *rootContext = engine.rootContext();
+        QQuickWebView qview;
         QQmlEngine::setContextForObject(&qview, rootContext);
         QWebView &view = qview.webView();
 #else
@@ -208,9 +208,9 @@ void tst_QWebView::loadRequest()
     // LoadFailed
     {
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-        QQuickWebView qview;
         QQmlEngine engine;
         QQmlContext *rootContext = engine.rootContext();
+        QQuickWebView qview;
         QQmlEngine::setContextForObject(&qview, rootContext);
         QWebView &view = qview.webView();
 #else
