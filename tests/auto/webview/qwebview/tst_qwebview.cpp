@@ -80,7 +80,7 @@ private:
 void tst_QWebView::initTestCase()
 {
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
-    QtWebEngine::initialize();
+    QtWebEngineQuick::initialize();
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
     if (!QFileInfo(m_cacheLocation).isDir()) {
         QDir dir;

@@ -52,7 +52,7 @@ public:
 
     void prepare() const override
     {
-        QtWebEngine::initialize();
+        QtWebEngineQuick::initialize();
     }
 };
 
