@@ -40,8 +40,10 @@
   on iOS, where policy dictates that all web content is displayed using the
   operating system's web view.
 
-  On Windows, Linux, and \macos, Qt \WebView depends on the \l{Qt WebEngine}
-  module to render content.
+  On Windows and Linux, Qt \WebView depends on the \l{Qt WebEngine} module to render
+  content.
+
+  On \macos, the system web view is used in the same manner as iOS.
 
   \section1 Prerequisites
 
