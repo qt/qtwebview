@@ -37,8 +37,6 @@ target_link_libraries(minibrowser PUBLIC
 
 # Resources:
 set(qml_resource_files
-    "+android/LoadProgressStyle.qml"
-    "LoadProgressStyle.qml"
     "images/left-32.png"
     "images/refresh-32.png"
     "images/right-32.png"
@@ -49,6 +47,8 @@ set(qml_resource_files
 qt6_add_resources(minibrowser "qml"
     PREFIX
         "/"
+    BASE
+        "images"
     FILES
         ${qml_resource_files}
 )

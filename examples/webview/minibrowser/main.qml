@@ -48,17 +48,13 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 1.1
-import QtWebView 1.1
-import QtQuick.Layouts 1.1
-import QtQuick.Controls.Styles 1.2
+import QtQuick
+import QtQuick.Controls
+import QtWebView
+import QtQuick.Layouts
 
 
 ApplicationWindow {
-    property bool showProgress: webView.loading
-                                && Qt.platform.os !== "ios"
-                                && Qt.platform.os !== "winrt"
     visible: true
     x: initialX
     y: initialY
@@ -66,7 +62,7 @@ ApplicationWindow {
     height: initialHeight
     title: webView.title
 
-    toolBar: ToolBar {
+    menuBar: ToolBar {
         id: navigationBar
         RowLayout {
             anchors.fill: parent
@@ -74,37 +70,25 @@ ApplicationWindow {
 
             ToolButton {
                 id: backButton
-                tooltip: qsTr("Back")
-                iconSource: "images/left-32.png"
+                icon.source: "qrc:/left-32.png"
                 onClicked: webView.goBack()
                 enabled: webView.canGoBack
                 Layout.preferredWidth: navigationBar.height
-                style: ButtonStyle {
-                    background: Rectangle { color: "transparent" }
-                }
             }
 
             ToolButton {
                 id: forwardButton
-                tooltip: qsTr("Forward")
-                iconSource: "images/right-32.png"
+                icon.source: "qrc:/right-32.png"
                 onClicked: webView.goForward()
                 enabled: webView.canGoForward
                 Layout.preferredWidth: navigationBar.height
-                style: ButtonStyle {
-                    background: Rectangle { color: "transparent" }
-                }
             }
 
             ToolButton {
                 id: reloadButton
-                tooltip: webView.loading ? qsTr("Stop"): qsTr("Refresh")
-                iconSource: webView.loading ? "images/stop-32.png" : "images/refresh-32.png"
+                icon.source: webView.loading ? "qrc:/stop-32.png" : "qrc:/refresh-32.png"
                 onClicked: webView.loading ? webView.stop() : webView.reload()
                 Layout.preferredWidth: navigationBar.height
-                style: ButtonStyle {
-                    background: Rectangle { color: "transparent" }
-                }
             }
 
             Item { Layout.preferredWidth: 5 }
@@ -114,46 +98,39 @@ ApplicationWindow {
                 id: urlField
                 inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhPreferLowercase
                 text: webView.url
-
                 onAccepted: webView.url = utils.fromUserInput(text)
-
-                ProgressBar {
-                    anchors.centerIn: parent
-                    style: LoadProgressStyle { }
-                    z: Qt.platform.os === "android" ? -1 : 1
-                    visible: showProgress
-                    minimumValue: 0
-                    maximumValue: 100
-                    value: webView.loadProgress == 100 ? 0 : webView.loadProgress
-                }
-            }
+             }
 
             Item { Layout.preferredWidth: 5 }
 
             ToolButton {
                 id: goButton
                 text: qsTr("Go")
-                Layout.preferredWidth: navigationBar.height
                 onClicked: {
                     Qt.inputMethod.commit()
                     Qt.inputMethod.hide()
                     webView.url = utils.fromUserInput(urlField.text)
                 }
-                style: ButtonStyle {
-                    background: Rectangle { color: "transparent" }
-                }
             }
 
             Item { Layout.preferredWidth: 10 }
-        }
-    }
-
-    statusBar: StatusBar {
-        id: statusBar
-        visible: showProgress
-        RowLayout {
-            anchors.fill: parent
-            Label { text: webView.loadProgress == 100 ? qsTr("Done") : qsTr("Loading: ") + webView.loadProgress + "%" }
+         }
+         ProgressBar {
+             id: progress
+             anchors {
+                left: parent.left
+                top: parent.bottom
+                right: parent.right
+                leftMargin: parent.leftMargin
+                rightMargin: parent.rightMargin
+             }
+             height:3
+             z: Qt.platform.os === "android" ? -1 : -2
+             background: Item {}
+             visible: Qt.platform.os !== "ios" && Qt.platform.os !== "winrt"
+             from: 0
+             to: 100
+             value: webView.loadProgress < 100 ? webView.loadProgress : 0
         }
     }
 
@@ -161,7 +138,7 @@ ApplicationWindow {
         id: webView
         anchors.fill: parent
         url: initialUrl
-        onLoadingChanged: {
+        onLoadingChanged: function(loadRequest) {
             if (loadRequest.errorString)
                 console.error(loadRequest.errorString);
         }
