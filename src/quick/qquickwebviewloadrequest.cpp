@@ -34,49 +34,69 @@
 **
 ****************************************************************************/
 
-#ifndef QQUICKWEBVIEWREQUEST_H
-#define QQUICKWEBVIEWREQUEST_H
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtWebView/private/qquickwebview_p.h>
-#include <QtWebView/qwebview_global.h>
-#include <QObject>
+#include "qquickwebviewloadrequest_p.h"
+#include <QtWebView/private/qwebviewloadrequest_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWebViewLoadRequestPrivate;
+/*!
+    \qmltype WebViewLoadRequest
+    \instantiates QQuickWebViewLoadRequest
+    \inqmlmodule QtWebView
 
-class Q_WEBVIEW_EXPORT QQuickWebViewLoadRequest : public QObject
+    \brief A utility type for \l {WebView}'s \l {WebView::}{loadingChanged()} signal.
+
+    The WebViewLoadRequest type contains load status information for the requested URL.
+
+    \sa {WebView::loadingChanged()}{WebView.loadingChanged()}
+*/
+QQuickWebViewLoadRequest::QQuickWebViewLoadRequest(const QWebViewLoadRequestPrivate &d)
+    : d_ptr(new QWebViewLoadRequestPrivate(d))
 {
-    Q_OBJECT
-    Q_PROPERTY(QUrl url READ url)
-    Q_PROPERTY(QQuickWebView::LoadStatus status READ status)
-    Q_PROPERTY(QString errorString READ errorString)
+}
 
-public:
-    ~QQuickWebViewLoadRequest();
+QQuickWebViewLoadRequest::~QQuickWebViewLoadRequest() { }
 
-    QUrl url() const;
-    QQuickWebView::LoadStatus status() const;
-    QString errorString() const;
+/*!
+    \qmlproperty url QtWebView::WebViewLoadRequest::url
+    \readonly
 
-private:
-    friend class QQuickWebView;
-    explicit QQuickWebViewLoadRequest(const QWebViewLoadRequestPrivate &d);
-    Q_DECLARE_PRIVATE(QWebViewLoadRequest)
-    QScopedPointer<QWebViewLoadRequestPrivate> d_ptr;
-};
+    The URL of the load request.
+ */
+QUrl QQuickWebViewLoadRequest::url() const
+{
+    Q_D(const QWebViewLoadRequest);
+    return d->m_url;
+}
+
+/*!
+    \qmlproperty enumeration WebViewLoadRequest::status
+    \readonly
+
+    This enumeration represents the load status of a web page load request.
+
+    \value WebView.LoadStartedStatus The page is currently loading.
+    \value WebView.LoadSucceededStatus The page was loaded successfully.
+    \value WebView.LoadFailedStatus The page could not be loaded.
+
+    \sa {WebView::loadingChanged()}{WebView.loadingChanged}
+*/
+QQuickWebView::LoadStatus QQuickWebViewLoadRequest::status() const
+{
+    Q_D(const QWebViewLoadRequest);
+    return QQuickWebView::LoadStatus(d->m_status);
+}
+
+/*!
+    \qmlproperty string QtWebView::WebViewLoadRequest::errorString
+    \readonly
+
+    Holds the error message if the load request failed.
+*/
+QString QQuickWebViewLoadRequest::errorString() const
+{
+    Q_D(const QWebViewLoadRequest);
+    return d->m_errorString;
+}
 
 QT_END_NAMESPACE
-
-#endif // QQUICKWEBVIEWREQUEST_H

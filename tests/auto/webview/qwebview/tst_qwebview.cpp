@@ -43,8 +43,8 @@
 #include <QtQml/qqmlengine.h>
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 
-#ifndef QT_NO_QQUICKWEBVIEW_TESTS
-#include <QtWebView/private/qquickwebview_p.h>
+#ifdef QT_QQUICKWEBVIEW_TESTS
+#include <QtWebViewQuick/private/qquickwebview_p.h>
 #endif // QT_NO_QQUICKWEBVIEW_TESTS
 
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
@@ -120,7 +120,7 @@ void tst_QWebView::load()
 
 void tst_QWebView::runJavaScript()
 {
-#ifndef QT_NO_QQUICKWEBVIEW_TESTS
+#ifdef QT_QQUICKWEBVIEW_TESTS
 #ifndef QT_WEBVIEW_WEBENGINE_BACKEND
     ANDROID_REQUIRES_API_LEVEL(19)
 #endif
@@ -143,7 +143,7 @@ void tst_QWebView::runJavaScript()
     QVERIFY(callback.isCallable());
     view.runJavaScript(QString(QLatin1String("document.title")), callback);
     QTRY_COMPARE(engine.evaluate(tstProperty).toString(), title);
-#endif // QT_NO_QQUICKWEBVIEW_TESTS
+#endif // QT_QQUICKWEBVIEW_TESTS
 }
 
 void tst_QWebView::loadHtml()

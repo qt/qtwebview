@@ -50,7 +50,7 @@ public:
         QMutexLocker locker(&m_mtx);
         const int nextId = qMax(++m_counter, 0);
         if (nextId == 0)
-          m_counter = 1;
+            m_counter = 1;
 
         m_callbacks.insert(nextId, callback);
         return nextId;
@@ -91,8 +91,7 @@ Q_GLOBAL_STATIC(CallbackStorage, callbacks)
 */
 
 QQuickWebView::QQuickWebView(QQuickItem *parent)
-    : QQuickViewController(parent)
-    , m_webView(new QWebView(this))
+    : QQuickViewController(parent), m_webView(new QWebView(this))
 {
     setView(m_webView);
     connect(m_webView, &QWebView::titleChanged, this, &QQuickWebView::titleChanged);
@@ -104,9 +103,7 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView, &QWebView::httpUserAgentChanged, this, &QQuickWebView::httpUserAgentChanged);
 }
 
-QQuickWebView::~QQuickWebView()
-{
-}
+QQuickWebView::~QQuickWebView() { }
 
 /*!
   \qmlproperty url QtWebView::WebView::httpUserAgent
@@ -300,8 +297,7 @@ void QQuickWebView::loadHtml(const QString &html, const QUrl &baseUrl)
 */
 void QQuickWebView::runJavaScript(const QString &script, const QJSValue &callback)
 {
-    const int callbackId = callback.isCallable() ? callbacks->insertCallback(callback)
-                                                 : -1;
+    const int callbackId = callback.isCallable() ? callbacks->insertCallback(callback) : -1;
     runJavaScriptPrivate(script, callbackId);
 }
 

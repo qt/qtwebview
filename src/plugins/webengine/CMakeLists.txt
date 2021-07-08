@@ -14,4 +14,5 @@ qt_internal_add_plugin(QWebEngineWebViewPlugin
         Qt::WebEngineCorePrivate
         Qt::WebEngineQuickPrivate
         Qt::WebViewPrivate
+        Qt::WebViewQuickPrivate
 )

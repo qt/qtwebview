@@ -7,9 +7,6 @@ qt_internal_add_module(WebView
     SOURCES
         qabstractwebview_p.h
         qnativeviewcontroller_p.h
-        qquickviewcontroller.cpp qquickviewcontroller_p.h
-        qquickwebview.cpp qquickwebview_p.h
-        qquickwebviewloadrequest.cpp qquickwebviewloadrequest_p.h
         qtwebviewfunctions.cpp qtwebviewfunctions.h
         qwebview.cpp qwebview_p.h
         qwebview_global.h
@@ -20,14 +17,12 @@ qt_internal_add_module(WebView
     LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
-        Qt::QuickPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
     PRIVATE_MODULE_INTERFACE
         Qt::CorePrivate
         Qt::GuiPrivate
-        Qt::QuickPrivate
 )
 
 if(ANDROID)

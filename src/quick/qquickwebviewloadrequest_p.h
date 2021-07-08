@@ -34,46 +34,53 @@
 **
 ****************************************************************************/
 
-#include <QtQml/qqmlextensionplugin.h>
-#include <QtQml/qqml.h>
+#ifndef QQUICKWEBVIEWREQUEST_H
+#define QQUICKWEBVIEWREQUEST_H
 
-#include <QtWebView/private/qquickwebviewloadrequest_p.h>
-#include <QtWebView/private/qquickwebview_p.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <QtWebViewQuick/private/qtwebviewquickglobal_p.h>
+#include <QtWebViewQuick/private/qquickwebview_p.h>
+#include <QtQml/qqmlregistration.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWebViewModule : public QQmlExtensionPlugin
+class QWebViewLoadRequestPrivate;
+
+class Q_WEBVIEWQUICK_EXPORT QQuickWebViewLoadRequest : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
+    Q_PROPERTY(QUrl url READ url)
+    Q_PROPERTY(QQuickWebView::LoadStatus status READ status)
+    Q_PROPERTY(QString errorString READ errorString)
+    QML_NAMED_ELEMENT(WebViewLoadRequest)
+    QML_ADDED_IN_VERSION(1, 1)
+    QML_EXTRA_VERSION(2, 0)
+    QML_UNCREATABLE("")
+
 public:
-    QWebViewModule(QObject *parent = nullptr) : QQmlExtensionPlugin(parent) { }
-    void registerTypes(const char *uri) override
-    {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWebView"));
+    ~QQuickWebViewLoadRequest();
 
-        // @uri QtWebView
-        const QString &msg = QObject::tr("Cannot create separate instance of WebViewLoadRequest");
-        qmlRegisterType<QQuickWebView>(uri, 1, 0, "WebView");
-        qmlRegisterType<QQuickWebView, 1>(uri, 1, 1, "WebView");
-        qmlRegisterType<QQuickWebView, 14>(uri, 1, 14, "WebView");
-        qmlRegisterUncreatableType<QQuickWebViewLoadRequest>(uri, 1, 1, "WebViewLoadRequest", msg);
+    QUrl url() const;
+    QQuickWebView::LoadStatus status() const;
+    QString errorString() const;
 
-        // The minor version used to be the current Qt 5 minor. For compatibility it is the last
-        // Qt 5 release.
-        qmlRegisterModule(uri, 1, 15);
-    }
-
-    void initializeEngine(QQmlEngine *engine, const char *uri) override
-    {
-        Q_UNUSED(uri);
-        Q_UNUSED(engine);
-    }
+private:
+    friend class QQuickWebView;
+    explicit QQuickWebViewLoadRequest(const QWebViewLoadRequestPrivate &d);
+    Q_DECLARE_PRIVATE(QWebViewLoadRequest)
+    QScopedPointer<QWebViewLoadRequestPrivate> d_ptr;
 };
 
 QT_END_NAMESPACE
 
-#include "webview.moc"
-
-
-
+#endif // QQUICKWEBVIEWREQUEST_H
