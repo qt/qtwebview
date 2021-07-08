@@ -1,5 +1,5 @@
 add_subdirectory(webview)
-add_subdirectory(imports)
+add_subdirectory(quick)
 add_subdirectory(plugins)
 if(ANDROID)
     add_subdirectory(jar)

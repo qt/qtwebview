@@ -6,12 +6,10 @@ qt_internal_add_test(tst_qquickwebview
     SOURCES
         util.h testwindow.h
         tst_qquickwebview.cpp
-    PUBLIC_LIBRARIES
-        Qt::Gui
-        Qt::Network
+    LIBRARIES
         Qt::Quick
-        Qt::Test
         Qt::WebViewPrivate
+        Qt::WebViewQuickPrivate
 )
 
 set(testdata_resource_files

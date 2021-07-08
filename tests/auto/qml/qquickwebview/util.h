@@ -24,8 +24,8 @@
 #include <QSignalSpy>
 #include <QTimer>
 #include <QtTest/QtTest>
-#include <QtWebView/private/qquickwebview_p.h>
-#include <QtWebView/private/qquickwebviewloadrequest_p.h>
+#include <QtWebViewQuick/private/qquickwebview_p.h>
+#include <QtWebViewQuick/private/qquickwebviewloadrequest_p.h>
 
 #if !defined(TESTS_SOURCE_DIR)
 #define TESTS_SOURCE_DIR ""

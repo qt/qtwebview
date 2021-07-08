@@ -35,7 +35,7 @@
 ****************************************************************************/
 
 #include "qquickviewcontroller_p.h"
-#include "qwebview_p.h"
+#include "QtWebView/private/qwebview_p.h"
 
 #include <QtGui/QWindow>
 #include <QtQuick/QQuickWindow>
@@ -46,9 +46,8 @@
 
 QT_BEGIN_NAMESPACE
 
-static const QQuickItemPrivate::ChangeTypes changeMask = QQuickItemPrivate::Geometry
-                                                         | QQuickItemPrivate::Children
-                                                         | QQuickItemPrivate::Parent;
+static const QQuickItemPrivate::ChangeTypes changeMask =
+        QQuickItemPrivate::Geometry | QQuickItemPrivate::Children | QQuickItemPrivate::Parent;
 
 class QQuickViewChangeListener : public QQuickItemChangeListener
 {
@@ -56,9 +55,7 @@ public:
     explicit QQuickViewChangeListener(QQuickViewController *item);
     ~QQuickViewChangeListener();
 
-    inline void itemGeometryChanged(QQuickItem *,
-                                    QQuickGeometryChange,
-                                    const QRectF &) override;
+    inline void itemGeometryChanged(QQuickItem *, QQuickGeometryChange, const QRectF &) override;
     void itemChildRemoved(QQuickItem *item, QQuickItem *child) override;
     void itemParentChanged(QQuickItem *item, QQuickItem *parent) override;
 
@@ -70,8 +67,7 @@ private:
     bool isAncestor(QQuickItem *item);
 };
 
-QQuickViewChangeListener::QQuickViewChangeListener(QQuickViewController *item)
-    : m_item(item)
+QQuickViewChangeListener::QQuickViewChangeListener(QQuickViewController *item) : m_item(item)
 {
     // Only listen for parent changes on the view controller item.
     QQuickItemPrivate::get(item)->addItemChangeListener(this, QQuickItemPrivate::Parent);
@@ -88,7 +84,8 @@ QQuickViewChangeListener::~QQuickViewChangeListener()
     removeAncestorListeners(m_item->parentItem(), changeMask);
 }
 
-void QQuickViewChangeListener::itemGeometryChanged(QQuickItem *, QQuickGeometryChange, const QRectF &)
+void QQuickViewChangeListener::itemGeometryChanged(QQuickItem *, QQuickGeometryChange,
+                                                   const QRectF &)
 {
     m_item->polish();
 }
@@ -158,23 +155,21 @@ bool QQuickViewChangeListener::isAncestor(QQuickItem *item)
 ///
 
 QQuickViewController::QQuickViewController(QQuickItem *parent)
-    : QQuickItem(parent)
-    , m_view(0)
-    , m_changeListener(new QQuickViewChangeListener(this))
+    : QQuickItem(parent), m_view(0), m_changeListener(new QQuickViewChangeListener(this))
 {
-    connect(this, &QQuickViewController::windowChanged, this, &QQuickViewController::onWindowChanged);
-    connect(this, &QQuickViewController::visibleChanged, this, &QQuickViewController::onVisibleChanged);
+    connect(this, &QQuickViewController::windowChanged, this,
+            &QQuickViewController::onWindowChanged);
+    connect(this, &QQuickViewController::visibleChanged, this,
+            &QQuickViewController::onVisibleChanged);
 }
 
-QQuickViewController::~QQuickViewController()
-{
-}
+QQuickViewController::~QQuickViewController() { }
 
 void QQuickViewController::componentComplete()
 {
-   QQuickItem::componentComplete();
-   m_view->init();
-   m_view->setVisibility(QWindow::Windowed);
+    QQuickItem::componentComplete();
+    m_view->init();
+    m_view->setVisibility(QWindow::Windowed);
 }
 
 void QQuickViewController::updatePolish()
@@ -230,7 +225,7 @@ void QQuickViewController::geometryChange(const QRectF &newGeometry, const QRect
         polish();
 }
 
-void QQuickViewController::onWindowChanged(QQuickWindow* window)
+void QQuickViewController::onWindowChanged(QQuickWindow *window)
 {
     QQuickWindow *oldParent = qobject_cast<QQuickWindow *>(m_view->parentView());
     if (oldParent)
@@ -249,19 +244,25 @@ void QQuickViewController::onWindowChanged(QQuickWindow* window)
         connect(rw, &QWindow::heightChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(rw, &QWindow::xChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(rw, &QWindow::yChanged, this, &QQuickViewController::scheduleUpdatePolish);
-        connect(rw, &QWindow::visibleChanged, this, [this](bool visible) { m_view->setVisible(visible); });
-        connect(window, &QQuickWindow::sceneGraphInitialized, this, &QQuickViewController::scheduleUpdatePolish);
-        connect(window, &QQuickWindow::sceneGraphInvalidated, this, &QQuickViewController::onSceneGraphInvalidated);
+        connect(rw, &QWindow::visibleChanged, this,
+                [this](bool visible) { m_view->setVisible(visible); });
+        connect(window, &QQuickWindow::sceneGraphInitialized, this,
+                &QQuickViewController::scheduleUpdatePolish);
+        connect(window, &QQuickWindow::sceneGraphInvalidated, this,
+                &QQuickViewController::onSceneGraphInvalidated);
         m_view->setParentView(rw);
     } else {
         connect(window, &QWindow::widthChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QWindow::heightChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QWindow::xChanged, this, &QQuickViewController::scheduleUpdatePolish);
         connect(window, &QWindow::yChanged, this, &QQuickViewController::scheduleUpdatePolish);
-        connect(window, &QQuickWindow::sceneGraphInitialized, this, &QQuickViewController::scheduleUpdatePolish);
-        connect(window, &QQuickWindow::sceneGraphInvalidated, this, &QQuickViewController::onSceneGraphInvalidated);
-        connect(window, &QWindow::visibilityChanged, this, [this](QWindow::Visibility visibility)
-            { m_view->setVisible(visibility != QWindow::Hidden); });
+        connect(window, &QQuickWindow::sceneGraphInitialized, this,
+                &QQuickViewController::scheduleUpdatePolish);
+        connect(window, &QQuickWindow::sceneGraphInvalidated, this,
+                &QQuickViewController::onSceneGraphInvalidated);
+        connect(window, &QWindow::visibilityChanged, this, [this](QWindow::Visibility visibility) {
+            m_view->setVisible(visibility != QWindow::Hidden);
+        });
         m_view->setVisible(window->visibility() != QWindow::Hidden);
         m_view->setParentView(window);
     }

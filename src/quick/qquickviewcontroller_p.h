@@ -34,73 +34,56 @@
 **
 ****************************************************************************/
 
-#include "qquickwebviewloadrequest_p.h"
-#include <QtWebView/private/qwebviewloadrequest_p.h>
+#ifndef QQUICKVIEWCONTROLLER_H
+#define QQUICKVIEWCONTROLLER_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <QtWebViewQuick/private/qtwebviewquickglobal_p.h>
+#include <QtQuick/QQuickItem>
+#include <QtGui/qwindow.h>
 
 QT_BEGIN_NAMESPACE
 
-/*!
-    \qmltype WebViewLoadRequest
-    \instantiates QQuickWebViewLoadRequest
-    \inqmlmodule QtWebView
+class QNativeViewController;
+class QQuickViewChangeListener;
 
-    \brief A utility type for \l {WebView}'s \l {WebView::}{loadingChanged()} signal.
-
-    The WebViewLoadRequest type contains load status information for the requested URL.
-
-    \sa {WebView::loadingChanged()}{WebView.loadingChanged()}
-*/
-QQuickWebViewLoadRequest::QQuickWebViewLoadRequest(const QWebViewLoadRequestPrivate &d)
-    : d_ptr(new QWebViewLoadRequestPrivate(d))
+class Q_WEBVIEWQUICK_EXPORT QQuickViewController : public QQuickItem
 {
+    Q_OBJECT
+public:
+    explicit QQuickViewController(QQuickItem *parent = nullptr);
+    ~QQuickViewController();
 
-}
+public Q_SLOTS:
+    void onWindowChanged(QQuickWindow *window);
+    void onVisibleChanged();
 
-QQuickWebViewLoadRequest::~QQuickWebViewLoadRequest()
-{
+protected:
+    void componentComplete() override;
+    void updatePolish() override;
+    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+    void setView(QNativeViewController *view);
 
-}
+private:
+    friend class QQuickWebView;
+    QNativeViewController *m_view;
+    QScopedPointer<QQuickViewChangeListener> m_changeListener;
 
-/*!
-    \qmlproperty url QtWebView::WebViewLoadRequest::url
-    \readonly
-
-    The URL of the load request.
- */
-QUrl QQuickWebViewLoadRequest::url() const
-{
-    Q_D(const QWebViewLoadRequest);
-    return d->m_url;
-}
-
-/*!
-    \qmlproperty enumeration WebViewLoadRequest::status
-    \readonly
-
-    This enumeration represents the load status of a web page load request.
-
-    \value WebView.LoadStartedStatus The page is currently loading.
-    \value WebView.LoadSucceededStatus The page was loaded successfully.
-    \value WebView.LoadFailedStatus The page could not be loaded.
-
-    \sa {WebView::loadingChanged()}{WebView.loadingChanged}
-*/
-QQuickWebView::LoadStatus QQuickWebViewLoadRequest::status() const
-{
-    Q_D(const QWebViewLoadRequest);
-    return QQuickWebView::LoadStatus(d->m_status);
-}
-
-/*!
-    \qmlproperty string QtWebView::WebViewLoadRequest::errorString
-    \readonly
-
-    Holds the error message if the load request failed.
-*/
-QString QQuickWebViewLoadRequest::errorString() const
-{
-    Q_D(const QWebViewLoadRequest);
-    return d->m_errorString;
-}
+private Q_SLOTS:
+    void scheduleUpdatePolish();
+    void onSceneGraphInvalidated();
+};
 
 QT_END_NAMESPACE
+
+#endif // QTWINDOWCONTROLLERITEM_H
