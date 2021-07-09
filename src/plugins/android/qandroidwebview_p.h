@@ -51,7 +51,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtGui/qwindow.h>
-#include <QtCore/private/qjni_p.h>
+#include <QtCore/qjniobject.h>
 
 #include <private/qabstractwebview_p.h>
 
@@ -98,8 +98,8 @@ private:
     quintptr m_id;
     quint64 m_callbackId;
     QWindow *m_window;
-    QJNIObjectPrivate m_viewController;
-    QJNIObjectPrivate m_webView;
+    QJniObject m_viewController;
+    QJniObject m_webView;
 };
 
 QT_END_NAMESPACE
