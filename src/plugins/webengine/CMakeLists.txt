@@ -4,7 +4,7 @@
 
 qt_internal_add_plugin(QWebEngineWebViewPlugin
     OUTPUT_NAME qtwebview_webengine
-    TYPE webview
+    PLUGIN_TYPE webview
     SOURCES
         qwebenginewebview.cpp qwebenginewebview_p.h
         qwebenginewebviewplugin.cpp

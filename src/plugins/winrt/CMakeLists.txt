@@ -4,7 +4,7 @@
 
 qt_internal_add_plugin(QWinrtWebViewPlugin
     OUTPUT_NAME qtwebview_winrt
-    TYPE webview
+    PLUGIN_TYPE webview
     SOURCES
         qwinrtwebview.cpp qwinrtwebview_p.h
         qwinrtwebviewplugin.cpp

@@ -9,7 +9,7 @@ find_library(FWFoundation FoundationKit)
 
 qt_internal_add_plugin(QDarwinWebViewPlugin
     OUTPUT_NAME qtwebview_darwin
-    TYPE webview
+    PLUGIN_TYPE webview
     SOURCES
         qdarwinwebview.mm qdarwinwebview_p.h
         qdarwinwebviewplugin.cpp
