@@ -38,7 +38,6 @@
     APIs in each release. But some changes were inevitable in an effort to
     make Qt a better framework.
 
-    In this topic we summarize those changes in Qt WebView, and provide guidance
-    to handle them.
+    No source breaking changes have been made to Qt WebView.
 
 */
