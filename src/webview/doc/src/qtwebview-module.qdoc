@@ -33,7 +33,7 @@
   \qtvariable webview
 
   The Qt WebView module provides functionality to initialize the backend
-  for using the \l [QML] WebView QML type.
+  for using the WebView QML type.
 
   To include the module's definitions, use the following directive:
 

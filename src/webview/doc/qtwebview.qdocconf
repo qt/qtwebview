@@ -30,8 +30,8 @@ qhp.QtWebView.subprojects.examples.indexTitle   = Qt WebView Examples
 qhp.QtWebView.subprojects.examples.selectors    = doc:example
 qhp.QtWebView.subprojects.examples.sortPages    = true
 
-headerdirs += ../ ../../imports/ ../
-sourcedirs += ../ ../../imports/ ../
+headerdirs += ../../
+sourcedirs += ../../ src
 exampledirs += ../../../examples/webview
 imagedirs  += images
 
