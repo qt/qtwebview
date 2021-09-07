@@ -379,7 +379,7 @@ QString QWinRTWebViewPrivate::httpUserAgent() const
 {
 #ifdef QT_WINRT_URLMKGETSESSIONOPTION_NOT_AVAILABLE
     qWarning() << "Used Windows SDK version (" << QString::number(QT_UCRTVERSION) << ") does not "
-                  "support getting or setting of the user agent property from within UWP applications. Consider updating to a more recent Windows 10 "
+                  "support getting or setting of the user agent property. Consider updating to a more recent Windows 10 "
                   "SDK (16299 or above).";
     return "";
 #else
@@ -396,7 +396,7 @@ void QWinRTWebViewPrivate::setHttpUserAgent(const QString &userAgent)
 #ifdef QT_WINRT_URLMKSETSESSIONOPTION_NOT_AVAILABLE
     Q_UNUSED(userAgent);
     qWarning() << "Used Windows SDK version (" << QString::number(QT_UCRTVERSION) << ") does not "
-                  "support getting or setting of the user agent property from within UWP applications. Consider updating to a more recent Windows 10 "
+                  "support getting or setting of the user agent property. Consider updating to a more recent Windows 10 "
                   "SDK (16299 or above).";
 #else
     HRESULT hr = UrlMkSetSessionOption(0x10000001,userAgent.toLocal8Bit().data(),userAgent.size(),0);
