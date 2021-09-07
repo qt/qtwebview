@@ -40,11 +40,4 @@
   \code
   #include <QtWebView>
   \endcode
-
-  To link against the module, add the following line to your project
-  file:
-
-  \badcode
-  QT += webview
-  \endcode
 */

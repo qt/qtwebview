@@ -49,8 +49,8 @@ class QtWebView(ConanFile):
     description = (
         "Qt WebView provides a way to display web content in a QML application without necessarily "
         "including a full web browser stack by using native APIs where it makes sense. "
-        "This is useful on mobile platforms such as Android, iOS, and UWP (Universal Windows Platform); "
-        "especially on iOS, where policy dictates that all web content is displayed using the operating "
+        "This is useful on mobile platforms such as Android and iOS; "
+        "On iOS the policy dictates that all web content is displayed using the operating "
         "system's web view. "
         "On Windows and Linux, Qt WebView depends on the Qt WebEngine module to render content."
         "On macOS, the system web view is used in the same manner as iOS."

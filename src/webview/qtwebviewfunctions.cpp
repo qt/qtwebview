@@ -47,6 +47,7 @@ QT_BEGIN_NAMESPACE
     \namespace QtWebView
     \inmodule QtWebView
     \brief The QtWebView namespace provides functions that makes it easier to set-up and use the WebView.
+    \qtcmakepackage WebView
     \inheaderfile QtWebView
 */
 
