@@ -33,7 +33,7 @@ exampledirs += ../../../examples/webview
 imagedirs  += images
 
 examplesinstallpath = webview
-depends = qtcore qtdoc qtgui qtquick qtqml qtwebengine
+depends = qtcore qtdoc qtgui qtquick qtqml qtwebengine qmake qtcmake
 
 Cpp.ignoretokens         += Q_WEBVIEW_EXPORT
 

@@ -41,7 +41,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \qmltype WebViewLoadRequest
-    \instantiates QQuickWebViewLoadRequest
+    //! \instantiates QQuickWebViewLoadRequest
     \inqmlmodule QtWebView
 
     \brief A utility type for \l {WebView}'s \l {WebView::}{loadingChanged()} signal.
