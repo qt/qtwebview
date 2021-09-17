@@ -103,19 +103,14 @@ bool QWebViewFactory::requiresExtraInitializationSteps()
     const QString pluginName = getPluginName();
     const int index = pluginName.isEmpty() ? 0 : qMax<int>(0, loader->indexOf(pluginName));
 
-    const QList<QJsonObject> metaDataList = loader->metaData();
+    const QList<QPluginParsedMetaData> metaDataList = loader->metaData();
     if (metaDataList.isEmpty())
         return false;
 
     const auto &pluginMetaData = metaDataList.at(index);
-    const auto iid = pluginMetaData.value(QLatin1String("IID"));
-    Q_ASSERT(iid == QJsonValue(QLatin1String(QWebViewPluginInterface_iid)));
-    const auto metaDataObject = pluginMetaData.value(QLatin1String("MetaData")).toObject();
-    const auto it = metaDataObject.find(QLatin1String("RequiresInit"));
-    if (it != pluginMetaData.constEnd())
-        return it->isBool() ? it->toBool() : false;
-
-    return false;
+    Q_ASSERT(pluginMetaData.value(QtPluginMetaDataKeys::IID) == QLatin1String(QWebViewPluginInterface_iid));
+    const auto metaDataObject = pluginMetaData.value(QtPluginMetaDataKeys::MetaData).toMap();
+    return metaDataObject.value(QLatin1String("RequiresInit")).toBool();
 }
 
 QWebViewPlugin *QWebViewFactory::getPlugin()
