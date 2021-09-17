@@ -103,7 +103,7 @@ bool QWebViewFactory::requiresExtraInitializationSteps()
     const QString pluginName = getPluginName();
     const int index = pluginName.isEmpty() ? 0 : qMax<int>(0, loader->indexOf(pluginName));
 
-    const auto metaDataList = loader->metaData();
+    const QList<QJsonObject> metaDataList = loader->metaData();
     if (metaDataList.isEmpty())
         return false;
 
