@@ -209,6 +209,33 @@ void QAndroidWebViewPrivate::runJavaScriptPrivate(const QString &script,
                                       callbackId);
 }
 
+void QAndroidWebViewPrivate::setCookie(const QString &domain, const QString &name, const QString &value)
+{
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
+        m_viewController.callMethod<void>("setCookie",
+                                          "(Ljava/lang/String;Ljava/lang/String;)V",
+                                          static_cast<jstring>(QJniObject::fromString(domain).object()),
+                                          static_cast<jstring>(QJniObject::fromString(name + "=" + value).object()));
+    });
+}
+
+void QAndroidWebViewPrivate::deleteCookie(const QString &domain, const QString &name)
+{
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
+        m_viewController.callMethod<void>("setCookie",
+                                          "(Ljava/lang/String;Ljava/lang/String;)V",
+                                          static_cast<jstring>(QJniObject::fromString(domain).object()),
+                                          static_cast<jstring>(QJniObject::fromString(name + "=" + "").object()));
+    });
+}
+
+void QAndroidWebViewPrivate::deleteAllCookies()
+{
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
+        m_viewController.callMethod<void>("removeCookies");
+    });
+}
+
 void QAndroidWebViewPrivate::setVisible(bool visible)
 {
     m_window->setVisible(visible);

@@ -101,6 +101,8 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView, &QWebView::requestFocus, this, &QQuickWebView::onFocusRequest);
     connect(m_webView, &QWebView::javaScriptResult, this, &QQuickWebView::onRunJavaScriptResult);
     connect(m_webView, &QWebView::httpUserAgentChanged, this, &QQuickWebView::httpUserAgentChanged);
+    connect(m_webView, &QWebView::cookieAdded, this, &QQuickWebView::cookieAdded);
+    connect(m_webView, &QWebView::cookieRemoved, this, &QQuickWebView::cookieRemoved);
 }
 
 QQuickWebView::~QQuickWebView() { }
@@ -304,6 +306,58 @@ void QQuickWebView::runJavaScript(const QString &script, const QJSValue &callbac
 void QQuickWebView::runJavaScriptPrivate(const QString &script, int callbackId)
 {
     m_webView->runJavaScriptPrivate(script, callbackId);
+}
+
+/*!
+    \qmlmethod void QtWebView::WebView::setCookie(string domain, string name, string value)
+    \since QtWebView 6.3
+    Adds a cookie with the specified \a domain, \a name and \a value.
+
+    The \l cookieAdded signal will be emitted when the cookie is added.
+*/
+/*!
+    \qmlsignal QtWebView::WebView::cookieAdded(string domain, string name)
+
+    This signal is emitted when a cookie is added.
+
+    The parameters provide information about the \a domain and the \a name of the added cookie.
+
+    \note When Qt WebEngine module is used as backend, cookieAdded signal will be emitted for any
+    cookie added to the underlying QWebEngineCookieStore, including those added by websites.
+    In other cases cookieAdded signal is only emitted for cookies explicitly added with \l setCookie().
+*/
+void QQuickWebView::setCookie(const QString &domain, const QString &name, const QString &value)
+{
+    m_webView->setCookie(domain, name, value);
+}
+
+/*!
+    \qmlmethod void QtWebView::WebView::deleteCookie(string domain, string name)
+    \since QtWebView 6.3
+    Deletes a cookie with the specified \a domain and \a name.
+
+    The \l cookieRemoved signal will be emitted when the cookie is deleted.
+*/
+/*!
+    \qmlsignal QtWebView::WebView::cookieRemoved(string domain, string name)
+
+    This signal is emitted when a cookie is deleted.
+
+    The parameters provide information about the \a domain and the \a name of the deleted cookie.
+*/
+void QQuickWebView::deleteCookie(const QString &domain, const QString &name)
+{
+    m_webView->deleteCookie(domain, name);
+}
+
+/*!
+    \qmlmethod void QtWebView::WebView::deleteAllCookies()
+    \since QtWebView 6.3
+    Deletes all the cookies.
+*/
+void QQuickWebView::deleteAllCookies()
+{
+    m_webView->deleteAllCookies();
 }
 
 void QQuickWebView::itemChange(ItemChange change, const ItemChangeData &value)

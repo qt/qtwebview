@@ -55,6 +55,9 @@
 #include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
 #include <QtWebEngineCore/qwebengineloadinginfo.h>
 
+#include <QWebEngineCookieStore>
+#include <QNetworkCookie>
+
 QT_BEGIN_NAMESPACE
 
 static QByteArray qmlSource()
@@ -68,6 +71,7 @@ QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QObject *p)
     : QAbstractWebView(p), m_profile(nullptr)
 {
     m_webEngineView.m_parent = this;
+    m_cookieStore.m_webEngineViewPtr = &m_webEngineView;
 }
 
 QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate()
@@ -147,6 +151,32 @@ void QWebEngineWebViewPrivate::runJavaScriptPrivate(const QString &script,
                                                     int callbackId)
 {
     m_webEngineView->runJavaScript(script, QQuickWebView::takeCallback(callbackId));
+}
+
+void QWebEngineWebViewPrivate::setCookie(const QString &domain, const QString &name, const QString &value)
+{
+    QNetworkCookie cookie;
+    cookie.setDomain(domain);
+    cookie.setName(QByteArray(name.toUtf8()));
+    cookie.setValue(QByteArray(value.toUtf8()));
+    cookie.setPath("/");
+
+    m_cookieStore->setCookie(cookie);
+}
+
+void QWebEngineWebViewPrivate::deleteCookie(const QString &domain, const QString &name)
+{
+    QNetworkCookie cookie;
+    cookie.setDomain(domain);
+    cookie.setName(QByteArray(name.toUtf8()));
+    cookie.setPath("/");
+
+    m_cookieStore->deleteCookie(cookie);
+}
+
+void QWebEngineWebViewPrivate::deleteAllCookies()
+{
+    m_cookieStore->deleteAllCookies();
 }
 
 void QWebEngineWebViewPrivate::setVisible(bool visible)
@@ -233,6 +263,16 @@ void QWebEngineWebViewPrivate::q_httpUserAgentChanged()
      Q_EMIT httpUserAgentChanged(m_httpUserAgent);
 }
 
+void QWebEngineWebViewPrivate::q_cookieAdded(const QNetworkCookie &cookie)
+{
+    Q_EMIT cookieAdded(cookie.domain(), cookie.name());
+}
+
+void QWebEngineWebViewPrivate::q_cookieRemoved(const QNetworkCookie &cookie)
+{
+    Q_EMIT cookieRemoved(cookie.domain(), cookie.name());
+}
+
 void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
 {
     Q_ASSERT(!m_webEngineView);
@@ -274,8 +314,26 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
     QObject::connect(webEngineView, &QQuickWebEngineView::titleChanged, m_parent, &QWebEngineWebViewPrivate::q_titleChanged);
     QObject::connect(webEngineView, &QQuickWebEngineView::profileChanged,m_parent, &QWebEngineWebViewPrivate::q_profileChanged);
     QObject::connect(profile, &QQuickWebEngineProfile::httpUserAgentChanged, m_parent, &QWebEngineWebViewPrivate::q_httpUserAgentChanged);
+
     webEngineView->setParentItem(parentItem);
     m_webEngineView.reset(webEngineView);
+
+    if (!m_parent->m_cookieStore.m_cookieStore)
+        m_parent->m_cookieStore.init();
+}
+
+void QWebEngineWebViewPrivate::QWebEngineCookieStorePtr::init() const
+{
+    if (!m_webEngineViewPtr->m_webEngineView)
+        m_webEngineViewPtr->init();
+    else {
+        QWebEngineWebViewPrivate * parent = m_webEngineViewPtr->m_parent;
+        QWebEngineCookieStore *cookieStore = parent->m_profile->cookieStore();
+        m_cookieStore = cookieStore;
+
+        QObject::connect(cookieStore, &QWebEngineCookieStore::cookieAdded, parent, &QWebEngineWebViewPrivate::q_cookieAdded);
+        QObject::connect(cookieStore, &QWebEngineCookieStore::cookieRemoved, parent, &QWebEngineWebViewPrivate::q_cookieRemoved);
+    }
 }
 
 QT_END_NAMESPACE

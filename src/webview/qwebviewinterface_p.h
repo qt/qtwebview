@@ -82,6 +82,9 @@ public:
 
     virtual void runJavaScriptPrivate(const QString &script,
                                       int callbackId) = 0;
+    virtual void setCookie(const QString &domain, const QString &name, const QString &value) = 0;
+    virtual void deleteCookie(const QString &domain, const QString &name) = 0;
+    virtual void deleteAllCookies() = 0;
 };
 
 QT_END_NAMESPACE

@@ -101,6 +101,10 @@ public Q_SLOTS:
     void reload() override;
     void stop() override;
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) override;
+    void setCookie(const QString &domain, const QString &name,
+                          const QString &value) override;
+    void deleteCookie(const QString &domain, const QString &name) override;
+    void deleteAllCookies() override;
 
 Q_SIGNALS:
     void titleChanged();
@@ -110,6 +114,8 @@ Q_SIGNALS:
     void javaScriptResult(int id, const QVariant &result);
     void requestFocus(bool focus);
     void httpUserAgentChanged();
+    void cookieAdded(const QString &domain, const QString &name);
+    void cookieRemoved(const QString &domain, const QString &name);
 
 protected:
     void init() override;

@@ -71,6 +71,8 @@ Q_SIGNALS:
     void javaScriptResult(int id, const QVariant &result);
     void requestFocus(bool focus);
     void httpUserAgentChanged(const QString &httpUserAgent);
+    void cookieAdded(const QString &domain, const QString &name);
+    void cookieRemoved(const QString &domain, const QString &name);
 
 protected:
     explicit QAbstractWebView(QObject *p = nullptr) : QObject(p) { }

@@ -18,6 +18,7 @@ set(testdata_resource_files
     "html/direct-image-compositing.html"
     "html/inputmethod.html"
     "html/scroll.html"
+    "html/cookies.html"
 )
 
 qt_internal_add_resource(tst_qquickwebview "testdata"

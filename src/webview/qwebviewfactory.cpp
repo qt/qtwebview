@@ -81,6 +81,11 @@ public:
     { Q_UNUSED(html); Q_UNUSED(baseUrl); }
     void runJavaScriptPrivate(const QString &script, int callbackId) override
     { Q_UNUSED(script); Q_UNUSED(callbackId); }
+    void setCookie(const QString &domain, const QString &name, const QString &value) override
+    { Q_UNUSED(domain); Q_UNUSED(name); Q_UNUSED(value); }
+    void deleteCookie(const QString &domain, const QString &name) override
+    { Q_UNUSED(domain); Q_UNUSED(name); }
+    void deleteAllCookies() override {}
 };
 
 QAbstractWebView *QWebViewFactory::createWebView()

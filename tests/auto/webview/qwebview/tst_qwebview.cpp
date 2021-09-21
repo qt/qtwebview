@@ -72,6 +72,7 @@ private slots:
     void runJavaScript();
     void loadHtml();
     void loadRequest();
+    void setAndDeleteCookie();
 
 private:
     const QString m_cacheLocation;
@@ -235,6 +236,41 @@ void tst_QWebView::loadRequest()
         QCOMPARE(view.loadProgress(), 0); // darwin plugin returns 100
 #endif
     }
+}
+
+void tst_QWebView::setAndDeleteCookie()
+{
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+    QQmlEngine engine;
+    QQmlContext * rootContext = engine.rootContext();
+    QQuickWebView qview;
+    QQmlEngine::setContextForObject(&qview, rootContext);
+    QWebView & view = qview.webView();
+#else
+    QWebView view;
+#endif
+
+    QSignalSpy cookieAddedSpy(&view, SIGNAL(cookieAdded(const QString &, const QString &)));
+    QSignalSpy cookieRemovedSpy(&view, SIGNAL(cookieRemoved(const QString &, const QString &)));
+
+    view.setCookie(".example.com", "TestCookie", "testValue");
+    view.setCookie(".example2.com", "TestCookie2", "testValue2");
+    view.setCookie(".example3.com", "TestCookie3", "testValue3");
+    QTRY_COMPARE(cookieAddedSpy.count(), 3);
+
+    view.deleteCookie(".example.com", "TestCookie");
+    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+
+    // deleting a cookie using a name that has not been set
+    view.deleteCookie(".example.com", "NewCookieName");
+    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+
+    // deleting a cookie using a domain that has not been set
+    view.deleteCookie(".new.domain.com", "TestCookie2");
+    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+
+    view.deleteAllCookies();
+    QTRY_COMPARE(cookieRemovedSpy.count(), 3);
 }
 
 QTEST_MAIN(tst_QWebView)
