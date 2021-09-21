@@ -57,11 +57,11 @@
 #include <private/qabstractwebview_p.h>
 #include <QtWebEngineQuick/QQuickWebEngineProfile>
 
-
 QT_BEGIN_NAMESPACE
 
 class QQuickWebEngineView;
 class QWebEngineLoadingInfo;
+class QNetworkCookie;
 
 class QWebEngineWebViewPrivate : public QAbstractWebView
 {
@@ -93,6 +93,10 @@ public Q_SLOTS:
     void reload() override;
     void stop() override;
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) override;
+    void setCookie(const QString &domain, const QString &name,
+                   const QString &value) override;
+    void deleteCookie(const QString &domain, const QString &name) override;
+    void deleteAllCookies() override;
 
 private Q_SLOTS:
     void q_urlChanged();
@@ -101,11 +105,12 @@ private Q_SLOTS:
     void q_loadingChanged(const QWebEngineLoadingInfo &loadRequest);
     void q_profileChanged();
     void q_httpUserAgentChanged();
+    void q_cookieAdded(const QNetworkCookie &cookie);
+    void q_cookieRemoved(const QNetworkCookie &cookie);
 
 protected:
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) override;
-
 private:
     QQuickWebEngineProfile *m_profile;
     QString m_httpUserAgent;
@@ -122,6 +127,19 @@ private:
         QWebEngineWebViewPrivate *m_parent;
         mutable QScopedPointer<QQuickWebEngineView> m_webEngineView;
     } m_webEngineView;
+    struct QWebEngineCookieStorePtr
+    {
+        inline QWebEngineCookieStore *operator->() const
+        {
+            if (!m_cookieStore)
+                init();
+            return m_cookieStore;
+        }
+        void init() const;
+
+        QQuickWebEngineViewPtr *m_webEngineViewPtr = nullptr;
+        mutable QWebEngineCookieStore *m_cookieStore = nullptr;
+    } m_cookieStore;
 };
 
 QT_END_NAMESPACE

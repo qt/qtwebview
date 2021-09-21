@@ -69,6 +69,7 @@ private Q_SLOTS:
     void multipleWebViews();
     void titleUpdate();
     void changeUserAgent();
+    void setAndDeleteCookies();
 
 private:
     inline QQuickWebView *newWebView();
@@ -351,6 +352,50 @@ void tst_QQuickWebView::changeUserAgent()
     QObject *viewInstance = userAgentWebView.create();
     QQuickWebView *webView = qobject_cast<QQuickWebView *>(viewInstance);
     QCOMPARE(webView->httpUserAgent(), "dummy");
+}
+
+void tst_QQuickWebView::setAndDeleteCookies()
+{
+    QSignalSpy cookieAddedSpy(webView(), SIGNAL(cookieAdded(const QString &, const QString &)));
+    QSignalSpy cookieRemovedSpy(webView(), SIGNAL(cookieRemoved(const QString &, const QString &)));
+
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+    webView()->setUrl(QUrl("qrc:///cookies.html"));
+    QVERIFY(waitForLoadSucceeded(webView()));
+
+    QTRY_COMPARE(cookieAddedSpy.count(), 2);
+
+    webView()->deleteAllCookies();
+    QTRY_COMPARE(cookieRemovedSpy.count(), 2);
+
+    cookieAddedSpy.clear();
+    cookieRemovedSpy.clear();
+#endif
+
+    webView()->setCookie(".example.com", "TestCookie", "testValue");
+    webView()->setCookie(".example2.com", "TestCookie2", "testValue2");
+    webView()->setCookie(".example3.com", "TestCookie3", "testValue3");
+    QTRY_COMPARE(cookieAddedSpy.count(), 3);
+    QList<QVariant> arguments = cookieAddedSpy.first();
+    QCOMPARE(arguments.at(0), ".example.com");
+    QCOMPARE(arguments.at(1), "TestCookie");
+
+    webView()->deleteCookie(".example.com", "TestCookie");
+    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+    arguments = cookieRemovedSpy.first();
+    QCOMPARE(arguments.at(0), ".example.com");
+    QCOMPARE(arguments.at(1), "TestCookie");
+
+    // deleting a cookie using a name that has not been set
+    webView()->deleteCookie(".example.com", "NewCookieName");
+    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+
+    // deleting a cookie using a domain that has not been set
+    webView()->deleteCookie(".new.domain.com", "TestCookie2");
+    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+
+    webView()->deleteAllCookies();
+    QTRY_COMPARE(cookieRemovedSpy.count(), 3);
 }
 
 QTEST_MAIN(tst_QQuickWebView)

@@ -58,6 +58,8 @@ QWebView::QWebView(QObject *p)
     connect(d, &QAbstractWebView::requestFocus, this, &QWebView::requestFocus);
     connect(d, &QAbstractWebView::javaScriptResult,
             this, &QWebView::javaScriptResult);
+    connect(d, &QAbstractWebView::cookieAdded, this, &QWebView::cookieAdded);
+    connect(d, &QAbstractWebView::cookieRemoved, this, &QWebView::cookieRemoved);
 }
 
 QWebView::~QWebView()
@@ -171,6 +173,21 @@ void QWebView::runJavaScriptPrivate(const QString &script,
                                     int callbackId)
 {
     d->runJavaScriptPrivate(script, callbackId);
+}
+
+void QWebView::setCookie(const QString &domain, const QString &name, const QString &value)
+{
+    d->setCookie(domain, name, value);
+}
+
+void QWebView::deleteCookie(const QString &domain, const QString &name)
+{
+    d->deleteCookie(domain, name);
+}
+
+void QWebView::deleteAllCookies()
+{
+    d->deleteAllCookies();
 }
 
 void QWebView::onTitleChanged(const QString &title)

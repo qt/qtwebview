@@ -105,6 +105,9 @@ public Q_SLOTS:
     void reload() override;
     void stop() override;
     void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) override;
+    void setCookie(const QString &domain, const QString &name, const QString &value) override;
+    void deleteCookie(const QString &domain, const QString &name) override;
+    void deleteAllCookies() override;
 
 protected:
     void runJavaScriptPrivate(const QString& script,

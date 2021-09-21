@@ -106,6 +106,9 @@ public Q_SLOTS:
     Q_REVISION(1, 1) void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) override;
     Q_REVISION(1, 1)
     void runJavaScript(const QString &script, const QJSValue &callback = QJSValue());
+    Q_REVISION(6, 3) void setCookie(const QString &domain, const QString &name, const QString &value) override;
+    Q_REVISION(6, 3) void deleteCookie(const QString &domain, const QString &name) override;
+    Q_REVISION(6, 3) void deleteAllCookies() override;
 
 Q_SIGNALS:
     void titleChanged();
@@ -113,6 +116,8 @@ Q_SIGNALS:
     Q_REVISION(1, 1) void loadingChanged(QQuickWebViewLoadRequest *loadRequest);
     void loadProgressChanged();
     Q_REVISION(1, 14) void httpUserAgentChanged();
+    Q_REVISION(6, 3) void cookieAdded(const QString &domain, const QString &name);
+    Q_REVISION(6, 3) void cookieRemoved(const QString &domain, const QString &name);
 
 protected:
     void itemChange(ItemChange change, const ItemChangeData &value) override;

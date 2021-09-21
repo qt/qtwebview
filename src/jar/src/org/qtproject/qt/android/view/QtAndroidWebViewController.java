@@ -44,6 +44,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
+import android.webkit.CookieManager;
 import java.lang.Runnable;
 import android.app.Activity;
 import android.content.Intent;
@@ -90,6 +91,8 @@ public class QtAndroidWebViewController
     private native void c_onReceivedTitle(long id, String title);
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
     private native void c_onReceivedError(long id, int errorCode, String description, String url);
+    private native void c_onCookieAdded(long id, boolean result, String domain, String name);
+    private native void c_onCookiesRemoved(long id, boolean result);
 
     // We need to block the UI thread in some cases, if it takes to long we should timeout before
     // ANR kicks in... Usually the hard limit is set to 10s and if exceed that then we're in trouble.
@@ -515,5 +518,45 @@ public class QtAndroidWebViewController
                 m_webView.destroy();
             }
         });
+    }
+
+    public void setCookie(final String url, final String cookieString)
+    {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+
+        try {
+            cookieManager.setCookie(url, cookieString, new ValueCallback<Boolean>() {
+                @Override
+                public void onReceiveValue(Boolean value) {
+                    try {
+                        c_onCookieAdded(m_id, value, url, cookieString.split("=")[0]);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeCookies() {
+        try {
+            CookieManager.getInstance().removeAllCookies(new ValueCallback<Boolean>() {
+                @Override
+                public void onReceiveValue(Boolean value) {
+                    try {
+                        c_onCookiesRemoved(m_id, value);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
