@@ -163,7 +163,11 @@ QQuickViewController::QQuickViewController(QQuickItem *parent)
             &QQuickViewController::onVisibleChanged);
 }
 
-QQuickViewController::~QQuickViewController() { }
+QQuickViewController::~QQuickViewController()
+{
+    disconnect(this);
+    onWindowChanged(nullptr);
+}
 
 void QQuickViewController::componentComplete()
 {
@@ -174,7 +178,7 @@ void QQuickViewController::componentComplete()
 
 void QQuickViewController::updatePolish()
 {
-    if (m_view == 0)
+    if (m_view == nullptr)
         return;
 
     QSize itemSize = QSize(width(), height());
@@ -182,7 +186,7 @@ void QQuickViewController::updatePolish()
         return;
 
     QQuickWindow *w = window();
-    if (w == 0)
+    if (w == nullptr)
         return;
 
     // Find this item's geometry in the scene.
