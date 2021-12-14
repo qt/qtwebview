@@ -1,3 +1,3 @@
 if(TARGET Qt::WebView)
-    add_subdirectory(minibrowser)
+    qt_internal_add_example(minibrowser)
 endif()
