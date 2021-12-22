@@ -14,9 +14,16 @@ qt_internal_add_qml_module(WebViewQuick
         qquickviewcontroller.cpp qquickviewcontroller_p.h
         qquickwebview.cpp qquickwebview_p.h
         qquickwebviewloadrequest.cpp qquickwebviewloadrequest_p.h
+    PUBLIC_LIBRARIES # TODO: QTBUG-86533 workaround, PUBLIC_LIBRARIES should be moved to LIBRARIES.
+        Qt::Quick
+        Qt::QmlModels
     LIBRARIES
         Qt::QuickPrivate
         Qt::WebViewPrivate
 )
 
-
+ # TODO: QTBUG-86533 workaround, PUBLIC_LIBRARIES should be moved to LIBRARIES.
+qt_internal_extend_target(WebViewQuick CONDITION TARGET Qt::OpenGL
+    PUBLIC_LIBRARIES
+        Qt::OpenGL
+)
