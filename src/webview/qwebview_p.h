@@ -55,7 +55,6 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
 #include <QtGui/qimage.h>
-#include <QtQml/qjsvalue.h>
 
 QT_BEGIN_NAMESPACE
 
