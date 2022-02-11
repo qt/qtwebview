@@ -56,6 +56,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtGui/qimage.h>
+#include <QtCore/private/qglobal_p.h>
 
 
 QT_BEGIN_NAMESPACE

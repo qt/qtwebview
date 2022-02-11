@@ -55,6 +55,7 @@
 #include <QtCore/qrect.h>
 #include <QtGui/qwindow.h>
 #include <QtCore/qpointer.h>
+#include <QtCore/private/qglobal_p.h>
 
 QT_BEGIN_NAMESPACE
 
