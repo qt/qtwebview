@@ -218,6 +218,11 @@ public class QtAndroidWebViewController
                 m_hasLocationPermission = hasLocationPermission(m_webView);
                 WebSettings webSettings = m_webView.getSettings();
 
+                // The local storage options are not user changeable in QtWebView and disabled by default on Android.
+                // In QtWebEngine and on iOS local storage is enabled by default, so we follow that.
+                webSettings.setDatabaseEnabled(true);
+                webSettings.setDomStorageEnabled(true);
+
                 if (Build.VERSION.SDK_INT > 10) {
                     try {
                         m_webViewOnResume = m_webView.getClass().getMethod("onResume");
