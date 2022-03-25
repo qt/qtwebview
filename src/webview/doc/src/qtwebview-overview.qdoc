@@ -31,68 +31,61 @@
   \title Qt WebView
   \brief A light-weight web view.
 
-  Qt \WebView provides a way to display web content in a QML application without
-  necessarily including a full web browser stack by using native APIs where
-  it makes sense.
+  Qt \WebView lets you display web content inside a QML application. To avoid
+  including a full web browser stack, Qt \WebView uses native APIs where
+  appropriate.
 
-  This is useful on mobile platforms such as \l {Qt for Android}{Android} and \l {Qt for iOS}{iOS};
-  On iOS the policy dictates that all web content is displayed using the operating system's web view.
+  This is useful on mobile platforms, such as \l {Qt for Android}{Android} and
+  \l{Qt for iOS}{iOS}. On iOS, policies dictate that all web content is
+  displayed using the operating system's web view.
 
-  On Windows and Linux, Qt \WebView depends on the \l{Qt WebEngine} module to render
-  content.
+  On Windows and Linux, Qt \WebView depends on the \l{Qt WebEngine} module to
+  render content.
 
   On \macos, the system web view is used in the same manner as iOS.
 
   \section1 Prerequisites
 
-  To make the Qt WebView module function correctly across all platforms, it's necessary
-  to call \l {qtwebview-initialize}{QtWebView::initialize}() before creating the
-  QGuiApplication instance and before window's QPlatformOpenGLContext is created.
+  To make the Qt WebView module function correctly across all platforms, it's
+  necessary to call \l {qtwebview-initialize} {\c QtWebView::initialize()}
+  before creating the \l {QGuiApplication} {\c QGuiApplication} instance and
+  before window's \c QPlatformOpenGLContext is created.
 
   \section1 Using The Module
 
   \section2 QML API
 
-  The QML types in Qt WebView are available through the QtWebView import. To use the types,
-  add the following import statement to your .qml file:
-
-  \badcode
-  import QtWebView
-  \endcode
+  \include {module-use.qdocinc} {using the qml api} {QtWebView}
 
   \section2 C++ API
 
-  Using the C++ API requires linking against the module library, either directly or through other dependencies.
+  \include {module-use.qdocinc} {using the c++ api}
 
   \section3 Building with CMake
 
-  Use the \c find_package() command to locate WebView component in the Qt6 package:
-
-  \badcode
-  find_package(Qt6 COMPONENTS WebView)
-  target_link_libraries(target PUBLIC Qt::WebView)
-  \endcode
-
-  For more information, see the \l{Build with CMake} overview page.
+  \include {module-use.qdocinc} {building with cmake} {WebView}
 
   \section3 Building with qmake
 
-  Add the webview module to the \c QT variable in the project's .pro file:
-
-  \badcode
-  QT += webview
-  \endcode
+  \include {module-use.qdocinc} {building_with_qmake} {webview}
 
   \section1 Limitations
 
   Due to platform limitations, overlapping the WebView with other QML components
-  is not supported. Doing this will have unpredictable results which may differ
+  is not supported. Doing this will have unpredictable results, which may differ
   from platform to platform.
 
   \section1 Examples
 
-  Take a look at the \l{Qt WebView Examples} for a demonstration on
+  Look at the \l{Qt WebView Examples} for a demonstration on
   how the APIs can be used in applications.
+
+  \section1 Reference
+
+  \list
+    \li \l{Qt WebView QML Types}
+    \li \l{Qt WebView C++ Classes and Namespaces}
+  \endlist
 
   \section1 Licenses
 
@@ -101,12 +94,4 @@
   \l{GNU Lesser General Public License, version 3}, or
   the \l{GNU General Public License, version 2}.
   See \l{Qt Licensing} for further details.
-
-  \section1 API Reference
-
-  \list
-  \li \l{Qt WebView QML Types}
-  \li \l{Qt WebView C++ Classes and Namespaces}
-  \endlist
-
 */
