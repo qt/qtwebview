@@ -243,6 +243,9 @@ void tst_QWebView::loadRequest()
 
 void tst_QWebView::setAndDeleteCookie()
 {
+#ifdef Q_OS_ANDROID
+    QSKIP("Craches on Android (QTBUG-102801)");
+#endif
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
     QQmlEngine engine;
     QQmlContext * rootContext = engine.rootContext();

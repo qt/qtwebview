@@ -356,6 +356,9 @@ void tst_QQuickWebView::changeUserAgent()
 
 void tst_QQuickWebView::setAndDeleteCookies()
 {
+#ifdef Q_OS_ANDROID
+    QSKIP("Craches on Android (QTBUG-102801)");
+#endif
     QSignalSpy cookieAddedSpy(webView(), SIGNAL(cookieAdded(const QString &, const QString &)));
     QSignalSpy cookieRemovedSpy(webView(), SIGNAL(cookieRemoved(const QString &, const QString &)));
 
