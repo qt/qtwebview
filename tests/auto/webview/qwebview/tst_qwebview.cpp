@@ -243,9 +243,6 @@ void tst_QWebView::loadRequest()
 
 void tst_QWebView::setAndDeleteCookie()
 {
-#ifdef Q_OS_ANDROID
-    QSKIP("Craches on Android (QTBUG-102801)");
-#endif
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
     QQmlEngine engine;
     QQmlContext * rootContext = engine.rootContext();
@@ -276,6 +273,9 @@ void tst_QWebView::setAndDeleteCookie()
     QTRY_COMPARE(cookieRemovedSpy.count(), 1);
 
     view.deleteAllCookies();
+#ifdef Q_OS_ANDROID
+    QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue);
+#endif
     QTRY_COMPARE(cookieRemovedSpy.count(), 3);
 }
 

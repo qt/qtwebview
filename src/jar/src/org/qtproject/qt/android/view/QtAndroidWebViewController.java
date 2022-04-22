@@ -61,6 +61,7 @@ import java.util.concurrent.Semaphore;
 import java.lang.reflect.Method;
 import android.os.Build;
 import java.util.concurrent.TimeUnit;
+import java.time.format.DateTimeFormatter;
 
 public class QtAndroidWebViewController
 {
@@ -95,7 +96,7 @@ public class QtAndroidWebViewController
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
     private native void c_onReceivedError(long id, int errorCode, String description, String url);
     private native void c_onCookieAdded(long id, boolean result, String domain, String name);
-    private native void c_onCookiesRemoved(long id, boolean result);
+    private native void c_onCookieRemoved(long id, boolean result, String domain, String name);
 
     // We need to block the UI thread in some cases, if it takes to long we should timeout before
     // ANR kicks in... Usually the hard limit is set to 10s and if exceed that then we're in trouble.
@@ -528,41 +529,87 @@ public class QtAndroidWebViewController
         });
     }
 
-    public void setCookie(final String url, final String cookieString)
+    private void setCookieImp(final String url, final String cookieString, ValueCallback<Boolean> callback)
     {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
 
         try {
-            cookieManager.setCookie(url, cookieString, new ValueCallback<Boolean>() {
-                @Override
-                public void onReceiveValue(Boolean value) {
-                    try {
-                        c_onCookieAdded(m_id, value, url, cookieString.split("=")[0]);
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            cookieManager.setCookie(url, cookieString, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void removeCookies() {
-        try {
-            CookieManager.getInstance().removeAllCookies(new ValueCallback<Boolean>() {
+    public void setCookie(final String url, final String cookieString)
+    {
+        setCookieImp(url, cookieString, new ValueCallback<Boolean>() {
+            @Override
+            public void onReceiveValue(Boolean value) {
+                try {
+                    c_onCookieAdded(m_id, value, url, cookieString.split("=")[0]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private boolean hasValidCookie(final String url, final String cookieString)
+    {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeExpiredCookie();
+        boolean cookieFound = false;
+
+        final String domainCookie = cookieManager.getCookie(url);
+
+        String found = null;
+        if (domainCookie != null) {
+            String cookies[] = domainCookie.split(";");
+            for (final String cookie : cookies) {
+                if (cookie.startsWith(cookieString)) {
+                    found = cookie;
+                    // Cookie is "cleared" so not considered valid.
+                    cookieFound = !cookie.endsWith("=");
+                    break;
+                }
+            }
+        }
+
+        return cookieFound;
+    }
+
+    private String getExpireString()
+    {
+        return "expires=\"Thu, 1 Jan 1970 00:00:00 GMT\"";
+    }
+
+    public void removeCookie(final String url, final String cookieString)
+    {
+        // We need to work with what we have
+        // 1. Check if there's cookies for the url
+        final boolean hadCookie = hasValidCookie(url, cookieString);
+        if (hadCookie) {
+            // 2. Tag the string with an expire tag so it will be purged
+            final String removeCookieString = cookieString + ";" + getExpireString();
+            setCookieImp(url, removeCookieString, new ValueCallback<Boolean>() {
                 @Override
                 public void onReceiveValue(Boolean value) {
                     try {
-                        c_onCookiesRemoved(m_id, value);
-                    }
-                    catch (Exception e) {
+                        // 3. Verify that the cookie was indeed removed
+                        final boolean removed = (hadCookie && !hasValidCookie(url, cookieString));
+                        c_onCookieRemoved(m_id, removed, url, cookieString.split("=")[0]);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             });
+        }
+    }
+
+    public void removeCookies() {
+        try {
+            CookieManager.getInstance().removeAllCookies(null);
         } catch (Exception e) {
             e.printStackTrace();
         }

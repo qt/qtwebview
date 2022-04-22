@@ -356,9 +356,6 @@ void tst_QQuickWebView::changeUserAgent()
 
 void tst_QQuickWebView::setAndDeleteCookies()
 {
-#ifdef Q_OS_ANDROID
-    QSKIP("Craches on Android (QTBUG-102801)");
-#endif
     QSignalSpy cookieAddedSpy(webView(), SIGNAL(cookieAdded(const QString &, const QString &)));
     QSignalSpy cookieRemovedSpy(webView(), SIGNAL(cookieRemoved(const QString &, const QString &)));
 
@@ -375,19 +372,25 @@ void tst_QQuickWebView::setAndDeleteCookies()
     cookieRemovedSpy.clear();
 #endif
 
-    webView()->setCookie(".example.com", "TestCookie", "testValue");
-    webView()->setCookie(".example2.com", "TestCookie2", "testValue2");
-    webView()->setCookie(".example3.com", "TestCookie3", "testValue3");
-    QTRY_COMPARE(cookieAddedSpy.count(), 3);
-    QList<QVariant> arguments = cookieAddedSpy.first();
-    QCOMPARE(arguments.at(0), ".example.com");
-    QCOMPARE(arguments.at(1), "TestCookie");
+    Cookie::List cookies { {".example.com", "TestCookie", "testValue"},
+                           {".example2.com", "TestCookie2", "testValue2"},
+                           {".example3.com", "TestCookie3", "testValue3"} };
 
-    webView()->deleteCookie(".example.com", "TestCookie");
+    for (const auto &cookie : cookies)
+        webView()->setCookie(cookie.domain, cookie.name, cookie.value);
+
+    QTRY_COMPARE(cookieAddedSpy.count(), cookies.count());
+    QVERIFY(Cookie::testSignalValues(cookies, cookieAddedSpy));
+
+    auto removedCookie = cookies.takeLast();
+
+    webView()->deleteCookie(removedCookie.domain, removedCookie.name);
     QTRY_COMPARE(cookieRemovedSpy.count(), 1);
-    arguments = cookieRemovedSpy.first();
-    QCOMPARE(arguments.at(0), ".example.com");
-    QCOMPARE(arguments.at(1), "TestCookie");
+    {
+        const auto &first = cookieRemovedSpy.first();
+        Cookie::SigArg sigArg{ first.at(0).toString(), first.at(1).toString() };
+        QCOMPARE(removedCookie, sigArg);
+    }
 
     // deleting a cookie using a name that has not been set
     webView()->deleteCookie(".example.com", "NewCookieName");
@@ -398,6 +401,9 @@ void tst_QQuickWebView::setAndDeleteCookies()
     QTRY_COMPARE(cookieRemovedSpy.count(), 1);
 
     webView()->deleteAllCookies();
+#ifdef Q_OS_ANDROID
+    QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue);
+#endif
     QTRY_COMPARE(cookieRemovedSpy.count(), 3);
 }
 
