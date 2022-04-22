@@ -225,10 +225,10 @@ void QAndroidWebViewPrivate::setCookie(const QString &domain, const QString &nam
 void QAndroidWebViewPrivate::deleteCookie(const QString &domain, const QString &name)
 {
     QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
-        m_viewController.callMethod<void>("setCookie",
+        m_viewController.callMethod<void>("removeCookie",
                                           "(Ljava/lang/String;Ljava/lang/String;)V",
                                           static_cast<jstring>(QJniObject::fromString(domain).object()),
-                                          static_cast<jstring>(QJniObject::fromString(name + "=" + "").object()));
+                                          static_cast<jstring>(QJniObject::fromString(name.split(u'=').at(0) + u'=').object()));
     });
 }
 
@@ -437,6 +437,44 @@ static void c_onReceivedError(JNIEnv *env,
     Q_EMIT wc->loadingChanged(loadRequest);
 }
 
+static void c_onCookieAdded(JNIEnv *env,
+                            jobject thiz,
+                            jlong id,
+                            jboolean result,
+                            jstring domain,
+                            jstring name)
+{
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+
+    if (result) {
+        const WebViews &wv = (*g_webViews);
+        QAndroidWebViewPrivate *wc = wv[id];
+        if (!wc)
+            return;
+        Q_EMIT wc->cookieAdded(QJniObject(domain).toString(), QJniObject(name).toString());
+    }
+}
+
+static void c_onCookieRemoved(JNIEnv *env,
+                              jobject thiz,
+                              jlong id,
+                              jboolean result,
+                              jstring domain,
+                              jstring name)
+{
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+
+    if (result) {
+        const WebViews &wv = (*g_webViews);
+        QAndroidWebViewPrivate *wc = wv[id];
+        if (!wc)
+            return;
+        Q_EMIT wc->cookieRemoved(QJniObject(domain).toString(), QJniObject(name).toString());
+    }
+}
+
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
 {
     static bool initialized = false;
@@ -467,7 +505,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
         {"c_onReceivedIcon", "(JLandroid/graphics/Bitmap;)V", reinterpret_cast<void *>(c_onReceivedIcon)},
         {"c_onReceivedTitle", "(JLjava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedTitle)},
         {"c_onRunJavaScriptResult", "(JJLjava/lang/String;)V", reinterpret_cast<void *>(c_onRunJavaScriptResult)},
-        {"c_onReceivedError", "(JILjava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedError)}
+        {"c_onReceivedError", "(JILjava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedError)},
+        {"c_onCookieAdded", "(JZLjava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(c_onCookieAdded)},
+        {"c_onCookieRemoved", "(JZLjava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(c_onCookieRemoved)}
     };
 
     const int nMethods = sizeof(methods) / sizeof(methods[0]);

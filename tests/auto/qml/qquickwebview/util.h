@@ -117,4 +117,41 @@ inline bool waitForLoadFailed(QQuickWebView *webView, int timeout = 10000)
     return waitForSignal(&loadSpy, SIGNAL(loadFailed()), timeout);
 }
 
+struct Cookie
+{
+    struct SigArg
+    {
+        QString domain;
+        QString name;
+    };
+
+    using List = QList<Cookie>;
+    using SignalReturnValues = QList<QList<QVariant>>;
+
+    QString domain;
+    QString name;
+    QString value;
+    friend bool operator==(const Cookie &a, const Cookie::SigArg &b)
+    {
+        return (a.domain == b.domain) && (a.name == b.name);
+    }
+
+    static bool testSignalValues(const Cookie::List &cookies, const SignalReturnValues &sigValues)
+    {
+        if (cookies.size() != sigValues.size())
+            return false;
+
+        int found = 0;
+        for (const auto &cookie : cookies) {
+            auto it = std::find_if(sigValues.constBegin(), sigValues.constEnd(), [cookie](const QVariantList &sigArgs) {
+                return (cookie == Cookie::SigArg{sigArgs.at(0).toString(), sigArgs.at(1).toString() });
+            });
+            if (it != sigValues.constEnd())
+                ++found;
+        }
+
+        return (found == cookies.size());
+    }
+};
+
 #endif /* UTIL_H */
