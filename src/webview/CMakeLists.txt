@@ -4,6 +4,8 @@
 
 qt_internal_add_module(WebView
     PLUGIN_TYPES webview
+    DEPENDENCIES
+        QtQuick/auto
     SOURCES
         qabstractwebview_p.h
         qnativeviewcontroller_p.h
