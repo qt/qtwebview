@@ -22,9 +22,27 @@ static QString getPluginName()
     return name;
 }
 
+class QNullWebViewSettings : public QAbstractWebViewSettings
+{
+public:
+    explicit QNullWebViewSettings(QObject *p) : QAbstractWebViewSettings(p) {}
+    bool localStorageEnabled() const override { return false; }
+    bool javascriptEnabled() const override { return false; }
+    bool localContentCanAccessFileUrls() const override { return false; }
+    bool allowFileAccess() const override { return false; }
+    void setLocalContentCanAccessFileUrls(bool) override {}
+    void setJavascriptEnabled(bool) override {}
+    void setLocalStorageEnabled(bool) override {}
+    void setAllowFileAccess(bool) override {}
+};
+
 class QNullWebView : public QAbstractWebView
 {
 public:
+    explicit QNullWebView(QObject *p = nullptr)
+        : QAbstractWebView(p)
+        , m_settings(new QNullWebViewSettings(this))
+    {}
     void setParentView(QObject *view) override { Q_UNUSED(view); }
     QObject *parentView() const override { return nullptr; }
     void setGeometry(const QRect &geometry) override { Q_UNUSED(geometry); }
@@ -53,6 +71,15 @@ public:
     void deleteCookie(const QString &domain, const QString &name) override
     { Q_UNUSED(domain); Q_UNUSED(name); }
     void deleteAllCookies() override {}
+
+protected:
+    QAbstractWebViewSettings *getSettings() const override
+    {
+        return m_settings;
+    }
+
+private:
+    QNullWebViewSettings *m_settings = nullptr;
 };
 
 QAbstractWebView *QWebViewFactory::createWebView()

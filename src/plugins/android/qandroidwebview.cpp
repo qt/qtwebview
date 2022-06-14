@@ -17,6 +17,53 @@
 
 QT_BEGIN_NAMESPACE
 
+QAndroidWebViewSettingsPrivate::QAndroidWebViewSettingsPrivate(QJniObject viewController, QObject *p)
+    : QAbstractWebViewSettings(p)
+    , m_viewController(viewController)
+{
+
+}
+
+bool QAndroidWebViewSettingsPrivate::localStorageEnabled() const
+{
+     return m_viewController.callMethod<jboolean>("isLocalStorageEnabled");
+}
+
+bool QAndroidWebViewSettingsPrivate::javascriptEnabled() const
+{
+    return m_viewController.callMethod<jboolean>("isJavaScriptEnabled");
+}
+
+bool QAndroidWebViewSettingsPrivate::localContentCanAccessFileUrls() const
+{
+    return m_viewController.callMethod<jboolean>("isAllowFileAccessFromFileURLsEnabled");
+}
+
+bool QAndroidWebViewSettingsPrivate::allowFileAccess() const
+{
+    return m_viewController.callMethod<jboolean>("isAllowFileAccessEnabled");
+}
+
+void QAndroidWebViewSettingsPrivate::setLocalContentCanAccessFileUrls(bool enabled)
+{
+    m_viewController.callMethod<void>("setAllowFileAccessFromFileURLs", "(Z)V", enabled);
+}
+
+void QAndroidWebViewSettingsPrivate::setJavascriptEnabled(bool enabled)
+{
+    m_viewController.callMethod<void>("setJavaScriptEnabled", "(Z)V", enabled);
+}
+
+void QAndroidWebViewSettingsPrivate::setLocalStorageEnabled(bool enabled)
+{
+    m_viewController.callMethod<void>("setLocalStorageEnabled", "(Z)V", enabled);
+}
+
+void QAndroidWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
+{
+    m_viewController.callMethod<void>("setAllowFileAccess", "(Z)V", enabled);
+}
+
 static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt/android/view/QtAndroidWebViewController";
 
 //static bool favIcon(JNIEnv *env, jobject icon, QImage *image)
@@ -51,6 +98,7 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
                                   m_id);
     m_webView = m_viewController.callObjectMethod("getWebView",
                                                   "()Landroid/webkit/WebView;");
+    m_settings = new QAndroidWebViewSettingsPrivate(m_viewController, this);
 
     m_window = QWindow::fromWinId(reinterpret_cast<WId>(m_webView.object()));
     g_webViews->insert(m_id, this);
@@ -174,6 +222,11 @@ void QAndroidWebViewPrivate::runJavaScriptPrivate(const QString &script,
                                       "(Ljava/lang/String;J)V",
                                       static_cast<jstring>(QJniObject::fromString(script).object()),
                                       callbackId);
+}
+
+QAbstractWebViewSettings *QAndroidWebViewPrivate::getSettings() const
+{
+    return m_settings;
 }
 
 void QAndroidWebViewPrivate::setCookie(const QString &domain, const QString &name, const QString &value)

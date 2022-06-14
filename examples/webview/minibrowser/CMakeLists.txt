@@ -37,6 +37,7 @@ set(qml_resource_files
     "images/refresh-32.png"
     "images/right-32.png"
     "images/stop-32.png"
+    "images/settings-32.png"
     "main.qml"
 )
 

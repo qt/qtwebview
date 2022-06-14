@@ -8,6 +8,7 @@ import QtQuick.Layouts
 
 
 ApplicationWindow {
+    id: window
     visible: true
     x: initialX
     y: initialY
@@ -66,6 +67,15 @@ ApplicationWindow {
                 }
             }
 
+            ToolButton {
+                id: settingsButton
+                icon.source: "qrc:/settings-32.png"
+                onClicked: {
+                    settingsDrawer.width = (settingsDrawer.width > 0) ? 0 : window.width * 1/4
+                }
+                Layout.preferredWidth: navigationBar.height
+            }
+
             Item { Layout.preferredWidth: 10 }
          }
          ProgressBar {
@@ -87,13 +97,61 @@ ApplicationWindow {
         }
     }
 
+    Item {
+        id: settingsDrawer
+        anchors.right: parent.right
+        ColumnLayout {
+            Label {
+                text: "JavaScript"
+            }
+            CheckBox {
+                id: javaScriptEnabledCheckBox
+                text: "enabled"
+                onCheckStateChanged: webView.settings.javaScriptEnabled = (checkState == Qt.Checked)
+            }
+            Label {
+                text: "Local storage"
+            }
+            CheckBox {
+                id: localStorageEnabledCheckBox
+                text: "enabled"
+                onCheckStateChanged: webView.settings.localStorageEnabled = (checkState == Qt.Checked)
+            }
+            Label {
+                text: "Allow file access"
+            }
+            CheckBox {
+                id: allowFileAccessEnabledCheckBox
+                text: "enabled"
+                onCheckStateChanged: webView.settings.allowFileAccess = (checkState == Qt.Checked)
+            }
+            Label {
+                text: "Local content can access file URLs"
+            }
+            CheckBox {
+                id: localContentCanAccessFileUrlsEnabledCheckBox
+                text: "enabled"
+                onCheckStateChanged: webView.settings.localContentCanAccessFileUrls = (checkState == Qt.Checked)
+            }
+        }
+    }
+
     WebView {
         id: webView
-        anchors.fill: parent
         url: initialUrl
+        anchors.right: settingsDrawer.left
+        anchors.left: parent.left
+        height: parent.height
         onLoadingChanged: function(loadRequest) {
             if (loadRequest.errorString)
                 console.error(loadRequest.errorString);
+        }
+
+        Component.onCompleted: {
+            javaScriptEnabledCheckBox.checkState = settings.javaScriptEnabled ? Qt.Checked : Qt.Unchecked
+            localStorageEnabledCheckBox.checkState = settings.localStorageEnabled ? Qt.Checked : Qt.Unchecked
+            allowFileAccessEnabledCheckBox.checkState = settings.allowFileAccess ? Qt.Checked : Qt.Unchecked
+            localContentCanAccessFileUrlsEnabledCheckBox.checkState = settings.localContentCanAccessFileUrls ? Qt.Checked : Qt.Unchecked
         }
     }
 }

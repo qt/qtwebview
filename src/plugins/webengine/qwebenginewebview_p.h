@@ -23,12 +23,41 @@
 
 #include <private/qabstractwebview_p.h>
 #include <QtWebEngineQuick/QQuickWebEngineProfile>
+#include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
 
 QT_BEGIN_NAMESPACE
 
 class QQuickWebEngineView;
 class QWebEngineLoadingInfo;
 class QNetworkCookie;
+class QWebEngineWebViewPrivate;
+
+class QWebEngineWebViewSettingsPrivate : public QAbstractWebViewSettings
+{
+    Q_OBJECT
+public:
+    explicit QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p = nullptr);
+
+    bool localStorageEnabled() const;
+    bool javascriptEnabled() const;
+    bool localContentCanAccessFileUrls() const;
+    bool allowFileAccess() const;
+
+public Q_SLOTS:
+    void setLocalContentCanAccessFileUrls(bool enabled);
+    void setJavascriptEnabled(bool enabled);
+    void setLocalStorageEnabled(bool enabled);
+    void setAllowFileAccess(bool enabled);
+
+    void init(QQuickWebEngineSettings *settings);
+
+private:
+    QPointer<QQuickWebEngineSettings> m_settings;
+    bool m_localStorageEnabled = true;
+    bool m_javaScriptEnabled = true;
+    bool m_localContentCanAccessFileUrlsEnabled = true;
+    bool m_allowFileAccessEnabled = true;
+};
 
 class QWebEngineWebViewPrivate : public QAbstractWebView
 {
@@ -53,6 +82,7 @@ public:
     void setVisibility(QWindow::Visibility visibility) override;
     void setVisible(bool visible) override;
     void setFocus(bool focus) override;
+    QAbstractWebViewSettings *getSettings() const override;
 
 public Q_SLOTS:
     void goBack() override;
@@ -79,7 +109,10 @@ protected:
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) override;
 private:
-    QQuickWebEngineProfile *m_profile;
+    friend class QWebEngineWebViewSettingsPrivate;
+
+    QQuickWebEngineProfile *m_profile = nullptr;
+    mutable QWebEngineWebViewSettingsPrivate *m_settings = nullptr;
     QString m_httpUserAgent;
     struct QQuickWebEngineViewPtr
     {

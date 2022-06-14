@@ -22,6 +22,7 @@ set(testdata_resource_files
     "html/inputmethod.html"
     "html/scroll.html"
     "html/cookies.html"
+    "html/javascript.html"
 )
 
 qt_internal_add_resource(tst_qquickwebview "testdata"

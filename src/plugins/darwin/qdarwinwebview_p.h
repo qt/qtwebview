@@ -35,12 +35,36 @@
 
 Q_FORWARD_DECLARE_OBJC_CLASS(WKWebView);
 Q_FORWARD_DECLARE_OBJC_CLASS(WKNavigation);
+Q_FORWARD_DECLARE_OBJC_CLASS(WKWebViewConfiguration);
 
 #ifdef Q_OS_IOS
 Q_FORWARD_DECLARE_OBJC_CLASS(UIGestureRecognizer);
 #endif
 
 QT_BEGIN_NAMESPACE
+
+class QDarwinWebViewSettingsPrivate : public QAbstractWebViewSettings
+{
+    Q_OBJECT
+public:
+    explicit QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf, QObject *p = nullptr);
+
+    bool localStorageEnabled() const;
+    bool javascriptEnabled() const;
+    bool localContentCanAccessFileUrls() const;
+    bool allowFileAccess() const;
+
+public Q_SLOTS:
+    void setLocalContentCanAccessFileUrls(bool enabled);
+    void setJavascriptEnabled(bool enabled);
+    void setLocalStorageEnabled(bool enabled);
+    void setAllowFileAccess(bool enabled);
+
+private:
+    WKWebViewConfiguration *m_conf = nullptr;
+    bool m_allowFileAccess = false;
+    bool m_localContentCanAccessFileUrls = false;
+};
 
 class QDarwinWebViewPrivate : public QAbstractWebView
 {
@@ -66,6 +90,7 @@ public:
     void setVisible(bool visible) override;
     void setFocus(bool focus) override;
     void updatePolish() override;
+    QAbstractWebViewSettings *getSettings() const override;
 
 public Q_SLOTS:
     void goBack() override;
@@ -84,6 +109,7 @@ protected:
 public:
     WKWebView *wkWebView;
     WKNavigation *wkNavigation;
+    QDarwinWebViewSettingsPrivate *m_settings = nullptr;
 #ifdef Q_OS_IOS
     UIGestureRecognizer *m_recognizer;
 #endif

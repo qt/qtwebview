@@ -3,6 +3,7 @@
 
 #include "qquickwebview_p.h"
 #include "qquickwebviewloadrequest_p.h"
+#include "qquickwebviewsettings_p.h"
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
@@ -58,7 +59,9 @@ Q_GLOBAL_STATIC(CallbackStorage, callbacks)
 */
 
 QQuickWebView::QQuickWebView(QQuickItem *parent)
-    : QQuickViewController(parent), m_webView(new QWebView(this))
+    : QQuickViewController(parent)
+    , m_webView(new QWebView(this))
+    , m_settings(new QQuickWebViewSettings(m_webView->getSettings(), this))
 {
     setView(m_webView);
     connect(m_webView, &QWebView::titleChanged, this, &QQuickWebView::titleChanged);
@@ -369,4 +372,9 @@ void QQuickWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadReque
 QJSValue QQuickWebView::takeCallback(int id)
 {
     return callbacks->takeCallback(id);
+}
+
+QQuickWebViewSettings *QQuickWebView::settings() const
+{
+    return m_settings;
 }

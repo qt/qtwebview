@@ -19,7 +19,6 @@
 #include <QtQuick/qquickitem.h>
 
 #include <QtWebEngineQuick/private/qquickwebengineview_p.h>
-#include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
 #include <QtWebEngineCore/qwebengineloadinginfo.h>
 
 #include <QWebEngineCookieStore>
@@ -37,6 +36,7 @@ static QByteArray qmlSource()
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QObject *p)
     : QAbstractWebView(p), m_profile(nullptr)
 {
+    m_settings = new QWebEngineWebViewSettingsPrivate(this);
     m_webEngineView.m_parent = this;
     m_cookieStore.m_webEngineViewPtr = &m_webEngineView;
 }
@@ -157,6 +157,11 @@ void QWebEngineWebViewPrivate::setFocus(bool focus)
         m_webEngineView->forceActiveFocus();
 }
 
+QAbstractWebViewSettings *QWebEngineWebViewPrivate::getSettings() const
+{
+    return m_settings;
+}
+
 int QWebEngineWebViewPrivate::loadProgress() const
 {
     return m_webEngineView->loadProgress();
@@ -267,7 +272,12 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
     Q_ASSERT(webEngineView);
     QQuickWebEngineProfile *profile = webEngineView->profile();
     Q_ASSERT(profile);
+    QQuickWebEngineSettings *settings = webEngineView->settings();
+    Q_ASSERT(settings);
     m_parent->m_profile = profile;
+    if (!m_parent->m_settings)
+        m_parent->m_settings = new QWebEngineWebViewSettingsPrivate(m_parent);
+    m_parent->m_settings->init(settings);
     webEngineView->settings()->setErrorPageEnabled(false);
     // When the httpUserAgent is set as a property then it will be set before
     // init() is called
@@ -300,6 +310,73 @@ void QWebEngineWebViewPrivate::QWebEngineCookieStorePtr::init() const
 
         QObject::connect(cookieStore, &QWebEngineCookieStore::cookieAdded, parent, &QWebEngineWebViewPrivate::q_cookieAdded);
         QObject::connect(cookieStore, &QWebEngineCookieStore::cookieRemoved, parent, &QWebEngineWebViewPrivate::q_cookieRemoved);
+    }
+}
+
+QWebEngineWebViewSettingsPrivate::QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p)
+    : QAbstractWebViewSettings(p)
+{
+
+}
+
+bool QWebEngineWebViewSettingsPrivate::localStorageEnabled() const
+{
+    return m_settings ? m_settings->localStorageEnabled() : m_localStorageEnabled;
+}
+bool QWebEngineWebViewSettingsPrivate::javascriptEnabled() const
+{
+    return m_settings ? m_settings->javascriptEnabled() : m_javaScriptEnabled;
+}
+bool QWebEngineWebViewSettingsPrivate::localContentCanAccessFileUrls() const
+{
+    return m_settings ? m_settings->localContentCanAccessFileUrls() : m_localContentCanAccessFileUrlsEnabled;
+}
+bool QWebEngineWebViewSettingsPrivate::allowFileAccess() const
+{
+    return m_allowFileAccessEnabled;
+}
+void QWebEngineWebViewSettingsPrivate::setLocalContentCanAccessFileUrls(bool enabled)
+{
+    if (m_settings)
+        m_settings->setLocalContentCanAccessFileUrls(enabled);
+
+    m_localContentCanAccessFileUrlsEnabled  = enabled;
+}
+void QWebEngineWebViewSettingsPrivate::setJavascriptEnabled(bool enabled)
+{
+    if (m_settings)
+        m_settings->setJavascriptEnabled(enabled);
+
+    m_javaScriptEnabled = enabled;
+}
+void QWebEngineWebViewSettingsPrivate::setLocalStorageEnabled(bool enabled)
+{
+    // This separation is a bit different on the mobile platforms, so for now
+    // we'll interpret this property to also affect the "off the record" profile setting.
+    if (auto webview = qobject_cast<QWebEngineWebViewPrivate *>(parent())) {
+        if (webview->m_profile)
+            webview->m_profile->setOffTheRecord(enabled);
+    }
+
+    if (m_settings)
+        m_settings->setLocalStorageEnabled(enabled);
+
+    m_localStorageEnabled = enabled;
+}
+void QWebEngineWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
+{
+    Q_UNUSED(enabled);
+}
+
+void QWebEngineWebViewSettingsPrivate::init(QQuickWebEngineSettings *settings)
+{
+    m_settings = settings;
+
+    if (m_settings) {
+        // Sync any values already set.
+        setLocalContentCanAccessFileUrls(m_localContentCanAccessFileUrlsEnabled);
+        setJavascriptEnabled(m_javaScriptEnabled);
+        setLocalStorageEnabled(m_localStorageEnabled);
     }
 }
 

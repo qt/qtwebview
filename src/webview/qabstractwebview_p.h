@@ -23,12 +23,33 @@ QT_BEGIN_NAMESPACE
 class QWebView;
 class QWebViewLoadRequestPrivate;
 
+class Q_WEBVIEW_EXPORT QAbstractWebViewSettings : public QObject
+{
+    Q_OBJECT
+public:
+    virtual bool localStorageEnabled() const = 0;
+    virtual bool javascriptEnabled() const = 0;
+    virtual bool localContentCanAccessFileUrls() const = 0;
+    virtual bool allowFileAccess() const = 0;
+
+    virtual void setLocalContentCanAccessFileUrls(bool) = 0;
+    virtual void setJavascriptEnabled(bool) = 0;
+    virtual void setLocalStorageEnabled(bool) = 0;
+    virtual void setAllowFileAccess(bool) = 0;
+
+protected:
+    explicit QAbstractWebViewSettings(QObject *p = nullptr) : QObject(p) {}
+};
+
 class Q_WEBVIEW_EXPORT QAbstractWebView
         : public QObject
         , public QWebViewInterface
         , public QNativeViewController
 {
     Q_OBJECT
+
+public:
+    virtual QAbstractWebViewSettings *getSettings() const = 0;
 
 Q_SIGNALS:
     void titleChanged(const QString &title);

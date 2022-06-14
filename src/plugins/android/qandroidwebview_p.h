@@ -24,6 +24,27 @@
 
 QT_BEGIN_NAMESPACE
 
+class QAndroidWebViewSettingsPrivate : public QAbstractWebViewSettings
+{
+    Q_OBJECT
+public:
+    explicit QAndroidWebViewSettingsPrivate(QJniObject viewController, QObject *p = nullptr);
+
+    bool localStorageEnabled() const;
+    bool javascriptEnabled() const;
+    bool localContentCanAccessFileUrls() const;
+    bool allowFileAccess() const;
+
+public Q_SLOTS:
+    void setLocalContentCanAccessFileUrls(bool enabled);
+    void setJavascriptEnabled(bool enabled);
+    void setLocalStorageEnabled(bool enabled);
+    void setAllowFileAccess(bool enabled);
+
+private:
+    QJniObject m_viewController;
+};
+
 class QAndroidWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
@@ -60,6 +81,7 @@ public Q_SLOTS:
 protected:
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) override;
+    QAbstractWebViewSettings *getSettings() const override;
 
 private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);
@@ -70,6 +92,7 @@ private:
     QWindow *m_window;
     QJniObject m_viewController;
     QJniObject m_webView;
+    QAndroidWebViewSettingsPrivate *m_settings;
 };
 
 QT_END_NAMESPACE

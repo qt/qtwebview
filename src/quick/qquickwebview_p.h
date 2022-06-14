@@ -21,12 +21,14 @@
 #include <QtWebView/private/qwebview_p.h>
 #include <QtQml/qqmlregistration.h>
 Q_MOC_INCLUDE(<QtWebViewQuick/private/qquickwebviewloadrequest_p.h>)
+Q_MOC_INCLUDE(<QtWebViewQuick/private/qquickwebviewsettings_p.h>)
 Q_MOC_INCLUDE(<QtWebView/private/qwebviewloadrequest_p.h>)
 
 QT_BEGIN_NAMESPACE
 
 class QQuickWebViewLoadRequest;
 class QWebViewLoadRequestPrivate;
+class QQuickWebViewSettings;
 
 class Q_WEBVIEWQUICK_EXPORT QQuickWebView : public QQuickViewController, public QWebViewInterface
 {
@@ -39,6 +41,7 @@ class Q_WEBVIEWQUICK_EXPORT QQuickWebView : public QQuickViewController, public 
     Q_PROPERTY(QString title READ title NOTIFY titleChanged FINAL)
     Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged FINAL)
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged FINAL)
+    Q_PROPERTY(QQuickWebViewSettings *settings READ settings CONSTANT FINAL REVISION(6, 5))
     Q_ENUMS(LoadStatus)
     QML_NAMED_ELEMENT(WebView)
     QML_ADDED_IN_VERSION(1, 0)
@@ -64,6 +67,8 @@ public:
     bool isLoading() const override;
     bool canGoForward() const override;
     QWebView &webView() const { return *m_webView; };
+
+    QQuickWebViewSettings *settings() const;
 
 public Q_SLOTS:
     void goBack() override;
@@ -100,6 +105,7 @@ private:
     static QJSValue takeCallback(int id);
 
     QWebView *m_webView;
+    QQuickWebViewSettings *m_settings;
 };
 
 QT_END_NAMESPACE

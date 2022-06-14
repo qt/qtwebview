@@ -226,6 +226,140 @@ public class QtAndroidWebViewController
         }
     }
 
+    // Settings
+    public void setLocalStorageEnabled(boolean enabled)
+    {
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                webSettings.setDatabaseEnabled(enabled);
+                webSettings.setDomStorageEnabled(enabled);
+            }
+        });
+    }
+
+    public boolean isLocalStorageEnabled()
+    {
+        final boolean[] enabled = {true};
+        final Semaphore sem = new Semaphore(0);
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                enabled[0] = webSettings.getDatabaseEnabled() && webSettings.getDomStorageEnabled();
+                sem.release();
+            }
+        });
+
+        try {
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return enabled[0];
+    }
+
+    public void setJavaScriptEnabled(boolean enabled)
+    {
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                webSettings.setJavaScriptEnabled(enabled);
+            }
+        });
+    }
+
+    public boolean isJavaScriptEnabled()
+    {
+        final boolean[] enabled = {true};
+        final Semaphore sem = new Semaphore(0);
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                enabled[0] = webSettings.getJavaScriptEnabled();
+                sem.release();
+            }
+        });
+
+        try {
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return enabled[0];
+    }
+
+    public void setAllowFileAccessFromFileURLs(boolean enabled)
+    {
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                webSettings.setAllowFileAccessFromFileURLs(enabled);
+            }
+        });
+    }
+
+    public boolean isAllowFileAccessFromFileURLsEnabled()
+    {
+        final boolean[] enabled = {true};
+        final Semaphore sem = new Semaphore(0);
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                enabled[0] = webSettings.getAllowFileAccessFromFileURLs();
+                sem.release();
+            }
+        });
+
+        try {
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return enabled[0];
+    }
+
+    public void setAllowFileAccess(boolean enabled)
+    {
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                webSettings.setAllowFileAccess(enabled);
+            }
+        });
+    }
+
+    public boolean isAllowFileAccessEnabled()
+    {
+        final boolean[] enabled = {true};
+        final Semaphore sem = new Semaphore(0);
+        m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebSettings webSettings = m_webView.getSettings();
+                enabled[0] = webSettings.getAllowFileAccess();
+                sem.release();
+            }
+        });
+
+        try {
+            sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return enabled[0];
+    }
+
     public String getUserAgent()
     {
         final String[] ua = {""};

@@ -27,6 +27,7 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qstandardpaths.h>
 #include <QtWebView/qtwebviewfunctions.h>
+#include <QtWebViewQuick/private/qquickwebviewsettings_p.h>
 
 QUrl getTestFilePath(const QString &testFile)
 {
@@ -70,6 +71,9 @@ private Q_SLOTS:
     void titleUpdate();
     void changeUserAgent();
     void setAndDeleteCookies();
+
+    void settings_JS_data();
+    void settings_JS();
 
 private:
     inline QQuickWebView *newWebView();
@@ -405,6 +409,33 @@ void tst_QQuickWebView::setAndDeleteCookies()
     QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue);
 #endif
     QTRY_COMPARE(cookieRemovedSpy.size(), 3);
+}
+
+void tst_QQuickWebView::settings_JS_data()
+{
+    QTest::addColumn<bool>("jsEnabled");
+    QTest::addColumn<QUrl>("testUrl");
+    QTest::addColumn<QString>("expectedTitle");
+
+    // Title should be updated from "JavaScript" to "JavaScript Test"
+    QTest::newRow("Test JS enabled") << true << getTestFilePath("javascript.html") << "JavaScript Test";
+    // Title should _not_ be updated from "JavaScript" to "JavaScript Test"
+    QTest::newRow("Test JS disabled") << false << getTestFilePath("javascript.html") << "JavaScript";
+}
+
+void tst_QQuickWebView::settings_JS()
+{
+
+    QFETCH(bool, jsEnabled);
+    QFETCH(QUrl, testUrl);
+    QFETCH(QString, expectedTitle);
+
+    bool wasJsEnabled = webView()->settings()->javaScriptEnabled();
+    webView()->settings()->setJavaScriptEnabled(jsEnabled);
+    webView()->setUrl(testUrl);
+    QVERIFY(waitForLoadSucceeded(webView()));
+    QCOMPARE(webView()->title(), expectedTitle);
+    webView()->settings()->setJavaScriptEnabled(wasJsEnabled);
 }
 
 QTEST_MAIN(tst_QQuickWebView)

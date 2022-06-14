@@ -27,6 +27,39 @@ QT_BEGIN_NAMESPACE
 
 class QWebViewLoadRequestPrivate;
 
+class Q_WEBVIEW_EXPORT QWebViewSettings : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(bool localStorageEnabled READ localStorageEnabled WRITE setLocalStorageEnabled NOTIFY localStorageEnabledChanged)
+    Q_PROPERTY(bool javaScriptEnabled READ javaScriptEnabled WRITE setJavaScriptEnabled NOTIFY javaScriptEnabledChanged)
+    Q_PROPERTY(bool allowFileAccess READ allowFileAccess WRITE setAllowFileAccess NOTIFY allowFileAccessChanged)
+    Q_PROPERTY(bool localContentCanAccessFileUrls READ localContentCanAccessFileUrls WRITE setLocalContentCanAccessFileUrls NOTIFY localContentCanAccessFileUrlsChanged)
+
+public:
+    explicit QWebViewSettings(QAbstractWebViewSettings *webview);
+    ~QWebViewSettings() override;
+
+    bool localStorageEnabled() const;
+    bool javaScriptEnabled() const;
+    bool allowFileAccess() const;
+    bool localContentCanAccessFileUrls() const;
+
+public Q_SLOTS:
+    void setLocalStorageEnabled(bool enabled);
+    void setJavaScriptEnabled(bool enabled);
+    void setAllowFileAccess(bool enabled);
+    void setLocalContentCanAccessFileUrls(bool enabled);
+
+signals:
+    void localStorageEnabledChanged();
+    void javaScriptEnabledChanged();
+    void allowFileAccessChanged();
+    void localContentCanAccessFileUrlsChanged();
+
+private:
+    QPointer<QAbstractWebViewSettings> d;
+};
+
 class Q_WEBVIEW_EXPORT QWebView
         : public QObject
         , public QWebViewInterface
@@ -61,6 +94,7 @@ public:
     void setVisible(bool visible) override;
     void setFocus(bool focus) override;
     void updatePolish() override;
+    QWebViewSettings *getSettings() const;
 
 public Q_SLOTS:
     void goBack() override;
@@ -101,6 +135,7 @@ private:
     friend class QQuickWebView;
 
     QAbstractWebView *d;
+    QWebViewSettings *m_settings;
 
     // provisional data
     int m_progress;

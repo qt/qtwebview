@@ -12,6 +12,7 @@ QT_BEGIN_NAMESPACE
 QWebView::QWebView(QObject *p)
     : QObject(p)
     , d(QWebViewFactory::createWebView())
+    , m_settings(new QWebViewSettings(d->getSettings()))
     , m_progress(0)
 {
     d->setParent(this);
@@ -134,6 +135,12 @@ void QWebView::setFocus(bool focus)
 void QWebView::updatePolish()
 {
     d->updatePolish();
+
+}
+
+QWebViewSettings *QWebView::getSettings() const
+{
+    return m_settings;
 }
 
 void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
@@ -209,6 +216,73 @@ void QWebView::onHttpUserAgentChanged(const QString &userAgent)
 void QWebView::init()
 {
     d->init();
+}
+
+QWebViewSettings::QWebViewSettings(QAbstractWebViewSettings *settings)
+    : d(settings)
+{
+    Q_ASSERT(settings != nullptr);
+}
+
+QWebViewSettings::~QWebViewSettings()
+{
+
+}
+
+bool QWebViewSettings::localStorageEnabled() const
+{
+    return d->localStorageEnabled();
+}
+
+void QWebViewSettings::setLocalStorageEnabled(bool enabled)
+{
+    if (d->localStorageEnabled() == enabled)
+        return;
+
+    d->setLocalStorageEnabled(enabled);
+    emit localStorageEnabledChanged();
+}
+
+bool QWebViewSettings::javaScriptEnabled() const
+{
+    return d->javascriptEnabled();
+}
+
+void QWebViewSettings::setJavaScriptEnabled(bool enabled)
+{
+    if (d->javascriptEnabled() == enabled)
+        return;
+
+    d->setJavascriptEnabled(enabled);
+    emit javaScriptEnabledChanged();
+}
+
+void QWebViewSettings::setAllowFileAccess(bool enabled)
+{
+    if (d->allowFileAccess() == enabled)
+        return;
+
+    d->setAllowFileAccess(enabled);
+    emit allowFileAccessChanged();
+}
+
+bool QWebViewSettings::allowFileAccess() const
+{
+    return d->allowFileAccess();
+}
+
+bool QWebViewSettings::localContentCanAccessFileUrls() const
+{
+    return d->localContentCanAccessFileUrls();
+}
+
+void QWebViewSettings::setLocalContentCanAccessFileUrls(bool enabled)
+{
+    if (d->localContentCanAccessFileUrls() == enabled)
+        return;
+
+    d->setLocalContentCanAccessFileUrls(enabled);
+    emit localContentCanAccessFileUrlsChanged();
 }
 
 QT_END_NAMESPACE
