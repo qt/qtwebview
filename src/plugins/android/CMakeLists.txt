@@ -11,7 +11,6 @@ qt_internal_add_plugin(QAndroidWebViewPlugin
     LIBRARIES
         jnigraphics
         Qt::CorePrivate
-    PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WebViewPrivate
