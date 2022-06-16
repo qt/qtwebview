@@ -8,7 +8,7 @@ qt_internal_add_plugin(QWebEngineWebViewPlugin
     SOURCES
         qwebenginewebview.cpp qwebenginewebview_p.h
         qwebenginewebviewplugin.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WebEngineCorePrivate

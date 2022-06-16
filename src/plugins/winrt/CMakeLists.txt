@@ -10,7 +10,6 @@ qt_internal_add_plugin(QWinrtWebViewPlugin
         qwinrtwebviewplugin.cpp
     LIBRARIES
         urlmon
-    PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WebViewPrivate
