@@ -8,7 +8,7 @@
 qt_internal_add_test(tst_qwebview
     SOURCES
         tst_qwebview.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::WebViewPrivate
 )
