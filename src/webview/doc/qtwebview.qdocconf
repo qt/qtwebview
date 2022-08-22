@@ -35,8 +35,6 @@ imagedirs  += images
 examplesinstallpath = webview
 depends = qtcore qtdoc qtgui qtquick qtqml qtwebengine qmake qtcmake
 
-Cpp.ignoretokens         += Q_WEBVIEW_EXPORT
-
 navigation.landingpage    = "Qt WebView"
 navigation.qmltypespage   = "Qt WebView QML Types"
 navigation.cppclassespage = "Qt WebView C++ Classes and Namespaces"
