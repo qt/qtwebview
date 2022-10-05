@@ -160,7 +160,7 @@ void tst_QWebView::loadRequest()
         QTRY_COMPARE(view.loadProgress(), 100);
         QTRY_COMPARE(view.title(), QStringLiteral("FooBar"));
         QCOMPARE(view.url(), url);
-        QTRY_COMPARE(loadChangedSingalSpy.count(), 2);
+        QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
             const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
@@ -188,7 +188,7 @@ void tst_QWebView::loadRequest()
         QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
         view.setUrl(QUrl(QStringLiteral("file:///file_that_does_not_exist.html")));
         QTRY_VERIFY(!view.isLoading());
-        QTRY_COMPARE(loadChangedSingalSpy.count(), 2);
+        QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
             const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
@@ -223,24 +223,24 @@ void tst_QWebView::setAndDeleteCookie()
     view.setCookie(".example.com", "TestCookie", "testValue");
     view.setCookie(".example2.com", "TestCookie2", "testValue2");
     view.setCookie(".example3.com", "TestCookie3", "testValue3");
-    QTRY_COMPARE(cookieAddedSpy.count(), 3);
+    QTRY_COMPARE(cookieAddedSpy.size(), 3);
 
     view.deleteCookie(".example.com", "TestCookie");
-    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+    QTRY_COMPARE(cookieRemovedSpy.size(), 1);
 
     // deleting a cookie using a name that has not been set
     view.deleteCookie(".example.com", "NewCookieName");
-    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+    QTRY_COMPARE(cookieRemovedSpy.size(), 1);
 
     // deleting a cookie using a domain that has not been set
     view.deleteCookie(".new.domain.com", "TestCookie2");
-    QTRY_COMPARE(cookieRemovedSpy.count(), 1);
+    QTRY_COMPARE(cookieRemovedSpy.size(), 1);
 
     view.deleteAllCookies();
 #ifdef Q_OS_ANDROID
     QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue);
 #endif
-    QTRY_COMPARE(cookieRemovedSpy.count(), 3);
+    QTRY_COMPARE(cookieRemovedSpy.size(), 3);
 }
 
 QTEST_MAIN(tst_QWebView)
