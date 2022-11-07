@@ -38,16 +38,16 @@ class QWebEngineWebViewSettingsPrivate : public QAbstractWebViewSettings
 public:
     explicit QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p = nullptr);
 
-    bool localStorageEnabled() const;
-    bool javascriptEnabled() const;
-    bool localContentCanAccessFileUrls() const;
-    bool allowFileAccess() const;
+    bool localStorageEnabled() const override;
+    bool javascriptEnabled() const override;
+    bool localContentCanAccessFileUrls() const override;
+    bool allowFileAccess() const override;
 
 public Q_SLOTS:
-    void setLocalContentCanAccessFileUrls(bool enabled);
-    void setJavascriptEnabled(bool enabled);
-    void setLocalStorageEnabled(bool enabled);
-    void setAllowFileAccess(bool enabled);
+    void setLocalContentCanAccessFileUrls(bool enabled) override;
+    void setJavascriptEnabled(bool enabled) override;
+    void setLocalStorageEnabled(bool enabled) override;
+    void setAllowFileAccess(bool enabled) override;
 
     void init(QQuickWebEngineSettings *settings);
 
