@@ -92,7 +92,7 @@ public:
 
     ~HStringList()
     {
-        for (const HSTRING &hString : qAsConst(d))
+        for (const HSTRING &hString : std::as_const(d))
             WindowsDeleteString(hString);
     }
 
