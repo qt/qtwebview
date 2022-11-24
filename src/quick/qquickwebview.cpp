@@ -374,6 +374,16 @@ QJSValue QQuickWebView::takeCallback(int id)
     return callbacks->takeCallback(id);
 }
 
+/*!
+    \qmlproperty WebViewSettings WebView::settings
+    \readonly
+    \since QtWebView 6.5
+
+    Settings object for the WebView.
+
+    \sa WebViewSettings
+*/
+
 QQuickWebViewSettings *QQuickWebView::settings() const
 {
     return m_settings;
