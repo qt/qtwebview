@@ -48,6 +48,8 @@ public:
     tst_QQuickWebView();
 
 private Q_SLOTS:
+    void initTestCase();
+
     void init();
     void cleanup();
 
@@ -99,6 +101,12 @@ QQuickWebView *tst_QQuickWebView::newWebView()
     QObject *viewInstance = m_component->create();
     QQuickWebView *webView = qobject_cast<QQuickWebView*>(viewInstance);
     return webView;
+}
+
+void tst_QQuickWebView::initTestCase()
+{
+    if (!qEnvironmentVariableIsEmpty("QEMU_LD_PREFIX"))
+        QSKIP("This test is unstable on QEMU, so it will be skipped.");
 }
 
 void tst_QQuickWebView::init()

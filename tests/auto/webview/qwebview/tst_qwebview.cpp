@@ -47,6 +47,8 @@ private:
 
 void tst_QWebView::initTestCase()
 {
+    if (!qEnvironmentVariableIsEmpty("QEMU_LD_PREFIX"))
+        QSKIP("This test is unstable on QEMU, so it will be skipped.");
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
     QtWebEngineQuick::initialize();
 #endif // QT_WEBVIEW_WEBENGINE_BACKEND
