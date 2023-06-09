@@ -220,6 +220,15 @@ public class QtAndroidWebViewController
                 webSettings.setDatabaseEnabled(true);
                 webSettings.setDomStorageEnabled(true);
 
+                // Before API level 30 accessing local files was enabled by default.
+                final boolean allowFileAccess = (System.getenv("QT5_ANDROID_WEBVIEW_ALLOW_FILE_ACCESS") != null);
+                if (allowFileAccess)
+                    webSettings.setAllowFileAccess(allowFileAccess);
+
+                final boolean allowFileAccessFromFileUrls = (System.getenv("QT5_ANDROID_WEBVIEW_ALLOW_FILE_ACCESS_FROM_URLS") != null);
+                if (allowFileAccessFromFileUrls)
+                    webSettings.setAllowFileAccessFromFileURLs(allowFileAccessFromFileUrls);
+
                 if (Build.VERSION.SDK_INT > 10) {
                     try {
                         m_webViewOnResume = m_webView.getClass().getMethod("onResume");

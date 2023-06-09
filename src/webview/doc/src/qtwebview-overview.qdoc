@@ -62,6 +62,15 @@
   is not supported. Doing this will have unpredictable results which may differ
   from platform to platform.
 
+  \section1 Platform notes
+
+  \secion2 Android
+
+  From API level 30 the native Android WebView will have file access disabled by default.
+  Since there are no APIs in QtWebView to override the file access property, the two environment variables
+  QT5_ANDROID_WEBVIEW_ALLOW_FILE_ACCESS and QT5_ANDROID_WEBVIEW_ALLOW_FILE_ACCESS_FROM_URLS are provided
+  which, when set, re-enables file access support again.
+
   \section1 Examples
 
   Take a look at the \l{Qt WebView Examples} for a demonstration on
