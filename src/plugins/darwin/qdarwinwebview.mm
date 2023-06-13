@@ -112,7 +112,6 @@ QT_END_NAMESPACE
 - (void)pageDone
 {
     Q_EMIT qDarwinWebViewPrivate->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
-    Q_EMIT qDarwinWebViewPrivate->titleChanged(qDarwinWebViewPrivate->title());
 }
 
 - (void)handleError:(NSError *)error
@@ -233,6 +232,8 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
     Q_UNUSED(context);
     if ([keyPath isEqualToString:@"estimatedProgress"]) {
         Q_EMIT qDarwinWebViewPrivate->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
+    } else if ([keyPath isEqualToString:@"title"]) {
+        Q_EMIT qDarwinWebViewPrivate->titleChanged(qDarwinWebViewPrivate->title());
     }
 }
 
@@ -321,6 +322,9 @@ QDarwinWebViewPrivate::QDarwinWebViewPrivate(QObject *p)
     [wkWebView addObserver:wkWebView.navigationDelegate forKeyPath:@"estimatedProgress"
                    options:NSKeyValueObservingOptions(NSKeyValueObservingOptionNew)
                    context:nil];
+    [wkWebView addObserver:wkWebView.navigationDelegate forKeyPath:@"title"
+                   options:NSKeyValueObservingOptions(NSKeyValueObservingOptionNew)
+                   context:nil];
 
 
     m_settings = new QDarwinWebViewSettingsPrivate(wkWebView.configuration, this);
@@ -334,6 +338,8 @@ QDarwinWebViewPrivate::~QDarwinWebViewPrivate()
 {
     [wkWebView stopLoading];
     [wkWebView removeObserver:wkWebView.navigationDelegate forKeyPath:@"estimatedProgress"
+                      context:nil];
+    [wkWebView removeObserver:wkWebView.navigationDelegate forKeyPath:@"title"
                       context:nil];
     [wkWebView.navigationDelegate release];
     wkWebView.navigationDelegate = nil;
