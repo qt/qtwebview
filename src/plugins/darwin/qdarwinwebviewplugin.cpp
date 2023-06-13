@@ -20,13 +20,6 @@ public:
 
     void prepare() const override
     {
-#ifdef Q_OS_MACOS
-        // On macOS, correct WebView / QtQuick compositing and stacking requires running
-        // Qt in layer-backed mode, which again resuires rendering on the Gui thread.
-        qWarning("Setting QT_MAC_WANTS_LAYER=1 and QSG_RENDER_LOOP=basic");
-        qputenv("QT_MAC_WANTS_LAYER", "1");
-        qputenv("QSG_RENDER_LOOP", "basic");
-#endif // Q_OS_MACOS
     }
 };
 
