@@ -100,6 +100,8 @@ QQuickWebView *tst_QQuickWebView::newWebView()
 {
     QObject *viewInstance = m_component->create();
     QQuickWebView *webView = qobject_cast<QQuickWebView*>(viewInstance);
+    webView->settings()->setAllowFileAccess(true);
+    webView->settings()->setLocalContentCanAccessFileUrls(true);
     return webView;
 }
 
