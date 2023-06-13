@@ -585,7 +585,7 @@ void QDarwinWebViewPrivate::deleteCookie(const QString &domain, const QString &n
     [cookieStore getAllCookies:^(NSArray *cookies) {
         NSHTTPCookie *cookie;
         for (cookie in cookies) {
-            if (cookie.domain == cookieDomain && cookie.name == cookieName) {
+            if ([cookie.domain isEqualToString:cookieDomain] && [cookie.name isEqualToString:cookieName]) {
                 [cookieStore deleteCookie:cookie completionHandler:^{
                     Q_EMIT cookieRemoved(QString::fromNSString(cookie.domain), QString::fromNSString(cookie.name));
                 }];
