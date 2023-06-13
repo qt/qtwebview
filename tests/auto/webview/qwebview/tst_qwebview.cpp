@@ -76,6 +76,8 @@ void tst_QWebView::load()
     QWebView &view = qview.webView();
 #else
     QWebView view;
+    view.getSettings()->setAllowFileAccess(true);
+    view.getSettings()->setLocalContentCanAccessFileUrls(true);
 #endif
     QCOMPARE(view.loadProgress(), 0);
     const QUrl url = QUrl::fromLocalFile(fileName);
@@ -153,6 +155,8 @@ void tst_QWebView::loadRequest()
         QWebView &view = qview.webView();
 #else
         QWebView view;
+        view.getSettings()->setAllowFileAccess(true);
+        view.getSettings()->setLocalContentCanAccessFileUrls(true);
 #endif
         QCOMPARE(view.loadProgress(), 0);
         const QUrl url = QUrl::fromLocalFile(fileName);
@@ -185,6 +189,8 @@ void tst_QWebView::loadRequest()
         QWebView &view = qview.webView();
 #else
         QWebView view;
+        view.getSettings()->setAllowFileAccess(true);
+        view.getSettings()->setLocalContentCanAccessFileUrls(true);
 #endif
         QCOMPARE(view.loadProgress(), 0);
         QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
@@ -217,6 +223,9 @@ void tst_QWebView::setAndDeleteCookie()
     QWebView & view = qview.webView();
 #else
     QWebView view;
+    view.getSettings()->setLocalStorageEnabled(true);
+    view.getSettings()->setAllowFileAccess(true);
+    view.getSettings()->setLocalContentCanAccessFileUrls(true);
 #endif
 
     QSignalSpy cookieAddedSpy(&view, SIGNAL(cookieAdded(const QString &, const QString &)));
