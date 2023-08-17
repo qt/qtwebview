@@ -7,6 +7,7 @@
     \brief Minibrowser example demonstrates how to use the Qt WebView module with Qt Quick.
     \image webview-example.jpg
     \ingroup qtwebview-examples
+    \examplecategory {Web Technologies}
 
     Minibrowser uses Qt Quick Controls and Qt WebView to provide basic
     browsing experience. Besides the addressbar for the URL, it has a
