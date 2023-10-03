@@ -96,6 +96,7 @@ public:
     void setVisibility(QWindow::Visibility visibility) override;
     void setVisible(bool visible) override;
     void setFocus(bool focus) override;
+    void updatePolish() override;
 
 public Q_SLOTS:
     void goBack() override;
