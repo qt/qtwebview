@@ -106,7 +106,7 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
     }
     m_viewController = QJniObject(qtAndroidWebViewControllerClass,
                                   "(Landroid/app/Activity;J)V",
-                                  static_cast<jobject>(QtAndroidPrivate::activity()),
+                                  QtAndroidPrivate::activity().object(),
                                   m_id);
 
     QtAndroidPrivate::releaseAndroidDeadlockProtector();
