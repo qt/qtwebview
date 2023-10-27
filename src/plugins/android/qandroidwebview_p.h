@@ -87,7 +87,7 @@ private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);
 
 private:
-    quintptr m_id;
+    quint64 m_id;
     quint64 m_callbackId;
     QWindow *m_window;
     QJniObject m_viewController;

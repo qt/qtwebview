@@ -86,12 +86,12 @@ static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt/android/
 //    return true;
 //}
 
-typedef QMap<quintptr, QAndroidWebViewPrivate *> WebViews;
+typedef QMap<quint64, QAndroidWebViewPrivate *> WebViews;
 Q_GLOBAL_STATIC(WebViews, g_webViews)
 
 QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
     : QAbstractWebView(p)
-    , m_id(reinterpret_cast<quintptr>(this))
+    , m_id(reinterpret_cast<quint64>(this))
     , m_callbackId(0)
     , m_window(0)
 {
@@ -247,8 +247,9 @@ QAbstractWebViewSettings *QAndroidWebViewPrivate::getSettings() const
 void QAndroidWebViewPrivate::setCookie(const QString &domain, const QString &name, const QString &value)
 {
     QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
-        m_viewController.callMethod<void>("setCookie",
-                                          "(Ljava/lang/String;Ljava/lang/String;)V",
+        QJniObject::callStaticMethod<void>(qtAndroidWebViewControllerClass, "setCookie",
+                                          "(JLjava/lang/String;Ljava/lang/String;)V",
+                                          reinterpret_cast<quint64>(this),
                                           static_cast<jstring>(QJniObject::fromString(domain).object()),
                                           static_cast<jstring>(QJniObject::fromString(name + "=" + value).object()));
     });
@@ -257,8 +258,9 @@ void QAndroidWebViewPrivate::setCookie(const QString &domain, const QString &nam
 void QAndroidWebViewPrivate::deleteCookie(const QString &domain, const QString &name)
 {
     QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
-        m_viewController.callMethod<void>("removeCookie",
-                                          "(Ljava/lang/String;Ljava/lang/String;)V",
+        QJniObject::callStaticMethod<void>(qtAndroidWebViewControllerClass, "removeCookie",
+                                          "(JLjava/lang/String;Ljava/lang/String;)V",
+                                          reinterpret_cast<quint64>(this),
                                           static_cast<jstring>(QJniObject::fromString(domain).object()),
                                           static_cast<jstring>(QJniObject::fromString(name.split(u'=').at(0) + u'=').object()));
     });
@@ -267,7 +269,7 @@ void QAndroidWebViewPrivate::deleteCookie(const QString &domain, const QString &
 void QAndroidWebViewPrivate::deleteAllCookies()
 {
     QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
-        m_viewController.callMethod<void>("removeCookies");
+        QJniObject::callStaticMethod<void>(qtAndroidWebViewControllerClass, "removeCookies");
     });
 }
 
@@ -470,7 +472,7 @@ static void c_onReceivedError(JNIEnv *env,
 }
 
 static void c_onCookieAdded(JNIEnv *env,
-                            jobject thiz,
+                            jclass thiz,
                             jlong id,
                             jboolean result,
                             jstring domain,
@@ -489,7 +491,7 @@ static void c_onCookieAdded(JNIEnv *env,
 }
 
 static void c_onCookieRemoved(JNIEnv *env,
-                              jobject thiz,
+                              jclass thiz,
                               jlong id,
                               jboolean result,
                               jstring domain,
