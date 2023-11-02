@@ -5,10 +5,10 @@
 ## QDarwinWebViewPlugin Plugin:
 #####################################################################
 
-find_library(FWWebKit WebKit)
-find_library(FWAppKit AppKit)
-find_library(FWUIKit UIKit)
-find_library(FWFoundation FoundationKit)
+qt_internal_find_apple_system_framework(FWWebKit WebKit)
+qt_internal_find_apple_system_framework(FWAppKit AppKit)
+qt_internal_find_apple_system_framework(FWUIKit UIKit)
+qt_internal_find_apple_system_framework(FWFoundation Foundation)
 
 qt_internal_add_plugin(QDarwinWebViewPlugin
     OUTPUT_NAME qtwebview_darwin
