@@ -49,7 +49,10 @@
 
   Due to platform limitations, overlapping the WebView with other QML components
   is not supported. Doing this will have unpredictable results, which may differ
-  from platform to platform.
+  from platform to platform. Applications can also not rely on events in the
+  WebView to propagate into the Qt event delivery system. E.g. it is not possible
+  to "overlay" an invisible item on top of the WebView to handle certain events,
+  or to handle events that the WebView doesn't process in a parent item.
 
   \section1 Examples
 
