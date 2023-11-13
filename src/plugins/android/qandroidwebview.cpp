@@ -489,12 +489,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* /* vm */, void* /*reserved*/)
         return JNI_VERSION_1_6;
     initialized = true;
 
-    QJniEnvironment env;
-    if (!env.isValid()) {
-        qCritical("QtWebView: Failed to initialize the JNI Environment");
-        return JNI_ERR;
-    }
-    if (!env.registerNativeMethods(QtJniTypes::Traits<WebViewController>::className(), {
+    if (!WebViewController::registerNativeMethods({
         Q_JNI_NATIVE_METHOD(c_onRunJavaScriptResult),
         Q_JNI_NATIVE_METHOD(c_onPageFinished),
         Q_JNI_NATIVE_METHOD(c_onPageStarted),
