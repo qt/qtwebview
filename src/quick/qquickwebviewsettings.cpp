@@ -57,7 +57,7 @@ void QQuickWebViewSettings::setLocalStorageEnabled(bool enabled)
 }
 
 /*!
-    \qmlproperty bool WebViewSettings::javascriptEnabled
+    \qmlproperty bool WebViewSettings::javaScriptEnabled
 
     Enables the running of JavaScript programs.
 */
