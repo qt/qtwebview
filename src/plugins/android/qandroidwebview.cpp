@@ -51,6 +51,9 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qdebug.h>
 
+#include <QAbstractEventDispatcher>
+#include <QThread>
+
 QT_BEGIN_NAMESPACE
 
 static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt/android/view/QtAndroidWebViewController";
@@ -81,10 +84,22 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
     , m_callbackId(0)
     , m_window(0)
 {
+    // QtAndroidWebViewController constructor blocks a qGuiThread until
+    // the WebView is created and configured in UI thread.
+    // That is why we cannot proceed until AndroidDeadlockProtector is locked
+    while (!QtAndroidPrivate::acquireAndroidDeadlockProtector()) {
+        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+        if (eventDispatcher)
+            eventDispatcher->processEvents(
+                    QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
+    }
     m_viewController = QJniObject(qtAndroidWebViewControllerClass,
                                   "(Landroid/app/Activity;J)V",
                                   QtAndroidPrivate::activity(),
                                   m_id);
+
+    QtAndroidPrivate::releaseAndroidDeadlockProtector();
+
     m_webView = m_viewController.callObjectMethod("getWebView",
                                                   "()Landroid/webkit/WebView;");
 
