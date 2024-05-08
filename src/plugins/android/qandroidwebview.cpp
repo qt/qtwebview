@@ -48,6 +48,9 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qdebug.h>
 
+#include <QAbstractEventDispatcher>
+#include <QThread>
+
 QT_BEGIN_NAMESPACE
 
 static const char qtAndroidWebViewControllerClass[] = "org/qtproject/qt5/android/view/QtAndroidWebViewController";
@@ -407,6 +410,18 @@ static void c_onReceivedError(JNIEnv *env,
     Q_EMIT wc->loadingChanged(loadRequest);
 }
 
+static void c_processEventsFromQueue(JNIEnv *env, jobject thiz)
+{
+    Q_UNUSED(env)
+    Q_UNUSED(thiz)
+    if (QThread::currentThread() == qGuiApp->thread()) {
+        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+        if (eventDispatcher)
+            eventDispatcher->processEvents(
+                    QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
+    }
+}
+
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
 {
     static bool initialized = false;
@@ -438,7 +453,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
         {"c_onReceivedIcon", "(JLandroid/graphics/Bitmap;)V", reinterpret_cast<void *>(c_onReceivedIcon)},
         {"c_onReceivedTitle", "(JLjava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedTitle)},
         {"c_onRunJavaScriptResult", "(JJLjava/lang/String;)V", reinterpret_cast<void *>(c_onRunJavaScriptResult)},
-        {"c_onReceivedError", "(JILjava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedError)}
+        {"c_onReceivedError", "(JILjava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(c_onReceivedError)},
+        {"c_processEventsFromQueue", "()V", reinterpret_cast<void *>(c_processEventsFromQueue)}
     };
 
     const int nMethods = sizeof(methods) / sizeof(methods[0]);

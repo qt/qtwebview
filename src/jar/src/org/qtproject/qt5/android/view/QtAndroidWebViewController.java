@@ -90,6 +90,7 @@ public class QtAndroidWebViewController
     private native void c_onReceivedTitle(long id, String title);
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
     private native void c_onReceivedError(long id, int errorCode, String description, String url);
+    private native void c_processEventsFromQueue();
 
     // We need to block the UI thread in some cases, if it takes to long we should timeout before
     // ANR kicks in... Usually the hard limit is set to 10s and if exceed that then we're in trouble.
@@ -257,10 +258,19 @@ public class QtAndroidWebViewController
             }
         });
 
-        try {
-            sem.acquire();
-        } catch (Exception e) {
-            e.printStackTrace();
+        boolean semAcquired = false;
+        while (!semAcquired) {
+            try {
+                semAcquired = sem.tryAcquire(BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (!semAcquired) {
+                // If the waiting time elapsed before a permit was acquired probably we have a
+                // deadlock here. To unlock the thread that block us, we need to process events
+                // from the queue and try again.
+                c_processEventsFromQueue();
+            }
         }
     }
 
