@@ -27,7 +27,7 @@ import android.os.Build;
 import java.util.concurrent.TimeUnit;
 import java.time.format.DateTimeFormatter;
 
-public class QtAndroidWebViewController
+class QtAndroidWebViewController
 {
     private final Activity m_activity;
     private final long m_id;
@@ -174,7 +174,7 @@ public class QtAndroidWebViewController
         }
     }
 
-    public QtAndroidWebViewController(final Activity activity, final long id)
+    QtAndroidWebViewController(final Activity activity, final long id)
     {
         m_activity = activity;
         m_id = id;
@@ -227,7 +227,7 @@ public class QtAndroidWebViewController
     }
 
     // Settings
-    public void setLocalStorageEnabled(boolean enabled)
+    void setLocalStorageEnabled(boolean enabled)
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -239,7 +239,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public boolean isLocalStorageEnabled()
+    boolean isLocalStorageEnabled()
     {
         final boolean[] enabled = {true};
         final Semaphore sem = new Semaphore(0);
@@ -261,7 +261,7 @@ public class QtAndroidWebViewController
         return enabled[0];
     }
 
-    public void setJavaScriptEnabled(boolean enabled)
+    void setJavaScriptEnabled(boolean enabled)
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -272,7 +272,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public boolean isJavaScriptEnabled()
+    boolean isJavaScriptEnabled()
     {
         final boolean[] enabled = {true};
         final Semaphore sem = new Semaphore(0);
@@ -294,7 +294,7 @@ public class QtAndroidWebViewController
         return enabled[0];
     }
 
-    public void setAllowFileAccessFromFileURLs(boolean enabled)
+    void setAllowFileAccessFromFileURLs(boolean enabled)
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -305,7 +305,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public boolean isAllowFileAccessFromFileURLsEnabled()
+    boolean isAllowFileAccessFromFileURLsEnabled()
     {
         final boolean[] enabled = {true};
         final Semaphore sem = new Semaphore(0);
@@ -327,7 +327,7 @@ public class QtAndroidWebViewController
         return enabled[0];
     }
 
-    public void setAllowFileAccess(boolean enabled)
+    void setAllowFileAccess(boolean enabled)
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -338,7 +338,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public boolean isAllowFileAccessEnabled()
+    boolean isAllowFileAccessEnabled()
     {
         final boolean[] enabled = {true};
         final Semaphore sem = new Semaphore(0);
@@ -360,7 +360,7 @@ public class QtAndroidWebViewController
         return enabled[0];
     }
 
-    public String getUserAgent()
+    String getUserAgent()
     {
         final String[] ua = {""};
         final Semaphore sem = new Semaphore(0);
@@ -381,7 +381,7 @@ public class QtAndroidWebViewController
         return ua[0];
     }
 
-    public void setUserAgent(final String uaString)
+    void setUserAgent(final String uaString)
     {
         final Semaphore sem = new Semaphore(0);
         m_activity.runOnUiThread(new Runnable() {
@@ -399,7 +399,7 @@ public class QtAndroidWebViewController
         }
     }
 
-    public void loadUrl(final String url)
+    void loadUrl(final String url)
     {
         if (url == null) {
             return;
@@ -413,7 +413,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public void loadData(final String data, final String mimeType, final String encoding)
+    void loadData(final String data, final String mimeType, final String encoding)
     {
         if (data == null)
             return;
@@ -426,7 +426,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public void loadDataWithBaseURL(final String baseUrl,
+    void loadDataWithBaseURL(final String baseUrl,
                                     final String data,
                                     final String mimeType,
                                     final String encoding,
@@ -443,7 +443,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public void goBack()
+    void goBack()
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -451,7 +451,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public boolean canGoBack()
+    boolean canGoBack()
     {
         final boolean[] back = {false};
         final Semaphore sem = new Semaphore(0);
@@ -469,7 +469,7 @@ public class QtAndroidWebViewController
         return back[0];
     }
 
-    public void goForward()
+    void goForward()
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -477,7 +477,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public boolean canGoForward()
+    boolean canGoForward()
     {
         final boolean[] forward = {false};
         final Semaphore sem = new Semaphore(0);
@@ -495,7 +495,7 @@ public class QtAndroidWebViewController
         return forward[0];
     }
 
-    public void stopLoading()
+    void stopLoading()
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -503,7 +503,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public void reload()
+    void reload()
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -511,7 +511,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public String getTitle()
+    String getTitle()
     {
         final String[] title = {""};
         final Semaphore sem = new Semaphore(0);
@@ -529,17 +529,17 @@ public class QtAndroidWebViewController
         return title[0];
     }
 
-    public int getProgress()
+    int getProgress()
     {
         return m_progress;
     }
 
-    public boolean isLoading()
+    boolean isLoading()
     {
         return m_loadingState == LOADING_STATE || m_loadingState == STARTED_STATE || (m_progress > 0 && m_progress < 100);
     }
 
-    public void runJavaScript(final String script, final long callbackId)
+    void runJavaScript(final String script, final long callbackId)
     {
         if (script == null)
             return;
@@ -565,7 +565,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public String getUrl()
+    String getUrl()
     {
         final String[] url = {""};
         final Semaphore sem = new Semaphore(0);
@@ -583,12 +583,12 @@ public class QtAndroidWebViewController
         return url[0];
     }
 
-    public WebView getWebView()
+    WebView getWebView()
     {
        return m_webView;
     }
 
-    public void onPause()
+    void onPause()
     {
         if (m_webViewOnPause == null)
             return;
@@ -599,7 +599,7 @@ public class QtAndroidWebViewController
         });
     }
 
-    public void onResume()
+    void onResume()
     {
         if (m_webViewOnResume == null)
             return;
@@ -617,7 +617,7 @@ public class QtAndroidWebViewController
         return pm.checkPermission("android.permission.ACCESS_FINE_LOCATION", name) == PackageManager.PERMISSION_GRANTED;
     }
 
-    public void destroy()
+    void destroy()
     {
         m_activity.runOnUiThread(new Runnable() {
             @Override
@@ -639,7 +639,7 @@ public class QtAndroidWebViewController
         }
     }
 
-    public static void setCookie(final long id, final String url, final String cookieString)
+    static void setCookie(final long id, final String url, final String cookieString)
     {
         setCookieImp(url, cookieString, new ValueCallback<Boolean>() {
             @Override
@@ -682,7 +682,7 @@ public class QtAndroidWebViewController
         return "expires=\"Thu, 1 Jan 1970 00:00:00 GMT\"";
     }
 
-    public static void removeCookie(final long id, final String url, final String cookieString)
+    static void removeCookie(final long id, final String url, final String cookieString)
     {
         // We need to work with what we have
         // 1. Check if there's cookies for the url
@@ -705,7 +705,7 @@ public class QtAndroidWebViewController
         }
     }
 
-    public static void removeCookies() {
+    static void removeCookies() {
         try {
             CookieManager.getInstance().removeAllCookies(null);
         } catch (Exception e) {
