@@ -244,6 +244,7 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
         m_parent->m_settings = new QWebEngineWebViewSettingsPrivate(m_parent);
     m_parent->m_settings->init(settings);
     webEngineView->settings()->setErrorPageEnabled(false);
+    webEngineView->settings()->setPluginsEnabled(true);
     // When the httpUserAgent is set as a property then it will be set before
     // init() is called
     if (m_parent->m_httpUserAgent.isEmpty())
