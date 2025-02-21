@@ -3,5 +3,5 @@ dependencies:
     ref: 2757053dedfa5f4de715860f913ce4e0c947d323
     required: true
   ../qtwebengine:
-    ref: 7d3b379e7c5048bb715ad8bcf504ae0170087aa7
+    ref: 65d8d8e5c6da07d3f015eaa6d93fe27846af53af
     required: false
