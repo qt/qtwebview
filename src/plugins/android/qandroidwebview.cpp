@@ -132,12 +132,15 @@ void QAndroidWebViewPrivate::setUrl(const QUrl &url)
 void QAndroidWebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
 {
     const QString mimeTypeString = u"text/html;charset=UTF-8"_s;
-    const QString encoded = QUrl::toPercentEncoding(html);
-    baseUrl.isEmpty()
-            ? m_viewController.callMethod<void>("loadData", encoded, mimeTypeString,
-                                                jstring(nullptr))
-            : m_viewController.callMethod<void>("loadDataWithBaseURL", baseUrl.toString(), encoded,
-                                                mimeTypeString, jstring(nullptr), jstring(nullptr));
+    if (baseUrl.isEmpty() || baseUrl.scheme() == "data"_L1) {
+        const QString encoded = QUrl::toPercentEncoding(html);
+        m_viewController.callMethod<void>("loadData", encoded, mimeTypeString, jstring(nullptr));
+    } else {
+        // andorid webview in case of non data baseURL scheme will loaded 'html' into the WebView as
+        // a plain string meaning any url encoded entities in the string will not be decoded.
+        m_viewController.callMethod<void>("loadDataWithBaseURL", baseUrl.toString(), html,
+                                          mimeTypeString, jstring(nullptr), jstring(nullptr));
+    }
 }
 
 bool QAndroidWebViewPrivate::canGoBack() const

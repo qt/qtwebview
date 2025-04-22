@@ -59,6 +59,7 @@ private slots:
     void initTestCase();
     void load();
     void runJavaScript();
+    void loadHtml_data();
     void loadHtml();
     void loadRequest();
     void setAndDeleteCookie();
@@ -130,8 +131,11 @@ void tst_QWebView::runJavaScript()
     QTRY_COMPARE(engine.evaluate(tstProperty).toString(), title);
 }
 
-void tst_QWebView::loadHtml()
+void tst_QWebView::loadHtml_data()
 {
+    QTest::addColumn<QByteArray>("content");
+    QTest::addColumn<QUrl>("loadUrl");
+    QTest::addColumn<QUrl>("resultUrl");
     WebViewFactory factory;
     QWebView &view = factory.webViewRef();
     QCOMPARE(view.loadProgress(), 0);
@@ -139,8 +143,37 @@ void tst_QWebView::loadHtml()
     const QByteArray content(
             QByteArrayLiteral("<html><title>WebViewTitle</title>"
                               "<body><span style=\"color:#ff0000\">Hello</span></body></html>"));
+    QByteArray encoded("data:text/html;charset=UTF-8,");
+    encoded.append(content.toPercentEncoding());
 
-    view.loadHtml(content);
+    if (!QWebViewFactory::loadedPluginHasKey("webkit")) {
+        QTest::newRow("set conent without base url") << content << QUrl() << QUrl(encoded);
+    } else {
+        QTest::newRow("set conent without base url") << content << QUrl() << QUrl("about:blank");
+    }
+    QTest::newRow("set content with data base url") << content << QUrl(encoded) << QUrl(encoded);
+
+    if (!QWebViewFactory::loadedPluginHasKey("webview2")) {
+        QTest::newRow("set content with non-data base url")
+                << content << QUrl("http://foobar.com/") << QUrl("http://foobar.com/");
+    } else {
+        QTest::newRow("set content with non-data base url")
+                << content << QUrl("http://foobar.com/") << QUrl(encoded);
+    }
+}
+
+void tst_QWebView::loadHtml()
+{
+    QFETCH(QByteArray, content);
+    QFETCH(QUrl, loadUrl);
+    QFETCH(QUrl, resultUrl);
+
+    WebViewFactory factory;
+    QWebView &view = factory.webViewRef();
+    QCOMPARE(view.loadProgress(), 0);
+    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
+    QSignalSpy javaScriptResultSpy(&view, SIGNAL(javaScriptResult(int, QVariant)));
+    view.loadHtml(content, loadUrl);
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
     QCOMPARE(view.title(), QStringLiteral("WebViewTitle"));
@@ -148,15 +181,18 @@ void tst_QWebView::loadHtml()
     // take load finished
     const QWebViewLoadRequestPrivate &lr = loadChangedSingalSpy.at(1).at(0).value<QWebViewLoadRequestPrivate>();
     QCOMPARE(lr.m_status, QWebView::LoadSucceededStatus);
+    if (QWebViewFactory::loadedPluginHasKey("android_view")) {
+        // WebEngine javascript calls work only with qmlengine, however here we use
+        // c++ interface
+        int callback = 1;
+        view.runJavaScriptPrivate("document.baseURI", callback);
+        QTRY_COMPARE(javaScriptResultSpy.size(), 1);
+        QCOMPARE(javaScriptResultSpy.at(0).at(0), callback);
+        QCOMPARE(javaScriptResultSpy.at(0).at(1).value<QUrl>(), resultUrl);
+    }
 
-// The following test is disabled because the content is not loaded in the same way in the webview
-// on darwin and url will be just the base url (which unless specified is about:blank)
-#if ! (defined(QT_PLATFORM_UIKIT) || defined(Q_OS_MACOS))
-    QByteArray encoded("data:text/html;charset=UTF-8,");
-    encoded.append(content.toPercentEncoding());
     QVERIFY(view.url().isValid());
-    QCOMPARE(view.url(), QUrl(encoded));
-#endif
+    QCOMPARE(view.url(), resultUrl);
 }
 
 void tst_QWebView::loadRequest()

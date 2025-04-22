@@ -24,6 +24,8 @@
 
 #include <QtCore/qpointer.h>
 
+class tst_QWebView;
+
 QT_BEGIN_NAMESPACE
 
 class QWebViewLoadRequestPrivate;
@@ -130,6 +132,7 @@ private Q_SLOTS:
 
 private:
     friend class QQuickWebView;
+    friend class ::tst_QWebView;
 
     QAbstractWebView *d = nullptr;
     QWebViewSettings *m_settings = nullptr;
