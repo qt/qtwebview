@@ -135,7 +135,7 @@ void tst_QWebView::loadHtml()
     WebViewFactory factory;
     QWebView &view = factory.webViewRef();
     QCOMPARE(view.loadProgress(), 0);
-    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
+    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
     const QByteArray content(
             QByteArrayLiteral("<html><title>WebViewTitle</title>"
                               "<body><span style=\"color:#ff0000\">Hello</span></body></html>"));
@@ -178,7 +178,7 @@ void tst_QWebView::loadRequest()
         view.getSettings()->setLocalContentCanAccessFileUrls(true);
         QCOMPARE(view.loadProgress(), 0);
         const QUrl url = QUrl::fromLocalFile(fileName);
-        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
+        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
         view.setUrl(url);
         QTRY_VERIFY(!view.isLoading());
         QTRY_COMPARE(view.loadProgress(), 100);
@@ -204,7 +204,7 @@ void tst_QWebView::loadRequest()
         view.getSettings()->setAllowFileAccess(true);
         view.getSettings()->setLocalContentCanAccessFileUrls(true);
         QCOMPARE(view.loadProgress(), 0);
-        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
+        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
         view.setUrl(QUrl(QStringLiteral("file:///file_that_does_not_exist.html")));
         QTRY_VERIFY(!view.isLoading());
         QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
@@ -231,8 +231,8 @@ void tst_QWebView::setAndDeleteCookie()
     view.getSettings()->setAllowFileAccess(true);
     view.getSettings()->setLocalContentCanAccessFileUrls(true);
 
-    QSignalSpy cookieAddedSpy(&view, SIGNAL(cookieAdded(const QString &, const QString &)));
-    QSignalSpy cookieRemovedSpy(&view, SIGNAL(cookieRemoved(const QString &, const QString &)));
+    QSignalSpy cookieAddedSpy(&view, SIGNAL(cookieAdded(QString,QString)));
+    QSignalSpy cookieRemovedSpy(&view, SIGNAL(cookieRemoved(QString,QString)));
 
     view.setCookie(".example.com", "TestCookie", "testValue");
     view.setCookie(".example2.com", "TestCookie2", "testValue2");
