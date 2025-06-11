@@ -48,5 +48,5 @@ qt_internal_add_resource(tst_qquickwebview "testdata1"
 
 qt_internal_extend_target(tst_qquickwebview CONDITION TARGET Qt::WebEngineQuick AND NOT APPLE
     DEFINES
-        QT_WEBVIEW_WEBENGINE_BACKEND
+        QT_WEBVIEW_WEBENGINE_BACKEND_IS_COMPILED
 )

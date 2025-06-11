@@ -61,15 +61,7 @@ bool QWebview2WebViewSettingsPrivate::localStorageEnabled() const
 
 bool QWebview2WebViewSettingsPrivate::javaScriptEnabled() const
 {
-    if (!m_webview)
-        return false;
-    ComPtr<ICoreWebView2Settings> settings;
-    HRESULT hr = m_webview->get_Settings(&settings);
-    Q_ASSERT_SUCCEEDED(hr);
-    BOOL isEnabled;
-    hr = settings->get_IsScriptEnabled(&isEnabled);
-    Q_ASSERT_SUCCEEDED(hr);
-    return isEnabled;
+    return m_javaScriptEnabled;
 }
 
 bool QWebview2WebViewSettingsPrivate::localContentCanAccessFileUrls() const
@@ -90,6 +82,7 @@ void QWebview2WebViewSettingsPrivate::setLocalContentCanAccessFileUrls(bool enab
 
 void QWebview2WebViewSettingsPrivate::setJavaScriptEnabled(bool enabled)
 {
+    m_javaScriptEnabled = enabled;
     if (!m_webview)
         return;
 
@@ -142,24 +135,28 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
     connect(m_window, &QWindow::screenChanged, this,
             &QWebView2WebViewPrivate::updateWindowGeometry, Qt::QueuedConnection);
 
+    QPointer<QWebView2WebViewPrivate> thisPtr = this;
     CreateCoreWebView2EnvironmentWithOptions(nullptr, nullptr, nullptr,
     Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-        [hWnd, this](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
+        [hWnd, thisPtr, this](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
             env->CreateCoreWebView2Controller(hWnd,
                 Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                [this](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
-                    HRESULT hr;
-                    if (controller != nullptr) {
-                        m_webviewController = controller;
-                        hr = m_webviewController->get_CoreWebView2(&m_webview);
-                        Q_ASSERT_SUCCEEDED(hr);
+                [thisPtr, this](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+                    if (thisPtr.isNull())
+                        return S_FALSE;
 
-                        ComPtr<ICoreWebView2_2> webview2;
-                        HRESULT hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
-                        Q_ASSERT_SUCCEEDED(hr);
-                        hr = webview2->get_CookieManager(&m_cookieManager);
-                        Q_ASSERT_SUCCEEDED(hr);
-                    }
+                    if (!controller)
+                        return S_FALSE;
+                    HRESULT hr;
+                    m_webviewController = controller;
+                    hr = m_webviewController->get_CoreWebView2(&m_webview);
+                    Q_ASSERT_SUCCEEDED(hr);
+
+                    ComPtr<ICoreWebView2_2> webview2;
+                    hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
+                    Q_ASSERT_SUCCEEDED(hr);
+                    hr = webview2->get_CookieManager(&m_cookieManager);
+                    Q_ASSERT_SUCCEEDED(hr);
 
                     m_settings->init(m_webviewController.Get());
 
@@ -167,7 +164,7 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
                     ComPtr<ICoreWebView2Settings> settings;
                     hr = m_webview->get_Settings(&settings);
                     Q_ASSERT_SUCCEEDED(hr);
-                    hr = settings->put_IsScriptEnabled(TRUE);
+                    hr = settings->put_IsScriptEnabled(m_settings->javaScriptEnabled());
                     Q_ASSERT_SUCCEEDED(hr);
                     hr = settings->put_AreDefaultScriptDialogsEnabled(TRUE);
                     Q_ASSERT_SUCCEEDED(hr);
@@ -181,16 +178,27 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
                     if (!m_url.isEmpty() && m_url.isValid() && !m_url.scheme().isEmpty()) {
                         hr = m_webview->Navigate((wchar_t*)m_url.toString().utf16());
                         Q_ASSERT_SUCCEEDED(hr);
-                    } else if (m_initData != nullptr && !m_initData->m_html.isEmpty()) {
-                        hr = m_webview->NavigateToString((wchar_t*)m_initData->m_html.utf16());
+                    } else if (!m_initData.m_html.isEmpty()) {
+                        hr = m_webview->NavigateToString((wchar_t*)m_initData.m_html.utf16());
                         Q_ASSERT_SUCCEEDED(hr);
                     }
-                    if (m_initData != nullptr && m_initData->m_cookies.size() > 0) {
-                        for (auto it = m_initData->m_cookies.constBegin();
-                             it != m_initData->m_cookies.constEnd(); ++it)
+                    if (m_initData.m_cookies.size() > 0) {
+                        for (auto it = m_initData.m_cookies.constBegin();
+                             it != m_initData.m_cookies.constEnd(); ++it)
                             setCookie(it->domain, it->name, it.value().value);
                     }
-                    m_initData.release();
+                    if (!m_initData.m_httpUserAgent.isEmpty()) {
+                        ComPtr<ICoreWebView2Settings2> settings2;
+                        hr = settings->QueryInterface(IID_PPV_ARGS(&settings2));
+                        if (settings2) {
+                            hr = settings2->put_UserAgent((wchar_t*)m_initData.m_httpUserAgent.utf16());
+                            if (SUCCEEDED(hr))
+                                QTimer::singleShot(0, thisPtr, [thisPtr]{
+                                    if (!thisPtr.isNull())
+                                        emit thisPtr->httpUserAgentChanged(thisPtr->m_initData.m_httpUserAgent);
+                                });
+                        }
+                    }
 
                     EventRegistrationToken token;
                     hr = m_webview->add_NavigationStarting(
@@ -224,10 +232,10 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
                             }).Get(), &token);
                     Q_ASSERT_SUCCEEDED(hr);
 
-                    ComPtr<ICoreWebView2_22> webview2;
-                    hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
+                    ComPtr<ICoreWebView2_22> webview22;
+                    hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview22));
                     Q_ASSERT_SUCCEEDED(hr);
-                    hr = webview2->AddWebResourceRequestedFilterWithRequestSourceKinds(
+                    hr = webview22->AddWebResourceRequestedFilterWithRequestSourceKinds(
                             L"file://*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
                             COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL);
                     Q_ASSERT_SUCCEEDED(hr);
@@ -241,8 +249,8 @@ QWebView2WebViewPrivate::~QWebView2WebViewPrivate()
 {
     m_webViewWindow->destroy();
     m_window->destroy();
-    m_webviewController = nullptr;
     m_webViewWindow = nullptr;
+    m_webviewController = nullptr;
     m_webview = nullptr;
 }
 
@@ -263,9 +271,10 @@ QString QWebView2WebViewPrivate::httpUserAgent() const
             CoTaskMemFree(userAgent);
             return userAgentString;
         }
+        qWarning() << "No http user agent available.";
+        return "";
     }
-    qWarning() << "No http user agent available.";
-    return "";
+    return m_initData.m_httpUserAgent;
 }
 
 void QWebView2WebViewPrivate::setHttpUserAgent(const QString &userAgent)
@@ -279,12 +288,15 @@ void QWebView2WebViewPrivate::setHttpUserAgent(const QString &userAgent)
         hr = settings->QueryInterface(IID_PPV_ARGS(&settings2));
         if (settings2) {
             hr = settings2->put_UserAgent((wchar_t*)userAgent.utf16());
-            Q_ASSERT_SUCCEEDED(hr);
-            emit httpUserAgentChanged(userAgent);
+            if (SUCCEEDED(hr))
+                emit httpUserAgentChanged(userAgent);
             return;
+        } else {
+            qWarning() << "No http user agent setting available.";
         }
+    } else {
+        m_initData.m_httpUserAgent = userAgent;
     }
-    qWarning() << "No http user agent setting available.";
 }
 
 void QWebView2WebViewPrivate::setUrl(const QUrl &url)
@@ -293,10 +305,10 @@ void QWebView2WebViewPrivate::setUrl(const QUrl &url)
     if (m_webview) {
         HRESULT hr = m_webview->Navigate((wchar_t*)url.toString().utf16());
         if (FAILED(hr)) {
+            emit loadProgressChanged(100);
             emit loadingChanged(QWebViewLoadRequestPrivate(url,
                                                            QWebView::LoadFailedStatus,
                                                            QString()));
-            emit loadProgressChanged(100);
         }
     }
 }
@@ -386,9 +398,7 @@ void QWebView2WebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
     if (m_webview) {
         Q_ASSERT_SUCCEEDED(m_webview->NavigateToString((wchar_t*)html.utf16()));
     } else {
-        if (m_initData == nullptr)
-            m_initData = std::make_unique<QWebViewInitData>();
-        m_initData->m_html = html;
+        m_initData.m_html = html;
     }
 }
 
@@ -410,56 +420,54 @@ void QWebView2WebViewPrivate::setCookie(const QString &domain,
             emit cookieAdded(domain, name);
         }
     } else {
-        if (m_initData == nullptr)
-            m_initData = std::make_unique<QWebViewInitData>();
-        m_initData->m_cookies.insert(domain + "/" + name, {domain, name, value});
+        m_initData.m_cookies.insert(domain + "/" + name, {domain, name, value});
     }
 }
 
-void QWebView2WebViewPrivate::deleteCookie(const QString &domain, const QString &cookieName)
+void QWebView2WebViewPrivate::deleteCookie(const QString &domainName, const QString &cookieName)
 {
     if (m_webview) {
         if (m_cookieManager) {
-            QString uri = domain;
+            QString uri = domainName;
             if (!uri.startsWith("http"))
                 uri = "https://" + uri;
             HRESULT hr = m_cookieManager->GetCookies((wchar_t*)uri.utf16(),
             Microsoft::WRL::Callback<ICoreWebView2GetCookiesCompletedHandler>(
-            [cookieName, domain, this](HRESULT result, ICoreWebView2CookieList* cookieList)->HRESULT
+            [cookieName, domainName, this]
+            (HRESULT result, ICoreWebView2CookieList* cookieList)->HRESULT
             {
                 UINT count = 0;
                 cookieList->get_Count(&count);
-                bool cookieFound = false;
-
                 for (UINT i = 0; i < count; ++i) {
                     ComPtr<ICoreWebView2Cookie> cookie;
                     if (SUCCEEDED(cookieList->GetValueAtIndex(i, &cookie))) {
+                        wchar_t *domainPtr;
                         wchar_t *namePtr;
-                        if (SUCCEEDED(cookie->get_Name(&namePtr))) {
+                        if (SUCCEEDED(cookie->get_Domain(&domainPtr)) &&
+                            SUCCEEDED(cookie->get_Name(&namePtr))) {
+                            QString domain(domainPtr);
                             QString name(namePtr);
                             CoTaskMemFree(namePtr);
-                            if (cookieName == name) {
-                                cookieFound = true;
-                                break;
+                            CoTaskMemFree(domainPtr);
+                            if (domainName == domain && cookieName == name) {
+                                emit cookieRemoved(domain, cookieName);
+                                return S_OK;
                             }
                         }
                     }
                 }
-
-                if (cookieFound) {
-                    HRESULT hr = m_cookieManager->DeleteCookiesWithDomainAndPath((wchar_t*)cookieName.utf16(),
-                                                                     (wchar_t*)domain.utf16(),
-                                                                     L"");
-                    Q_ASSERT_SUCCEEDED(hr);
-                    emit cookieRemoved(domain, cookieName);
-                }
-
               return S_OK;
             }).Get());
             Q_ASSERT_SUCCEEDED(hr);
+            hr = m_cookieManager->DeleteCookiesWithDomainAndPath((wchar_t*)cookieName.utf16(),
+                                                                 (wchar_t*)domainName.utf16(),
+                                                                 L"");
+            Q_ASSERT_SUCCEEDED(hr);
+
+
         }
-    } else if (m_initData != nullptr) {
-        m_initData->m_cookies.remove(domain + "/" + cookieName);
+    } else {
+        m_initData.m_cookies.remove(domainName + "/" + cookieName);
     }
 }
 
@@ -493,8 +501,8 @@ void QWebView2WebViewPrivate::deleteAllCookies()
             hr = m_cookieManager->DeleteAllCookies();
             Q_ASSERT_SUCCEEDED(hr);
         }
-    } else if (m_initData != nullptr) {
-        m_initData->m_cookies.clear();
+    } else {
+        m_initData.m_cookies.clear();
     }
 }
 
@@ -527,11 +535,11 @@ HRESULT QWebView2WebViewPrivate::onNavigationCompleted(ICoreWebView2* webview, I
     Q_ASSERT_SUCCEEDED(hr);
     if (errorStatus != COREWEBVIEW2_WEB_ERROR_STATUS_OPERATION_CANCELED) {
         const QString errorStr = isSuccess ? "" : WebErrorStatusToString(errorStatus);
+        emit titleChanged(title());
+        emit loadProgressChanged(100);
         emit loadingChanged(QWebViewLoadRequestPrivate(m_url,
                                                        status,
                                                        errorStr));
-        emit titleChanged(title());
-        emit loadProgressChanged(100);
     } else {
         emit loadingChanged(QWebViewLoadRequestPrivate(m_url,
                                                        QWebView::LoadStoppedStatus,
@@ -592,11 +600,10 @@ void QWebView2WebViewPrivate::updateWindowGeometry()
 
 void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)
 {
-    QEventLoop loop;
     if (m_webview)
         Q_ASSERT_SUCCEEDED(m_webview->ExecuteScript((wchar_t*)script.utf16(),
             Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
-            [&loop, this, &callbackId](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
+            [this, callbackId](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
                 QString resultStr = QString::fromWCharArray(resultObjectAsJson);
 
                 QJsonParseError parseError;
@@ -619,10 +626,8 @@ void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int ca
                     emit javaScriptResult(callbackId, qt_error_string(errorCode));
                 else
                     emit javaScriptResult(callbackId, resultVariant);
-                loop.quit();
                 return errorCode;
             }).Get()));
-    loop.exec();
 }
 
 QAbstractWebViewSettings *QWebView2WebViewPrivate::getSettings() const

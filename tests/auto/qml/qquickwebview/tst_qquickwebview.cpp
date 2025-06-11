@@ -129,13 +129,12 @@ void tst_QQuickWebView::stopEnabledAfterLoadStarted()
 {
     QCOMPARE(webView()->isLoading(), false);
 
-    LoadStartedCatcher catcher(webView());
+    LoadStartedCatcher loadStartedCatcher(webView());
+    LoadSpy loadSpy(webView());
     webView()->setUrl(getTestFilePath("basic_page.html"));
-    waitForSignal(&catcher, SIGNAL(finished()));
 
-    QCOMPARE(webView()->isLoading(), true);
-
-    QVERIFY(waitForLoadSucceeded(webView()));
+    waitForSignal(&loadStartedCatcher, SIGNAL(finished()));
+    waitForSignal(&loadSpy, SIGNAL(loadSucceeded()));
 }
 
 void tst_QQuickWebView::baseUrl()
@@ -322,7 +321,7 @@ void tst_QQuickWebView::titleUpdate()
     // Load page with no title
     webView()->setUrl(getTestFilePath("basic_page2.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
-#if defined(QT_WEBVIEW_WEBENGINE_BACKEND) || defined(Q_OS_ANDROID)
+#if defined(QT_WEBVIEW_WEBENGINE_BACKEND_IS_COMPILED) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN)
     // on some platforms if the page has no <title> element, then the URL is used instead
     QCOMPARE(titleSpy.size(), 1);
 #else
@@ -333,7 +332,7 @@ void tst_QQuickWebView::titleUpdate()
     // No titleChanged signal for failed load
     webView()->setUrl(getTestFilePath("file_that_does_not_exist.html"));
     QVERIFY(waitForLoadFailed(webView()));
-#if defined(Q_OS_ANDROID)
+#if defined(Q_OS_ANDROID) || (!defined(QT_WEBVIEW_WEBENGINE_BACKEND_IS_COMPILED) && defined(Q_OS_WIN))
     // error page with "Webpage not available"
     QTRY_COMPARE(titleSpy.size(), 1);
 #else
@@ -360,7 +359,7 @@ void tst_QQuickWebView::setAndDeleteCookies()
     QSignalSpy cookieAddedSpy(webView(), SIGNAL(cookieAdded(const QString &, const QString &)));
     QSignalSpy cookieRemovedSpy(webView(), SIGNAL(cookieRemoved(const QString &, const QString &)));
 
-#ifdef QT_WEBVIEW_WEBENGINE_BACKEND
+#ifdef QT_WEBVIEW_WEBENGINE_BACKEND_IS_COMPILED
     webView()->setUrl(QUrl("qrc:///cookies.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
 

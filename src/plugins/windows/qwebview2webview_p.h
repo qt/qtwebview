@@ -40,6 +40,7 @@ private:
     ComPtr<ICoreWebView2> m_webview;
     bool m_allowFileAccess = false;
     bool m_localContentCanAccessFileUrls = false;
+    bool m_javaScriptEnabled = true;
 };
 
 // This is used to store informations before webview2 is initialized
@@ -52,6 +53,7 @@ struct QWebViewInitData{
         QString value;
     };
     QMap<QString, CookieData > m_cookies;
+    QString m_httpUserAgent;
 };
 
 class QWebView2WebViewPrivate : public QAbstractWebView
@@ -102,7 +104,7 @@ private:
     QPointer<QWindow> m_webViewWindow;
     bool m_isLoading;
     QUrl m_url;
-    std::unique_ptr<QWebViewInitData> m_initData = nullptr;
+    QWebViewInitData m_initData;
 };
 
 QT_END_NAMESPACE
