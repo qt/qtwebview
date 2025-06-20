@@ -364,26 +364,34 @@ QWindow* QWebView2WebViewPrivate::nativeWindow() const
 
 void QWebView2WebViewPrivate::goBack()
 {
-    if (m_webview)
-        Q_ASSERT_SUCCEEDED(m_webview->GoBack());
+    if (m_webview) {
+        const HRESULT hr = m_webview->GoBack();
+        Q_ASSERT_SUCCEEDED(hr);
+    }
 }
 
 void QWebView2WebViewPrivate::goForward()
 {
-    if (m_webview)
-        Q_ASSERT_SUCCEEDED(m_webview->GoForward());
+    if (m_webview) {
+        const HRESULT hr = m_webview->GoForward();
+        Q_ASSERT_SUCCEEDED(hr);
+    }
 }
 
 void QWebView2WebViewPrivate::reload()
 {
-    if (m_webview)
-        Q_ASSERT_SUCCEEDED(m_webview->Reload());
+    if (m_webview) {
+        const HRESULT hr = m_webview->Reload();
+        Q_ASSERT_SUCCEEDED(hr);
+    }
 }
 
 void QWebView2WebViewPrivate::stop()
 {
-    if (m_webview)
-        Q_ASSERT_SUCCEEDED(m_webview->Stop());
+    if (m_webview) {
+        const HRESULT hr = m_webview->Stop();
+        Q_ASSERT_SUCCEEDED(hr);
+    }
 }
 
 void QWebView2WebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
@@ -396,7 +404,8 @@ void QWebView2WebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
     m_url = QUrl(encoded);
 
     if (m_webview) {
-        Q_ASSERT_SUCCEEDED(m_webview->NavigateToString((wchar_t*)html.utf16()));
+        const HRESULT hr = m_webview->NavigateToString((wchar_t *)html.utf16());
+        Q_ASSERT_SUCCEEDED(hr);
     } else {
         m_initData.m_html = html;
     }
@@ -563,10 +572,11 @@ HRESULT QWebView2WebViewPrivate::onWebResourceRequested(ICoreWebView2* sender, I
         ComPtr<ICoreWebView2_2> webview2;
         m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
         webview2->get_Environment(&environment);
-        Q_ASSERT_SUCCEEDED(
-                environment->CreateWebResourceResponse(
-                        nullptr, 403, L"Access Denied", L"", &response));
-        Q_ASSERT_SUCCEEDED(args->put_Response(response.Get()));
+
+        hr = environment->CreateWebResourceResponse(nullptr, 403, L"Access Denied", L"", &response);
+        Q_ASSERT_SUCCEEDED(hr)
+        hr = args->put_Response(response.Get());
+        Q_ASSERT_SUCCEEDED(hr)
     }
 
     CoTaskMemFree(uri);
@@ -594,40 +604,47 @@ void QWebView2WebViewPrivate::updateWindowGeometry()
     }
     RECT bounds;
     GetClientRect((HWND)m_window->winId(), &bounds);
-    Q_ASSERT_SUCCEEDED(m_webviewController->put_Bounds(bounds));
+    const HRESULT hr = m_webviewController->put_Bounds(bounds);
+    Q_ASSERT_SUCCEEDED(hr);
     m_webViewWindow->setGeometry(0, 0, m_window->width(), m_window->height());
 }
 
 void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)
 {
-    if (m_webview)
-        Q_ASSERT_SUCCEEDED(m_webview->ExecuteScript((wchar_t*)script.utf16(),
-            Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
-            [this, callbackId](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
-                QString resultStr = QString::fromWCharArray(resultObjectAsJson);
+    if (m_webview) {
+        const HRESULT hr = m_webview->ExecuteScript(
+                (wchar_t *)script.utf16(),
+                Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
+                        [this, callbackId](HRESULT errorCode,
+                                           LPCWSTR resultObjectAsJson) -> HRESULT {
+                            QString resultStr = QString::fromWCharArray(resultObjectAsJson);
 
-                QJsonParseError parseError;
-                QJsonDocument jsonDoc = QJsonDocument::fromJson(resultStr.toUtf8(), &parseError);
+                            QJsonParseError parseError;
+                            QJsonDocument jsonDoc =
+                                    QJsonDocument::fromJson(resultStr.toUtf8(), &parseError);
 
-                QVariant resultVariant;
-                if (parseError.error == QJsonParseError::NoError) {
-                    resultVariant = jsonDoc.toVariant();
-                } else {
-                    QString wrapped = QString("{\"value\":%1}").arg(resultStr);
-                    jsonDoc = QJsonDocument::fromJson(wrapped.toUtf8(), &parseError);
-                    if (parseError.error == QJsonParseError::NoError) {
-                        resultVariant = jsonDoc.object().value("value").toVariant();
-                    } else {
-                        QJsonValue val = QJsonValue::fromVariant(resultStr);
-                        resultVariant = val.toVariant();
-                    }
-                }
-                if (errorCode != S_OK)
-                    emit javaScriptResult(callbackId, qt_error_string(errorCode));
-                else
-                    emit javaScriptResult(callbackId, resultVariant);
-                return errorCode;
-            }).Get()));
+                            QVariant resultVariant;
+                            if (parseError.error == QJsonParseError::NoError) {
+                                resultVariant = jsonDoc.toVariant();
+                            } else {
+                                QString wrapped = QString("{\"value\":%1}").arg(resultStr);
+                                jsonDoc = QJsonDocument::fromJson(wrapped.toUtf8(), &parseError);
+                                if (parseError.error == QJsonParseError::NoError) {
+                                    resultVariant = jsonDoc.object().value("value").toVariant();
+                                } else {
+                                    QJsonValue val = QJsonValue::fromVariant(resultStr);
+                                    resultVariant = val.toVariant();
+                                }
+                            }
+                            if (errorCode != S_OK)
+                                emit javaScriptResult(callbackId, qt_error_string(errorCode));
+                            else
+                                emit javaScriptResult(callbackId, resultVariant);
+                            return errorCode;
+                        })
+                        .Get());
+        Q_ASSERT_SUCCEEDED(hr);
+    }
 }
 
 QAbstractWebViewSettings *QWebView2WebViewPrivate::getSettings() const
