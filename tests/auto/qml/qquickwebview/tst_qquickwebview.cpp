@@ -11,6 +11,7 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qstandardpaths.h>
 #include <QtWebView/qtwebviewfunctions.h>
+#include <QtWebView/private/qwebviewfactory_p.h>
 #include <QtWebViewQuick/private/qquickwebviewsettings_p.h>
 
 QUrl getTestFilePath(const QString &testFile)
@@ -321,23 +322,25 @@ void tst_QQuickWebView::titleUpdate()
     // Load page with no title
     webView()->setUrl(getTestFilePath("basic_page2.html"));
     QVERIFY(waitForLoadSucceeded(webView()));
-#if defined(QT_WEBVIEW_WEBENGINE_BACKEND_IS_COMPILED) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN)
-    // on some platforms if the page has no <title> element, then the URL is used instead
-    QCOMPARE(titleSpy.size(), 1);
-#else
-    QCOMPARE(titleSpy.size(), 0);
-#endif
+    if (QWebViewFactory::loadedPluginHasKey("webengine")
+        || QWebViewFactory::loadedPluginHasKey("android_view")
+        || QWebViewFactory::loadedPluginHasKey("webview2")) {
+        // on some platforms if the page has no <title> element, then the URL is used instead
+        QCOMPARE(titleSpy.size(), 1);
+    } else {
+        QCOMPARE(titleSpy.size(), 0);
+    }
     titleSpy.clear();
 
     // No titleChanged signal for failed load
     webView()->setUrl(getTestFilePath("file_that_does_not_exist.html"));
     QVERIFY(waitForLoadFailed(webView()));
-#if defined(Q_OS_ANDROID) || (!defined(QT_WEBVIEW_WEBENGINE_BACKEND_IS_COMPILED) && defined(Q_OS_WIN))
-    // error page with "Webpage not available"
-    QTRY_COMPARE(titleSpy.size(), 1);
-#else
-    QCOMPARE(titleSpy.size(), 0);
-#endif
+    if (QWebViewFactory::loadedPluginHasKey("android_view")
+        || QWebViewFactory::loadedPluginHasKey("webview2")) {
+        QTRY_COMPARE(titleSpy.size(), 1);
+    } else {
+        QCOMPARE(titleSpy.size(), 0);
+    }
 }
 
 void tst_QQuickWebView::changeUserAgent()
@@ -359,18 +362,18 @@ void tst_QQuickWebView::setAndDeleteCookies()
     QSignalSpy cookieAddedSpy(webView(), SIGNAL(cookieAdded(const QString &, const QString &)));
     QSignalSpy cookieRemovedSpy(webView(), SIGNAL(cookieRemoved(const QString &, const QString &)));
 
-#ifdef QT_WEBVIEW_WEBENGINE_BACKEND_IS_COMPILED
-    webView()->setUrl(QUrl("qrc:///cookies.html"));
-    QVERIFY(waitForLoadSucceeded(webView()));
+    if (QWebViewFactory::loadedPluginHasKey("webengine")) {
+        webView()->setUrl(QUrl("qrc:///cookies.html"));
+        QVERIFY(waitForLoadSucceeded(webView()));
 
-    QTRY_COMPARE(cookieAddedSpy.size(), 2);
+        QTRY_COMPARE(cookieAddedSpy.size(), 2);
 
-    webView()->deleteAllCookies();
-    QTRY_COMPARE(cookieRemovedSpy.size(), 2);
+        webView()->deleteAllCookies();
+        QTRY_COMPARE(cookieRemovedSpy.size(), 2);
 
-    cookieAddedSpy.clear();
-    cookieRemovedSpy.clear();
-#endif
+        cookieAddedSpy.clear();
+        cookieRemovedSpy.clear();
+    }
 
     Cookie::List cookies { {".example.com", "TestCookie", "testValue"},
                            {".example2.com", "TestCookie2", "testValue2"},
@@ -401,9 +404,8 @@ void tst_QQuickWebView::setAndDeleteCookies()
     QTRY_COMPARE(cookieRemovedSpy.size(), 1);
 
     webView()->deleteAllCookies();
-#ifdef Q_OS_ANDROID
-    QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue);
-#endif
+    if (QWebViewFactory::loadedPluginHasKey("android_view"))
+        QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue);
     QTRY_COMPARE(cookieRemovedSpy.size(), 3);
 }
 

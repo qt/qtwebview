@@ -114,4 +114,16 @@ QWebViewPlugin *QWebViewFactory::getPlugin()
     return qobject_cast<QWebViewPlugin *>(loader->instance(index));
 }
 
+bool QWebViewFactory::loadedPluginHasKey(const QString key)
+{
+    const QString &pluginName = getPluginName();
+    // instead of creating multimap with QFactoryLoader::KeyMap and doing a search
+    // simply check if loded and key index matches
+    if (pluginName.isEmpty())
+        return false;
+    const int loadedIndex = qMax<int>(0, loader->indexOf(pluginName));
+    const int keyIndex = loader->indexOf(key);
+    return keyIndex > -1 && loadedIndex == keyIndex;
+}
+
 QT_END_NAMESPACE
