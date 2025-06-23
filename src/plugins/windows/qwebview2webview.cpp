@@ -107,27 +107,25 @@ void QWebview2WebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
     : QAbstractWebView(parent),
       m_settings(new QWebview2WebViewSettingsPrivate(this)),
+      m_window(new QWindow),
       m_isLoading(false)
 {
     // Create a QWindow without a parent
     // This window is used for initializing the WebView2
-    QWindow *hiddenWindow = new QWindow();
-    hiddenWindow->setFlag(Qt::Tool);
-    hiddenWindow->setFlag(Qt::FramelessWindowHint);  // No border
-    hiddenWindow->setFlag(Qt::WindowDoesNotAcceptFocus);  // No focus
-    hiddenWindow->setGeometry(0, 0, 1, 1);
-    hiddenWindow->setOpacity(0);
-    hiddenWindow->show();
-    m_webViewWindow = hiddenWindow;
-    HWND hWnd = (HWND)m_webViewWindow->winId();
 
-    // This is the container for WebView2 window after initialization
-    // is finished (WebView2 window initialization seems to be very
-    // sensitive, so we put it in the container after making sure that
-    // the initialization is done successfully).
-    // This needs reconsideration later because it might be the same
-    // kind of problem with this bug (QTBUG-137230)
-    m_window = new QWindow();
+    m_window->setFlag(Qt::Tool);
+    m_window->setFlag(Qt::FramelessWindowHint); // No border
+    m_window->setFlag(Qt::WindowDoesNotAcceptFocus); // No focus
+    m_window->setVisible(true);
+
+    // create platform window
+    HWND hWnd = (HWND)m_window->winId();
+
+    QTimer::singleShot(0, this, [this, hWnd]() { emit initialize(hWnd); });
+};
+
+void QWebView2WebViewPrivate::initialize(HWND hWnd)
+{
     connect(m_window, &QWindow::widthChanged, this,
             &QWebView2WebViewPrivate::updateWindowGeometry, Qt::QueuedConnection);
     connect(m_window, &QWindow::heightChanged, this,
@@ -239,6 +237,7 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
                             L"file://*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
                             COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL);
                     Q_ASSERT_SUCCEEDED(hr);
+                    QTimer::singleShot(0, this, &QWebView2WebViewPrivate::updateWindowGeometry);
                     return S_OK;
                 }).Get());
             return S_OK;
@@ -247,9 +246,7 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
 
 QWebView2WebViewPrivate::~QWebView2WebViewPrivate()
 {
-    m_webViewWindow->destroy();
     m_window->destroy();
-    m_webViewWindow = nullptr;
     m_webviewController = nullptr;
     m_webview = nullptr;
 }
@@ -595,18 +592,12 @@ HRESULT QWebView2WebViewPrivate::onContentLoading(ICoreWebView2* webview, ICoreW
 
 void QWebView2WebViewPrivate::updateWindowGeometry()
 {
-    if (!m_webviewController)
-        return;
-    if (m_webViewWindow->opacity() <= 0) {
-        m_webViewWindow->setFlag(Qt::WindowDoesNotAcceptFocus, false);
-        m_webViewWindow->setParent(m_window);
-        m_webViewWindow->setOpacity(1);
+    if (m_webviewController) {
+        RECT bounds;
+        GetClientRect((HWND)m_window->winId(), &bounds);
+        const HRESULT hr = m_webviewController->put_Bounds(bounds);
+        Q_ASSERT_SUCCEEDED(hr);
     }
-    RECT bounds;
-    GetClientRect((HWND)m_window->winId(), &bounds);
-    const HRESULT hr = m_webviewController->put_Bounds(bounds);
-    Q_ASSERT_SUCCEEDED(hr);
-    m_webViewWindow->setGeometry(0, 0, m_window->width(), m_window->height());
 }
 
 void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)

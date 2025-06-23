@@ -90,6 +90,7 @@ private Q_SLOTS:
     HRESULT onWebResourceRequested(ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args);
     HRESULT onContentLoading(ICoreWebView2* webview, ICoreWebView2ContentLoadingEventArgs* args);
     void updateWindowGeometry();
+    void initialize(HWND hWnd);
 
 protected:
     void runJavaScriptPrivate(const QString &script, int callbackId) override;
@@ -101,7 +102,6 @@ private:
     ComPtr<ICoreWebView2CookieManager> m_cookieManager;
     QWebview2WebViewSettingsPrivate *m_settings;
     QPointer<QWindow> m_window;
-    QPointer<QWindow> m_webViewWindow;
     bool m_isLoading;
     QUrl m_url;
     QWebViewInitData m_initData;
