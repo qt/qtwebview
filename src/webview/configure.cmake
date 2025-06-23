@@ -53,6 +53,7 @@ qt_configure_end_summary_section()
 
 qt_configure_add_report_entry(
     TYPE WARNING
-    MESSAGE "No WebView2 SDK found, compiling QtWebView without WebView2 plugin."
+    MESSAGE "No WebView2 SDK found, compiling QtWebView without WebView2 plugin.\n
+    Please set WEBVIEW2_SDK_ROOT to point to WebView2 SDK directory."
     CONDITION WIN32 AND MSVC AND NOT QT_FEATURE_webview_webview2_plugin
 )

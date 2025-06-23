@@ -22,7 +22,12 @@ get_cpu_arch(webview2_sdk_arch ${CMAKE_SYSTEM_PROCESSOR})
 
 if(NOT DEFINED WEBVIEW2_SDK_ROOT)
     if(DEFINED ENV{WEBVIEW2_SDK_ROOT})
-        set(WEBVIEW2_SDK_ROOT "$ENV{WEBVIEW2_SDK_ROOT}" CACHE STRING "")
+        file(TO_NATIVE_PATH "$ENV{WEBVIEW2_SDK_ROOT}" sdk_path)
+        if(NOT EXISTS ${sdk_path})
+            message(FATAL_ERROR "WEBVIEW2_SDK_ROOT set to non-existing ${sdk_path} path")
+        endif()
+        set(WEBVIEW2_SDK_ROOT "${sdk_path}" CACHE STRING "")
+        unset(sdk_path)
     endif()
 endif()
 
