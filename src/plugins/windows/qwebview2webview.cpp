@@ -134,7 +134,8 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
             &QWebView2WebViewPrivate::updateWindowGeometry, Qt::QueuedConnection);
 
     QPointer<QWebView2WebViewPrivate> thisPtr = this;
-    CreateCoreWebView2EnvironmentWithOptions(nullptr, nullptr, nullptr,
+    const QString userDataFolder = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) % QDir::separator() % QLatin1StringView("WebView2");
+    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.toStdWString().c_str(), nullptr,
     Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
         [hWnd, thisPtr, this](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
             env->CreateCoreWebView2Controller(hWnd,
