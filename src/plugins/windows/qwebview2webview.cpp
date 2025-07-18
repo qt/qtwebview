@@ -135,114 +135,129 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
 
     QPointer<QWebView2WebViewPrivate> thisPtr = this;
     const QString userDataFolder = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) % QDir::separator() % QLatin1StringView("WebView2");
-    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.toStdWString().c_str(), nullptr,
-    Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-        [hWnd, thisPtr, this](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
-            env->CreateCoreWebView2Controller(hWnd,
-                Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                [thisPtr, this](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
-                    if (thisPtr.isNull())
-                        return S_FALSE;
+    using W2ControllerCallback = ICoreWebView2CreateCoreWebView2ControllerCompletedHandler;
+    auto controllerCallback = Microsoft::WRL::Callback<W2ControllerCallback>(
+            [thisPtr, this](HRESULT result, ICoreWebView2Controller *controller) -> HRESULT {
+                if (thisPtr.isNull())
+                    return S_FALSE;
 
-                    if (!controller)
-                        return S_FALSE;
-                    HRESULT hr;
-                    m_webviewController = controller;
-                    hr = m_webviewController->get_CoreWebView2(&m_webview);
-                    Q_ASSERT_SUCCEEDED(hr);
+                if (!controller)
+                    return S_FALSE;
+                HRESULT hr;
+                m_webviewController = controller;
+                hr = m_webviewController->get_CoreWebView2(&m_webview);
+                Q_ASSERT_SUCCEEDED(hr);
 
-                    ComPtr<ICoreWebView2_2> webview2;
-                    hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
-                    Q_ASSERT_SUCCEEDED(hr);
-                    hr = webview2->get_CookieManager(&m_cookieManager);
-                    Q_ASSERT_SUCCEEDED(hr);
+                ComPtr<ICoreWebView2_2> webview2;
+                hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
+                Q_ASSERT_SUCCEEDED(hr);
+                hr = webview2->get_CookieManager(&m_cookieManager);
+                Q_ASSERT_SUCCEEDED(hr);
 
-                    m_settings->init(m_webviewController.Get());
+                m_settings->init(m_webviewController.Get());
 
-                    // Add a few settings for the webview
-                    ComPtr<ICoreWebView2Settings> settings;
-                    hr = m_webview->get_Settings(&settings);
-                    Q_ASSERT_SUCCEEDED(hr);
-                    hr = settings->put_IsScriptEnabled(m_settings->javaScriptEnabled());
-                    Q_ASSERT_SUCCEEDED(hr);
-                    hr = settings->put_AreDefaultScriptDialogsEnabled(TRUE);
-                    Q_ASSERT_SUCCEEDED(hr);
-                    hr = settings->put_IsWebMessageEnabled(TRUE);
-                    Q_ASSERT_SUCCEEDED(hr);
+                // Add a few settings for the webview
+                ComPtr<ICoreWebView2Settings> settings;
+                hr = m_webview->get_Settings(&settings);
+                Q_ASSERT_SUCCEEDED(hr);
+                hr = settings->put_IsScriptEnabled(m_settings->javaScriptEnabled());
+                Q_ASSERT_SUCCEEDED(hr);
+                hr = settings->put_AreDefaultScriptDialogsEnabled(TRUE);
+                Q_ASSERT_SUCCEEDED(hr);
+                hr = settings->put_IsWebMessageEnabled(TRUE);
+                Q_ASSERT_SUCCEEDED(hr);
 
-                    QMetaObject::invokeMethod(this,"updateWindowGeometry", Qt::QueuedConnection);
+                QMetaObject::invokeMethod(this, "updateWindowGeometry", Qt::QueuedConnection);
 
-                    //Schedule an async task to navigate to the url
-                    //Because this is a callback and it might be triggered with a delay
-                    if (!m_url.isEmpty() && m_url.isValid() && !m_url.scheme().isEmpty()) {
-                        hr = m_webview->Navigate((wchar_t*)m_url.toString().utf16());
-                        Q_ASSERT_SUCCEEDED(hr);
-                    } else if (!m_initData.m_html.isEmpty()) {
-                        hr = m_webview->NavigateToString((wchar_t*)m_initData.m_html.utf16());
-                        Q_ASSERT_SUCCEEDED(hr);
+                // Schedule an async task to navigate to the url
+                // Because this is a callback and it might be triggered with a delay
+                if (!m_url.isEmpty() && m_url.isValid() && !m_url.scheme().isEmpty()) {
+                    hr = m_webview->Navigate((wchar_t *)m_url.toString().utf16());
+                    Q_ASSERT_SUCCEEDED(hr);
+                } else if (!m_initData.m_html.isEmpty()) {
+                    hr = m_webview->NavigateToString((wchar_t *)m_initData.m_html.utf16());
+                    Q_ASSERT_SUCCEEDED(hr);
+                }
+                if (m_initData.m_cookies.size() > 0) {
+                    for (auto it = m_initData.m_cookies.constBegin();
+                         it != m_initData.m_cookies.constEnd(); ++it)
+                        setCookie(it->domain, it->name, it.value().value);
+                }
+                if (!m_initData.m_httpUserAgent.isEmpty()) {
+                    ComPtr<ICoreWebView2Settings2> settings2;
+                    hr = settings->QueryInterface(IID_PPV_ARGS(&settings2));
+                    if (settings2) {
+                        hr = settings2->put_UserAgent(
+                                (wchar_t *)m_initData.m_httpUserAgent.utf16());
+                        if (SUCCEEDED(hr))
+                            QTimer::singleShot(0, thisPtr, [thisPtr] {
+                                if (!thisPtr.isNull())
+                                    emit thisPtr->httpUserAgentChanged(
+                                            thisPtr->m_initData.m_httpUserAgent);
+                            });
                     }
-                    if (m_initData.m_cookies.size() > 0) {
-                        for (auto it = m_initData.m_cookies.constBegin();
-                             it != m_initData.m_cookies.constEnd(); ++it)
-                            setCookie(it->domain, it->name, it.value().value);
-                    }
-                    if (!m_initData.m_httpUserAgent.isEmpty()) {
-                        ComPtr<ICoreWebView2Settings2> settings2;
-                        hr = settings->QueryInterface(IID_PPV_ARGS(&settings2));
-                        if (settings2) {
-                            hr = settings2->put_UserAgent((wchar_t*)m_initData.m_httpUserAgent.utf16());
-                            if (SUCCEEDED(hr))
-                                QTimer::singleShot(0, thisPtr, [thisPtr]{
-                                    if (!thisPtr.isNull())
-                                        emit thisPtr->httpUserAgentChanged(thisPtr->m_initData.m_httpUserAgent);
-                                });
-                        }
-                    }
+                }
 
-                    EventRegistrationToken token;
-                    hr = m_webview->add_NavigationStarting(
+                EventRegistrationToken token;
+                hr = m_webview->add_NavigationStarting(
                         Microsoft::WRL::Callback<ICoreWebView2NavigationStartingEventHandler>(
-                        [this](ICoreWebView2* webview,
-                               ICoreWebView2NavigationStartingEventArgs* args) -> HRESULT {
-                            return this->onNavigationStarting(webview, args);
-                        }).Get(), &token);
-                    Q_ASSERT_SUCCEEDED(hr);
+                                [this](ICoreWebView2 *webview,
+                                       ICoreWebView2NavigationStartingEventArgs *args) -> HRESULT {
+                                    return this->onNavigationStarting(webview, args);
+                                })
+                                .Get(),
+                        &token);
+                Q_ASSERT_SUCCEEDED(hr);
 
-                    hr = m_webview->add_NavigationCompleted(
+                hr = m_webview->add_NavigationCompleted(
                         Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(
-                        [this](ICoreWebView2* webview,
-                               ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
-                            return this->onNavigationCompleted(webview, args);
-                        }).Get(), &token);
-                    Q_ASSERT_SUCCEEDED(hr);
+                                [this](ICoreWebView2 *webview,
+                                       ICoreWebView2NavigationCompletedEventArgs *args) -> HRESULT {
+                                    return this->onNavigationCompleted(webview, args);
+                                })
+                                .Get(),
+                        &token);
+                Q_ASSERT_SUCCEEDED(hr);
 
-                    m_webview->add_WebResourceRequested(
+                m_webview->add_WebResourceRequested(
                         Microsoft::WRL::Callback<ICoreWebView2WebResourceRequestedEventHandler>(
-                        [this](ICoreWebView2* webview,
-                               ICoreWebView2WebResourceRequestedEventArgs* args) -> HRESULT {
-                            return this->onWebResourceRequested(webview, args);
-                        }).Get(), &token);
+                                [this](ICoreWebView2 *webview,
+                                       ICoreWebView2WebResourceRequestedEventArgs *args)
+                                        -> HRESULT {
+                                    return this->onWebResourceRequested(webview, args);
+                                })
+                                .Get(),
+                        &token);
 
-                    hr = m_webview->add_ContentLoading(
-                            Microsoft::WRL::Callback<ICoreWebView2ContentLoadingEventHandler>(
-                            [this](ICoreWebView2* webview,
-                                           ICoreWebView2ContentLoadingEventArgs* args) -> HRESULT {
-                                return this->onContentLoading(webview, args);
-                            }).Get(), &token);
-                    Q_ASSERT_SUCCEEDED(hr);
+                hr = m_webview->add_ContentLoading(
+                        Microsoft::WRL::Callback<ICoreWebView2ContentLoadingEventHandler>(
+                                [this](ICoreWebView2 *webview,
+                                       ICoreWebView2ContentLoadingEventArgs *args) -> HRESULT {
+                                    return this->onContentLoading(webview, args);
+                                })
+                                .Get(),
+                        &token);
+                Q_ASSERT_SUCCEEDED(hr);
 
-                    ComPtr<ICoreWebView2_22> webview22;
-                    hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview22));
-                    Q_ASSERT_SUCCEEDED(hr);
-                    hr = webview22->AddWebResourceRequestedFilterWithRequestSourceKinds(
-                            L"file://*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
-                            COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL);
-                    Q_ASSERT_SUCCEEDED(hr);
-                    QTimer::singleShot(0, this, &QWebView2WebViewPrivate::updateWindowGeometry);
-                    return S_OK;
-                }).Get());
-            return S_OK;
-         }).Get());
+                ComPtr<ICoreWebView2_22> webview22;
+                hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview22));
+                Q_ASSERT_SUCCEEDED(hr);
+                hr = webview22->AddWebResourceRequestedFilterWithRequestSourceKinds(
+                        L"file://*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
+                        COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL);
+                Q_ASSERT_SUCCEEDED(hr);
+                QTimer::singleShot(0, this, &QWebView2WebViewPrivate::updateWindowGeometry);
+                return S_OK;
+            });
+    using W2EnvironmentCallback = ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler;
+    auto environmentCallback = Microsoft::WRL::Callback<W2EnvironmentCallback>(
+            [hWnd, thisPtr, controllerCallback, this](HRESULT result,
+                                                      ICoreWebView2Environment *env) -> HRESULT {
+                env->CreateCoreWebView2Controller(hWnd, controllerCallback.Get());
+                return S_OK;
+            });
+    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.toStdWString().c_str(),
+                                             nullptr, environmentCallback.Get());
 }
 
 QWebView2WebViewPrivate::~QWebView2WebViewPrivate()
