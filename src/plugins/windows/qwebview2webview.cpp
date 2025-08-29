@@ -239,6 +239,16 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
                         &token);
                 Q_ASSERT_SUCCEEDED(hr);
 
+                hr = m_webview->add_NewWindowRequested(
+                        Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(
+                                [this](ICoreWebView2 *webview,
+                                       ICoreWebView2NewWindowRequestedEventArgs *args) -> HRESULT {
+                                    return this->onNewWindowRequested(webview, args);
+                                })
+                                .Get(),
+                        &token);
+                Q_ASSERT_SUCCEEDED(hr);
+
                 ComPtr<ICoreWebView2_22> webview22;
                 hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview22));
                 Q_ASSERT_SUCCEEDED(hr);
@@ -603,6 +613,15 @@ HRESULT QWebView2WebViewPrivate::onContentLoading(ICoreWebView2* webview, ICoreW
                                                    QWebView::LoadStartedStatus,
                                                    QString()));
     emit loadProgressChanged(0);
+    return S_OK;
+}
+
+HRESULT QWebView2WebViewPrivate::onNewWindowRequested(ICoreWebView2* webview, ICoreWebView2NewWindowRequestedEventArgs* args)
+{
+    Q_UNUSED(webview);
+    // This blocks the spawning of new windows we don't control
+    // FIXME actually handle new windows when QWebView has the API for them
+    args->put_Handled(TRUE);
     return S_OK;
 }
 

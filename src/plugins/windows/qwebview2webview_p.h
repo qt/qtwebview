@@ -89,6 +89,7 @@ private Q_SLOTS:
     HRESULT onNavigationCompleted(ICoreWebView2* webview, ICoreWebView2NavigationCompletedEventArgs* args);
     HRESULT onWebResourceRequested(ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args);
     HRESULT onContentLoading(ICoreWebView2* webview, ICoreWebView2ContentLoadingEventArgs* args);
+    HRESULT onNewWindowRequested(ICoreWebView2* webview, ICoreWebView2NewWindowRequestedEventArgs* args);
     void updateWindowGeometry();
     void initialize(HWND hWnd);
 
