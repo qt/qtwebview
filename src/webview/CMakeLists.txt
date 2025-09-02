@@ -30,13 +30,6 @@ qt_internal_add_module(WebView
     NO_GENERATE_CPP_EXPORTS
 )
 
-qt_internal_extend_target(WebView CONDITION WIN32 AND TARGET Qt::WebEngineQuick
-    PUBLIC_LIBRARIES
-        Qt::WebEngineQuick
-    DEFINES
-        QTWEBVIEW_LINK_WEBENGINE
-)
-
 if(ANDROID)
     set_property(TARGET WebView APPEND PROPERTY QT_ANDROID_BUNDLED_JAR_DEPENDENCIES
         jar/QtAndroidWebView.jar
