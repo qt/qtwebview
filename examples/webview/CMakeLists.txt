@@ -3,4 +3,5 @@
 
 if(TARGET Qt6::WebView)
     qt_internal_add_example(minibrowser)
+    qt_internal_add_example(webviewbrowser)
 endif()
