@@ -116,7 +116,6 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
     m_window->setFlag(Qt::Tool);
     m_window->setFlag(Qt::FramelessWindowHint); // No border
     m_window->setFlag(Qt::WindowDoesNotAcceptFocus); // No focus
-    m_window->setVisible(true);
 
     // create platform window
     HWND hWnd = (HWND)m_window->winId();
