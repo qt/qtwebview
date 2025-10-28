@@ -168,8 +168,6 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
                 hr = settings->put_IsWebMessageEnabled(TRUE);
                 Q_ASSERT_SUCCEEDED(hr);
 
-                QMetaObject::invokeMethod(this, "updateWindowGeometry", Qt::QueuedConnection);
-
                 // Schedule an async task to navigate to the url
                 // Because this is a callback and it might be triggered with a delay
                 if (!m_url.isEmpty() && m_url.isValid() && !m_url.scheme().isEmpty()) {
@@ -257,7 +255,7 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
                         L"file://*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
                         COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL);
                 Q_ASSERT_SUCCEEDED(hr);
-                QTimer::singleShot(0, this, &QWebView2WebViewPrivate::updateWindowGeometry);
+                this->updateWindowGeometry();
                 return S_OK;
             });
     using W2EnvironmentCallback = ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler;
