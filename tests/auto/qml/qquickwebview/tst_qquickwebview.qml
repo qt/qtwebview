@@ -226,5 +226,19 @@ RowLayout {
             }
             tryCompare(webView.cookieRemovedSpy.signalArguments, "length", 3);
         }
+
+        function test_setCookie() {
+            // These should not be accepted, and shouldn't cause a crash
+            webView.setCookie("", "", "testValue");
+            webView.setCookie(".fake.domain", "", "testValue");
+            webView.setCookie("", "fakeName", "testValue");
+
+            wait(200);
+            compare(webView.cookieAddedSpy.signalArguments.length, 0);
+
+            // This should be accepted, as a cookie with an empty value is valid
+            webView.setCookie(".fake.domain", "fakeName", "");
+            tryCompare(webView.cookieAddedSpy.signalArguments, "length", 1)
+        }
     }
 }

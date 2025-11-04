@@ -309,7 +309,8 @@ void QWebView::runJavaScript(const QString &script,
 */
 void QWebView::setCookie(const QString &domain, const QString &name, const QString &value)
 {
-    d->setCookie(domain, name, value);
+    if (domain.size() && name.size())
+        d->setCookie(domain, name, value);
 }
 
 /*!
