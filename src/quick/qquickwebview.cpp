@@ -72,7 +72,6 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView, &QWebView::urlChanged, this, &QQuickWebView::urlChanged);
     connect(m_webView, &QWebView::loadProgressChanged, this, &QQuickWebView::loadProgressChanged);
     connect(m_webView, &QWebView::loadingChanged, this, &QQuickWebView::onLoadingChanged);
-    connect(m_webView, &QWebView::javaScriptResult, this, &QQuickWebView::onRunJavaScriptResult);
     connect(m_webView, &QWebView::httpUserAgentChanged, this, &QQuickWebView::httpUserAgentChanged);
     connect(m_webView, &QWebView::cookieAdded, this, &QQuickWebView::cookieAdded);
     connect(m_webView, &QWebView::cookieRemoved, this, &QQuickWebView::cookieRemoved);
@@ -272,13 +271,24 @@ void QQuickWebView::loadHtml(const QString &html, const QUrl &baseUrl)
 */
 void QQuickWebView::runJavaScript(const QString &script, const QJSValue &callback)
 {
-    const int callbackId = callback.isCallable() ? callbacks->insertCallback(callback) : -1;
-    runJavaScriptPrivate(script, callbackId);
-}
+    if (callback.isCallable()) {
+        int callbackId = callbacks->insertCallback(callback);
+        QPointer<QQmlEngine> weakEngine = qmlEngine(this);
+        m_webView->runJavaScript(script, [callbackId, weakEngine](const QVariant &result) {
+            QJSValue callback = callbacks->takeCallback(callbackId);
+            if (!weakEngine) {
+                qWarning("No JavaScript engine, unable to handle JavaScript callback!");
+                return;
+            }
 
-void QQuickWebView::runJavaScriptPrivate(const QString &script, int callbackId)
-{
-    m_webView->runJavaScriptPrivate(script, callbackId);
+            Q_ASSERT(callback.isCallable());
+            QJSValueList args;
+            args.append(weakEngine->toScriptValue(result));
+            callback.call(args);
+        });
+    } else {
+        m_webView->runJavaScript(script);
+    }
 }
 
 /*!
@@ -333,35 +343,10 @@ void QQuickWebView::deleteAllCookies()
     m_webView->deleteAllCookies();
 }
 
-void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)
-{
-    if (id == -1)
-        return;
-
-    QJSValue callback = callbacks->takeCallback(id);
-    if (callback.isUndefined())
-        return;
-
-    QQmlEngine *engine = qmlEngine(this);
-    if (engine == 0) {
-        qWarning("No JavaScript engine, unable to handle JavaScript callback!");
-        return;
-    }
-
-    QJSValueList args;
-    args.append(engine->toScriptValue(variant));
-    callback.call(args);
-}
-
 void QQuickWebView::onLoadingChanged(const QWebViewLoadRequest &loadRequest)
 {
     QQuickWebViewLoadRequest qqLoadRequest(loadRequest);
     Q_EMIT loadingChanged(&qqLoadRequest);
-}
-
-QJSValue QQuickWebView::takeCallback(int id)
-{
-    return callbacks->takeCallback(id);
 }
 
 /*!

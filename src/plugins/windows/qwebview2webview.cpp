@@ -637,14 +637,15 @@ void QWebView2WebViewPrivate::updateWindowGeometry()
     }
 }
 
-void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)
+void QWebView2WebViewPrivate::runJavaScript(
+        const QString &script, const std::function<void(const QVariant &)> &resultCallback)
 {
     if (m_webview) {
-        const HRESULT hr = m_webview->ExecuteScript(
+        m_webview->ExecuteScript(
                 (wchar_t *)script.utf16(),
                 Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
-                        [this, callbackId](HRESULT errorCode,
-                                           LPCWSTR resultObjectAsJson) -> HRESULT {
+                        [this, resultCallback](HRESULT errorCode,
+                                               LPCWSTR resultObjectAsJson) -> HRESULT {
                             QString resultStr = QString::fromWCharArray(resultObjectAsJson);
 
                             QJsonParseError parseError;
@@ -664,15 +665,16 @@ void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int ca
                                     resultVariant = val.toVariant();
                                 }
                             }
-                            if (errorCode != S_OK)
-                                emit q_ptr->javaScriptResult(callbackId,
-                                                             qt_error_string(errorCode));
-                            else
-                                emit q_ptr->javaScriptResult(callbackId, resultVariant);
+                            QVariant r =
+                                    errorCode == S_OK ? resultVariant : qt_error_string(errorCode);
+                            if (resultCallback)
+                                resultCallback(r);
                             return errorCode;
                         })
                         .Get());
-        Q_ASSERT_SUCCEEDED(hr);
+    } else {
+        if (resultCallback)
+            resultCallback(QVariant());
     }
 }
 

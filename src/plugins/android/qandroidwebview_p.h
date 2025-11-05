@@ -80,16 +80,21 @@ public:
     void deleteCookie(const QString &domain, const QString &name) override;
     void deleteAllCookies() override;
 
+    void runJavaScript(const QString &script,
+                       const std::function<void(const QVariant &)> &resultCallback) override;
+
+    void javaScriptResult(int id, const QVariant &result);
+
 protected:
-    void runJavaScriptPrivate(const QString& script,
-                              int callbackId) override;
     QWebViewSettingsPrivate *settings() const override;
 
 private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);
 
 private:
-    quint64 m_callbackId;
+    int m_callbackId;
+    QMap<int, std::function<void(const QVariant &)>> m_callbacks;
+
     QWindow *m_window;
     QtJniTypes::WebViewController m_viewController;
     QtJniTypes::WebView m_webView;

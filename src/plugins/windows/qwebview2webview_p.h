@@ -86,8 +86,10 @@ public:
     void setCookie(const QString &domain, const QString &name, const QString &value) override;
     void deleteCookie(const QString &domain, const QString &name) override;
     void deleteAllCookies() override;
+    void runJavaScript(const QString &script,
+                       const std::function<void(const QVariant &)> &resultCallback) override;
 
-private Q_SLOTS:
+private:
     HRESULT onNavigationStarting(ICoreWebView2* webview, ICoreWebView2NavigationStartingEventArgs* args);
     HRESULT onNavigationCompleted(ICoreWebView2* webview, ICoreWebView2NavigationCompletedEventArgs* args);
     HRESULT onWebResourceRequested(ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args);
@@ -97,7 +99,6 @@ private Q_SLOTS:
     void initialize(HWND hWnd);
 
 protected:
-    void runJavaScriptPrivate(const QString &script, int callbackId) override;
     QWebViewSettingsPrivate *settings() const override;
 
 private:

@@ -195,11 +195,12 @@ void QWasmWebViewPrivate::deleteAllCookies()
     qWarning("deleteAllCookies() not supported on this platform");
 }
 
-void QWasmWebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)
+void QWasmWebViewPrivate::runJavaScript(const QString &script,
+                                        const std::function<void(const QVariant &)> &resultCallback)
 {
     Q_UNUSED(script);
-    Q_UNUSED(callbackId);
-    qWarning("runJavaScriptPrivate() not supported on this platform");
+    Q_UNUSED(resultCallback);
+    qWarning("runJavaScript() not supported on this platform");
 }
 
 QWebViewSettingsPrivate *QWasmWebViewPrivate::settings() const

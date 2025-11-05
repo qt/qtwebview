@@ -93,17 +93,11 @@ Q_SIGNALS:
     Q_REVISION(6, 3) void cookieAdded(const QString &domain, const QString &name);
     Q_REVISION(6, 3) void cookieRemoved(const QString &domain, const QString &name);
 
-protected:
-    void runJavaScriptPrivate(const QString &script, int callbackId);
-
 private Q_SLOTS:
-    void onRunJavaScriptResult(int id, const QVariant &variant);
     void onLoadingChanged(const QWebViewLoadRequest &loadRequest);
 
 private:
     friend class QWebEngineWebViewPrivate;
-    static QJSValue takeCallback(int id);
-
     QWebView *m_webView;
     QQuickWebViewSettings *m_settings;
 };

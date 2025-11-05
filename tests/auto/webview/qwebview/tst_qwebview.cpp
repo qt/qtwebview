@@ -142,7 +142,6 @@ void tst_QWebView::loadHtml()
     QWebView view;
     QCOMPARE(view.loadProgress(), 0);
     QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequest)));
-    QSignalSpy javaScriptResultSpy(&view, SIGNAL(javaScriptResult(int, QVariant)));
     view.loadHtml(content, loadUrl);
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
@@ -151,15 +150,15 @@ void tst_QWebView::loadHtml()
     // take load finished
     const QWebViewLoadRequest &lr = loadChangedSingalSpy.at(1).at(0).value<QWebViewLoadRequest>();
     QCOMPARE(lr.status(), QWebViewLoadRequest::LoadStatus::LoadSucceededStatus);
-    if (QWebViewFactory::loadedPluginHasKey("android_view")) {
-        // WebEngine javascript calls work only with qmlengine, however here we use
-        // c++ interface
-        int callback = 1;
-        view.runJavaScriptPrivate("document.baseURI", callback);
-        QTRY_COMPARE(javaScriptResultSpy.size(), 1);
-        QCOMPARE(javaScriptResultSpy.at(0).at(0), callback);
-        QCOMPARE(javaScriptResultSpy.at(0).at(1).value<QUrl>(), resultUrl);
-    }
+    bool called = false;
+    QUrl url;
+    auto callback = [&](const QVariant &result) {
+        called = true;
+        url = result.value<QUrl>();
+    };
+    view.runJavaScript("document.baseURI", callback);
+    QTRY_COMPARE(called, true);
+    QCOMPARE(url, resultUrl);
 
     QVERIFY(view.url().isValid());
     QCOMPARE(view.url(), resultUrl);

@@ -65,11 +65,12 @@ public:
     virtual void stop() = 0;
     virtual void reload() = 0;
     virtual void loadHtml(const QString &html, const QUrl &baseUrl) = 0;
-    virtual void runJavaScriptPrivate(const QString &script, int callbackId) = 0;
     virtual void setCookie(const QString &domain, const QString &name, const QString &value) = 0;
     virtual void deleteCookie(const QString &domain, const QString &name) = 0;
     virtual void deleteAllCookies() = 0;
     virtual QWindow *nativeWindow() const = 0;
+    virtual void runJavaScript(const QString &script,
+                               const std::function<void(const QVariant &)> &resultCallback) = 0;
 
 protected:
     explicit QWebViewPrivate(QWebView *view) : q_ptr(view) { };

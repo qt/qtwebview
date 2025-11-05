@@ -460,13 +460,16 @@ QVariant fromJSValue(id result)
     return QVariant();
 }
 
-void QDarwinWebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)
+void QDarwinWebViewPrivate::runJavaScript(
+        const QString &script, const std::function<void(const QVariant &)> &resultCallback)
 {
+    std::function<void(const QVariant &)> callbackCopy = resultCallback;
     QPointer<QDarwinWebViewPrivate> observer(this);
     [wkWebView evaluateJavaScript:script.toNSString()
-                completionHandler:^(id result, NSError *) {
-                    if (callbackId != -1 && observer)
-                        emit q_ptr->javaScriptResult(callbackId, fromJSValue(result));
+                completionHandler:^(id result, NSError *error) {
+                    QVariant r = error ? QVariant() : fromJSValue(result);
+                    if (callbackCopy && observer)
+                        callbackCopy(r);
                 }];
 }
 

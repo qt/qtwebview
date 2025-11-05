@@ -22,12 +22,12 @@
 
 #include <QtQml/qqmlcomponent.h>
 
-#include <private/qwebview_p.h>
+#include <QtWebView/private/qwebview_p.h>
 #include <QtWebEngineQuick/QQuickWebEngineProfile>
 #include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
 
 #include <QtCore/qpointer.h>
-
+#include <QVariant>
 QT_BEGIN_NAMESPACE
 
 class QQuickItem;
@@ -84,7 +84,6 @@ public:
     QWebViewSettingsPrivate *settings() const override;
     QWindow *nativeWindow() const override { return nullptr; }
 
-public Q_SLOTS:
     void goBack() override;
     void goForward() override;
     void reload() override;
@@ -94,6 +93,8 @@ public Q_SLOTS:
                    const QString &value) override;
     void deleteCookie(const QString &domain, const QString &name) override;
     void deleteAllCookies() override;
+    void runJavaScript(const QString &script,
+                       const std::function<void(const QVariant &)> &resultCallback) override;
 
 private Q_SLOTS:
     void q_urlChanged();
@@ -105,9 +106,6 @@ private Q_SLOTS:
     void q_cookieAdded(const QNetworkCookie &cookie);
     void q_cookieRemoved(const QNetworkCookie &cookie);
 
-protected:
-    void runJavaScriptPrivate(const QString& script,
-                              int callbackId) override;
 private:
     friend class QWebEngineWebViewSettingsPrivate;
 

@@ -190,19 +190,19 @@ QString QAndroidWebViewPrivate::title() const
     return m_viewController.callMethod<QString>("getTitle");
 }
 
-void QAndroidWebViewPrivate::runJavaScriptPrivate(const QString &script,
-                                                  int callbackId)
+void QAndroidWebViewPrivate::runJavaScript(
+        const QString &script, const std::function<void(const QVariant &)> &resultCallback)
 {
     if (QtAndroidPrivate::androidSdkVersion() < 19) {
         qWarning("runJavaScript() requires API level 19 or higher.");
-        if (callbackId == -1)
-            return;
-
-        // Emit signal here to remove the callback.
-        emit q_ptr->javaScriptResult(callbackId, QVariant());
+        if (resultCallback)
+            resultCallback(QVariant());
+        return;
     }
 
-    m_viewController.callMethod<void>("runJavaScript", script, jlong(callbackId));
+    m_callbacks.insert(m_callbackId, resultCallback);
+    m_viewController.callMethod<void>("runJavaScript", script, jlong(m_callbackId));
+    ++m_callbackId;
 }
 
 QWebViewSettingsPrivate *QAndroidWebViewPrivate::settings() const
@@ -259,6 +259,17 @@ void QAndroidWebViewPrivate::onApplicationStateChanged(Qt::ApplicationState stat
         m_viewController.callMethod<void>("onPause");
 }
 
+void QAndroidWebViewPrivate::javaScriptResult(int id, const QVariant &result)
+{
+    auto it = m_callbacks.find(id);
+    if (it != m_callbacks.end()) {
+        auto callback = it.value();
+        if (callback)
+            callback(result);
+        m_callbacks.erase(it);
+    }
+}
+
 static void c_onRunJavaScriptResult(JNIEnv *env,
                                     jobject thiz,
                                     jlong id,
@@ -285,8 +296,8 @@ static void c_onRunJavaScriptResult(JNIEnv *env,
         jsonValue = object.value(QStringLiteral("data"));
     }
 
-    emit wc->q_ptr->javaScriptResult(int(callbackId),
-                                     jsonValue.isNull() ? resultString : jsonValue.toVariant());
+    wc->javaScriptResult(int(callbackId),
+                         jsonValue.isNull() ? resultString : jsonValue.toVariant());
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onRunJavaScriptResult)
 

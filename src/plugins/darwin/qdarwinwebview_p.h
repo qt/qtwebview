@@ -82,9 +82,8 @@ public:
     void deleteCookie(const QString &domain, const QString &name) override;
     void deleteAllCookies() override;
 
-protected:
-    void runJavaScriptPrivate(const QString& script,
-                              int callbackId) override;
+    void runJavaScript(const QString &script,
+                       const std::function<void(const QVariant &)> &resultCallback) override;
 
 public:
     WKWebView *wkWebView;

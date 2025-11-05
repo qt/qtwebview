@@ -76,9 +76,10 @@ public:
     void deleteCookie(const QString &domain, const QString &name) final;
     void deleteAllCookies() final;
 
+    void runJavaScript(const QString &script,
+                       const std::function<void(const QVariant &)> &resultCallback) final;
+
 protected:
-    void runJavaScriptPrivate(const QString& script,
-                              int callbackId) final;
     QWebViewSettingsPrivate *settings() const final;
 
 private:

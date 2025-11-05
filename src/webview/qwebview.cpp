@@ -102,10 +102,10 @@ void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
     d->loadHtml(html, baseUrl);
 }
 
-void QWebView::runJavaScriptPrivate(const QString &script,
-                                    int callbackId)
+void QWebView::runJavaScript(const QString &script,
+                             const std::function<void(const QVariant &)> &resultCallback)
 {
-    d->runJavaScriptPrivate(script, callbackId);
+    return d->runJavaScript(script, resultCallback);
 }
 
 void QWebView::setCookie(const QString &domain, const QString &name, const QString &value)

@@ -61,20 +61,17 @@ public:
     Q_INVOKABLE void deleteCookie(const QString &domain, const QString &name);
     Q_INVOKABLE void deleteAllCookies();
 
-    // FIXME runjavascript
+    void runJavaScript(const QString &script,
+                       const std::function<void(const QVariant &)> &resultCallback = {});
 
 Q_SIGNALS:
     void titleChanged(QString title);
     void urlChanged(QUrl url);
     void loadingChanged(const QWebViewLoadRequest &loadRequest);
     void loadProgressChanged(int loadProgress);
-    void javaScriptResult(int id, const QVariant &result);
     void httpUserAgentChanged(QString userAgent);
     void cookieAdded(const QString &domain, const QString &name);
     void cookieRemoved(const QString &domain, const QString &name);
-
-protected:
-    void runJavaScriptPrivate(const QString &script, int callbackId);
 
 private:
     Q_DISABLE_COPY(QWebView)

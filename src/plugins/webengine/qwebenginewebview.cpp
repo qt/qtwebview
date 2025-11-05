@@ -121,10 +121,10 @@ QString QWebEngineWebViewPrivate::title() const
     return m_webEngineView->title();
 }
 
-void QWebEngineWebViewPrivate::runJavaScriptPrivate(const QString &script,
-                                                    int callbackId)
+void QWebEngineWebViewPrivate::runJavaScript(
+        const QString &script, const std::function<void(const QVariant &)> &resultCallback)
 {
-    m_webEngineView->runJavaScript(script, QQuickWebView::takeCallback(callbackId));
+    m_webEngineView->runJavaScript(script, resultCallback);
 }
 
 void QWebEngineWebViewPrivate::setCookie(const QString &domain, const QString &name, const QString &value)
