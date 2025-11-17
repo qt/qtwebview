@@ -145,7 +145,8 @@ void QAndroidWebViewPrivate::loadHtml(const QString &html, const QUrl &baseUrl)
         // andorid webview in case of non data baseURL scheme will loaded 'html' into the WebView as
         // a plain string meaning any url encoded entities in the string will not be decoded.
         m_viewController.callMethod<void>("loadDataWithBaseURL", baseUrl.toString(), html,
-                                          mimeTypeString, jstring(nullptr), jstring(nullptr));
+                                          mimeTypeString, jstring(nullptr),
+                                          baseUrl.isValid() ? baseUrl.toString() : QString());
     }
 }
 
