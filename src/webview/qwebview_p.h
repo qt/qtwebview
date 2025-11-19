@@ -66,8 +66,7 @@ private:
     QPointer<QAbstractWebViewSettings> d;
 };
 
-class Q_WEBVIEW_EXPORT QWebView
-        : public QAbstractWebView
+class Q_WEBVIEW_EXPORT QWebView : public QWindow
 {
     Q_OBJECT
 public:
@@ -78,36 +77,33 @@ public:
         LoadFailedStatus
     };
 
-    explicit QWebView(QObject *p = nullptr);
+    explicit QWebView(QWindow *parent = nullptr);
     ~QWebView() override;
 
-    QString httpUserAgent() const override;
-    void setHttpUserAgent(const QString &httpUserAgent) override;
-    QUrl url() const override;
-    void setUrl(const QUrl &url) override;
-    bool canGoBack() const override;
-    bool canGoForward() const override;
-    QString title() const override;
-    int loadProgress() const override;
-    bool isLoading() const override;
+    QString httpUserAgent() const;
+    void setHttpUserAgent(const QString &httpUserAgent);
+    QUrl url() const;
+    void setUrl(const QUrl &url);
+    bool canGoBack() const;
+    bool canGoForward() const;
+    QString title() const;
+    int loadProgress() const;
+    bool isLoading() const;
 
-    QWebViewSettings *settings() const override;
-    QWindow *nativeWindow() const override;
-
+    QWebViewSettings *settings() const;
     // NOTE: This is a temporary solution for WASM and should
     // be removed once window containers are supported.
     static QAbstractWebView *get(QWebView &q) { return q.d; }
 
 public Q_SLOTS:
-    void goBack() override;
-    void goForward() override;
-    void reload() override;
-    void stop() override;
-    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl()) override;
-    void setCookie(const QString &domain, const QString &name,
-                          const QString &value) override;
-    void deleteCookie(const QString &domain, const QString &name) override;
-    void deleteAllCookies() override;
+    void goBack();
+    void goForward();
+    void reload();
+    void stop();
+    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl());
+    void setCookie(const QString &domain, const QString &name, const QString &value);
+    void deleteCookie(const QString &domain, const QString &name);
+    void deleteAllCookies();
 
 Q_SIGNALS:
     void titleChanged();
@@ -120,8 +116,7 @@ Q_SIGNALS:
     void cookieRemoved(const QString &domain, const QString &name);
 
 protected:
-    void runJavaScriptPrivate(const QString &script,
-                              int callbackId) override;
+    void runJavaScriptPrivate(const QString &script, int callbackId);
 
 private Q_SLOTS:
     void onTitleChanged(const QString &title);

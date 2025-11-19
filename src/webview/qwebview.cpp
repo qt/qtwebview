@@ -10,11 +10,11 @@
 
 QT_BEGIN_NAMESPACE
 
-QWebView::QWebView(QObject *p)
-    : QAbstractWebView(p)
-    , d(QWebViewFactory::createWebView())
-    , m_settings(new QWebViewSettings(d->settings()))
-    , m_progress(0)
+QWebView::QWebView(QWindow *parent)
+    : QWindow(parent),
+      d(QWebViewFactory::createWebView()),
+      m_settings(new QWebViewSettings(d->settings())),
+      m_progress(0)
 {
     d->setParent(this);
     qRegisterMetaType<QWebViewLoadRequestPrivate>();
@@ -32,6 +32,7 @@ QWebView::QWebView(QObject *p)
 
 QWebView::~QWebView()
 {
+    delete d;
 }
 
 QString QWebView::httpUserAgent() const
@@ -105,11 +106,6 @@ bool QWebView::isLoading() const
 QWebViewSettings *QWebView::settings() const
 {
     return m_settings;
-}
-
-QWindow *QWebView::nativeWindow() const
-{
-    return d->nativeWindow();
 }
 
 void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
