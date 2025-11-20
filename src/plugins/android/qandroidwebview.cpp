@@ -76,9 +76,12 @@ void QAndroidWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 typedef QSet<QAndroidWebViewPrivate *> WebViews;
 Q_GLOBAL_STATIC(WebViews, g_webViews)
 
-QAndroidWebViewPrivate::QAndroidWebViewPrivate(QObject *p)
-    : QAbstractWebView(p) , m_callbackId(0) , m_window(nullptr)
-    , m_viewController(nullptr) , m_webView(nullptr)
+QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *view)
+    : QAbstractWebView(view),
+      m_callbackId(0),
+      m_window(nullptr),
+      m_viewController(nullptr),
+      m_webView(nullptr)
 {
     // QtAndroidWebViewController constructor blocks a qGuiThread until
     // the WebView is created and configured in UI thread.

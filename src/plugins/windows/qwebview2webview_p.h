@@ -62,7 +62,7 @@ class QWebView2WebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QWebView2WebViewPrivate(QObject *parent = nullptr);
+    explicit QWebView2WebViewPrivate(QWebView *view);
     ~QWebView2WebViewPrivate() override;
 
     QString httpUserAgent() const override;

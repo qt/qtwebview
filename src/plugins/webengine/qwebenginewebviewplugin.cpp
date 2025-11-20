@@ -13,9 +13,9 @@ class QWebEngineWebViewPlugin : public QWebViewPlugin
     Q_PLUGIN_METADATA(IID QWebViewPluginInterface_iid FILE "webengine.json")
 
 public:
-    QAbstractWebView *create(const QString &key) const override
+    QAbstractWebView *create(const QString &key, QWebView *view) const override
     {
-        return (key == QLatin1String("webview")) ? new QWebEngineWebViewPrivate() : nullptr;
+        return (key == QLatin1String("webview")) ? new QWebEngineWebViewPrivate(view) : nullptr;
     }
 
     void prepare() const override { }

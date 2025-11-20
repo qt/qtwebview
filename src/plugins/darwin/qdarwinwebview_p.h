@@ -57,7 +57,7 @@ class QDarwinWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QDarwinWebViewPrivate(QObject *p = nullptr);
+    explicit QDarwinWebViewPrivate(QWebView *view);
     ~QDarwinWebViewPrivate() override;
 
     QString httpUserAgent() const override;

@@ -13,9 +13,9 @@ class QWasmWebViewPlugin : public QWebViewPlugin
     Q_PLUGIN_METADATA(IID QWebViewPluginInterface_iid FILE "wasm.json")
 
 public:
-    QAbstractWebView *create(const QString &key) const override
+    QAbstractWebView *create(const QString &key, QWebView *view) const override
     {
-        return key == QLatin1String("webview") ? new QWasmWebViewPrivate() : nullptr;
+        return key == QLatin1String("webview") ? new QWasmWebViewPrivate(view) : nullptr;
     }
 };
 

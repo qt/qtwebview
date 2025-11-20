@@ -35,7 +35,7 @@ static QByteArray qmlSource()
                              "}\n");
 }
 
-QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QObject *p)
+QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
     : QAbstractWebView(p), m_profile(nullptr)
 {
     m_settings = new QWebEngineWebViewSettingsPrivate(this);

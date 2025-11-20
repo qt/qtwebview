@@ -72,7 +72,7 @@ void QWasmWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
     qWarning("setAllowFileAccess() not supported on this platform");
 }
 
-QWasmWebViewPrivate::QWasmWebViewPrivate(QObject *p) : QAbstractWebView(p), m_window(0)
+QWasmWebViewPrivate::QWasmWebViewPrivate(QWebView *view) : QAbstractWebView(view), m_window(0)
 {
     m_settings = new QWasmWebViewSettingsPrivate(this);
 }

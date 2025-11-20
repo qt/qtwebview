@@ -89,7 +89,8 @@ Q_SIGNALS:
     void nativeWindowChanged(QWindow *window);
 
 protected:
-    explicit QAbstractWebView(QObject *p = nullptr) : QObject(p) { }
+    explicit QAbstractWebView(QWebView *view) : q_ptr(view) { };
+    QWebView *q_ptr;
 };
 
 QT_END_NAMESPACE

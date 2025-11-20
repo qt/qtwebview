@@ -12,7 +12,7 @@ QT_BEGIN_NAMESPACE
 
 QWebView::QWebView(QWindow *parent)
     : QWindow(parent),
-      d(QWebViewFactory::createWebView()),
+      d(QWebViewFactory::createWebView(this)),
       m_settings(new QWebViewSettings(d->settings())),
       m_progress(0)
 {

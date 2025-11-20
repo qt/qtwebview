@@ -257,9 +257,8 @@ void QDarwinWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
     m_allowFileAccess = enabled;
 }
 
-QDarwinWebViewPrivate::QDarwinWebViewPrivate(QObject *p)
-    : QAbstractWebView(p)
-    , wkWebView(nil)
+QDarwinWebViewPrivate::QDarwinWebViewPrivate(QWebView *view)
+    : QAbstractWebView(view), wkWebView(nil)
 {
     CGRect frame = CGRectMake(0.0, 0.0, 400, 400);
     wkWebView = [[WKWebView alloc] initWithFrame:frame];

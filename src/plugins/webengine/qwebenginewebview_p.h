@@ -66,7 +66,7 @@ class QWebEngineWebViewPrivate : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QWebEngineWebViewPrivate(QObject *p = nullptr);
+    explicit QWebEngineWebViewPrivate(QWebView *p);
     ~QWebEngineWebViewPrivate() override;
 
     QString httpUserAgent() const override;

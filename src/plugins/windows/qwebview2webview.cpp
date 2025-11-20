@@ -105,8 +105,8 @@ void QWebview2WebViewSettingsPrivate::setAllowFileAccess(bool enabled)
     m_allowFileAccess = enabled;
 }
 
-QWebView2WebViewPrivate::QWebView2WebViewPrivate(QObject *parent)
-    : QAbstractWebView(parent),
+QWebView2WebViewPrivate::QWebView2WebViewPrivate(QWebView *view)
+    : QAbstractWebView(view),
       m_settings(new QWebview2WebViewSettingsPrivate(this)),
       m_window(new QWindow),
       m_isLoading(false)

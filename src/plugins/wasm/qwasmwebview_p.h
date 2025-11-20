@@ -52,7 +52,7 @@ class QWasmWebViewPrivate final : public QAbstractWebView
 {
     Q_OBJECT
 public:
-    explicit QWasmWebViewPrivate(QObject *p = nullptr);
+    explicit QWasmWebViewPrivate(QWebView *view);
     ~QWasmWebViewPrivate() override;
 
     QString httpUserAgent() const final;

@@ -13,9 +13,9 @@ class QWebView2WebViewPlugin : public QWebViewPlugin
     Q_PLUGIN_METADATA(IID QWebViewPluginInterface_iid FILE "windows.json")
 
 public:
-    QAbstractWebView *create(const QString &key) const override
+    QAbstractWebView *create(const QString &key, QWebView *view) const override
     {
-        return (key == QLatin1String("webview")) ? new QWebView2WebViewPrivate() : nullptr;
+        return (key == QLatin1String("webview")) ? new QWebView2WebViewPrivate(view) : nullptr;
     }
 };
 
