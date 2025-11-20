@@ -36,15 +36,27 @@ static QByteArray qmlSource()
 }
 
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
-    : QAbstractWebView(p), m_profile(nullptr)
+    : QAbstractWebView(p),
+      m_profile(nullptr),
+      m_window(qobject_cast<QQuickWindow *>(p->parent())),
+      m_ownsWindow(!m_window)
 {
     m_settings = new QWebEngineWebViewSettingsPrivate(this);
     m_webEngineView.m_parent = this;
     m_cookieStore.m_webEngineViewPtr = &m_webEngineView;
+    if (m_ownsWindow) {
+        m_window = new QQuickWindow(p);
+        connect(p, &QWindow::visibleChanged, m_window, &QWindow::setVisible);
+        connect(p, &QWindow::widthChanged, m_window, &QWindow::setWidth);
+        connect(p, &QWindow::heightChanged, m_window, &QWindow::setHeight);
+    }
 }
 
 QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate()
 {
+    if (m_ownsWindow) {
+        delete m_window;
+    }
 }
 
 QString QWebEngineWebViewPrivate::httpUserAgent() const
@@ -219,6 +231,7 @@ void QWebEngineWebViewPrivate::q_cookieRemoved(const QNetworkCookie &cookie)
 void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
 {
     Q_ASSERT(!m_webEngineView);
+    Q_ASSERT(m_parent->m_window);
     QObject *p = qobject_cast<QObject *>(m_parent);
     QQuickItem *parentItem = nullptr;
     while (p) {

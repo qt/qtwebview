@@ -105,7 +105,7 @@ private:
     ComPtr<ICoreWebView2> m_webview;
     ComPtr<ICoreWebView2CookieManager> m_cookieManager;
     QWebview2WebViewSettingsPrivate *m_settings;
-    QPointer<QWindow> m_window;
+    QWindow *m_window;
     bool m_isLoading;
     QUrl m_url;
     QWebViewInitData m_initData;

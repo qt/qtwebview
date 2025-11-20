@@ -108,7 +108,7 @@ void QWebview2WebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 QWebView2WebViewPrivate::QWebView2WebViewPrivate(QWebView *view)
     : QAbstractWebView(view),
       m_settings(new QWebview2WebViewSettingsPrivate(this)),
-      m_window(new QWindow),
+      m_window(view),
       m_isLoading(false)
 {
     // Create a QWindow without a parent
@@ -272,7 +272,6 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
 
 QWebView2WebViewPrivate::~QWebView2WebViewPrivate()
 {
-    m_window->destroy();
     m_webviewController = nullptr;
     m_webview = nullptr;
 }

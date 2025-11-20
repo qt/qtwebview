@@ -271,6 +271,12 @@ QDarwinWebViewPrivate::QDarwinWebViewPrivate(QWebView *view)
                    context:nil];
 
     m_window = QWindow::fromWinId(reinterpret_cast<WId>(wkWebView));
+    if (m_window) {
+        m_window->setParent(view);
+        connect(view, &QWindow::widthChanged, m_window, &QWindow::setWidth);
+        connect(view, &QWindow::heightChanged, m_window, &QWindow::setHeight);
+        connect(view, &QWindow::visibleChanged, m_window, &QWindow::setVisible);
+    }
     m_settings = new QDarwinWebViewSettingsPrivate(wkWebView.configuration, this);
 }
 
@@ -284,6 +290,8 @@ QDarwinWebViewPrivate::~QDarwinWebViewPrivate()
     [wkWebView.navigationDelegate release];
     wkWebView.navigationDelegate = nil;
     [wkWebView release];
+    if (m_window)
+        delete m_window;
 }
 
 QUrl QDarwinWebViewPrivate::url() const

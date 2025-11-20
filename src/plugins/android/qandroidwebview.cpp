@@ -100,6 +100,12 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *view)
     m_settings = new QAndroidWebViewSettingsPrivate(m_viewController, this);
 
     m_window = QWindow::fromWinId(reinterpret_cast<WId>(m_webView.object()));
+    if (m_window) {
+        m_window->setParent(view);
+        connect(view, &QWindow::widthChanged, m_window, &QWindow::setWidth);
+        connect(view, &QWindow::heightChanged, m_window, &QWindow::setHeight);
+        connect(view, &QWindow::visibleChanged, m_window, &QWindow::setVisible);
+    }
     g_webViews->insert(this);
     connect(qApp, &QGuiApplication::applicationStateChanged,
             this, &QAndroidWebViewPrivate::onApplicationStateChanged);

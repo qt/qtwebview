@@ -31,6 +31,7 @@
 QT_BEGIN_NAMESPACE
 
 class QQuickWebEngineView;
+class QQuickWindow;
 class QWebEngineLoadingInfo;
 class QNetworkCookie;
 class QWebEngineWebViewPrivate;
@@ -138,6 +139,8 @@ private:
         QQuickWebEngineViewPtr *m_webEngineViewPtr = nullptr;
         mutable QWebEngineCookieStore *m_cookieStore = nullptr;
     } m_cookieStore;
+    QQuickWindow *m_window;
+    bool m_ownsWindow;
 };
 
 QT_END_NAMESPACE
