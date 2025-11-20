@@ -94,16 +94,11 @@ Q_SIGNALS:
     Q_REVISION(6, 3) void cookieRemoved(const QString &domain, const QString &name);
 
 protected:
-#if defined(Q_OS_WASM)
-    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
-#endif // Q_OS_WASM
-    void itemChange(ItemChange change, const ItemChangeData &value) override;
     void runJavaScriptPrivate(const QString &script, int callbackId);
 
 private Q_SLOTS:
     void onRunJavaScriptResult(int id, const QVariant &variant);
     void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-    void onNativeWindowChanged(QWindow *window);
 
 private:
     friend class QWebEngineWebViewPrivate;

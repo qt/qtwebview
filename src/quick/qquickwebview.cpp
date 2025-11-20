@@ -9,10 +9,6 @@
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
 
-#if defined(Q_OS_WASM)
-#include <QtQuick/private/qquickrendercontrol_p.h>
-#endif // Q_OS_WASM
-
 namespace {
 
 class CallbackStorage
@@ -70,10 +66,8 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
 {
     m_webView->QObject::setParent(this);
     if (QWindow *nativeWindow = m_webView->d->nativeWindow())
-        onNativeWindowChanged(nativeWindow);
+        setContainedWindow(nativeWindow);
 
-    connect(m_webView->d, &QAbstractWebView::nativeWindowChanged, this,
-            &QQuickWebView::onNativeWindowChanged);
     connect(m_webView, &QWebView::titleChanged, this, &QQuickWebView::titleChanged);
     connect(m_webView, &QWebView::urlChanged, this, &QQuickWebView::urlChanged);
     connect(m_webView, &QWebView::loadProgressChanged, this, &QQuickWebView::loadProgressChanged);
@@ -337,48 +331,6 @@ void QQuickWebView::deleteAllCookies()
     m_webView->deleteAllCookies();
 }
 
-
-#if defined(Q_OS_WASM)
-void QQuickWebView::geometryChange(const QRectF &newGeometry, const QRectF &)
-{
-    QQuickWindow *w = window();
-    if (w && m_webView) {
-        QSize itemSize = QSize(newGeometry.width(), newGeometry.height());
-        if (!itemSize.isValid())
-            return;
-
-        // Find this item's geometry in the scene.
-        QRect itemGeometry = mapRectToScene(QRect(QPoint(0, 0), itemSize)).toRect();
-        // Check if we should be clipped to our parent's shape
-        // Note: This is crude but it should give an acceptable result on all platforms.
-        QQuickItem *p = parentItem();
-        const bool clip = p != 0 ? p->clip() : false;
-        if (clip) {
-            const QSize &parentSize = QSize(p->width(), p->height());
-                    const QRect &parentGeometry = p->mapRectToScene(QRect(QPoint(0, 0), parentSize)).toRect();
-                    itemGeometry &= parentGeometry;
-                    itemSize = itemGeometry.size();
-        }
-
-        // Find the top left position of this item, in global coordinates.
-        const QPoint &tl = w->mapToGlobal(itemGeometry.topLeft());
-        // Get the actual render window, in case we're rendering into a off-screen window.
-        QWindow *rw = QQuickRenderControl::renderWindowFor(w);
-        QWebView::get(*m_webView)->geometryChange(rw ? QRect(rw->mapFromGlobal(tl), itemSize) : itemGeometry);
-    }
-}
-#endif // Q_OS_WASM
-
-void QQuickWebView::itemChange(ItemChange change, const ItemChangeData &value)
-{
-    QQuickItem::itemChange(change, value);
-
-#if defined(Q_OS_WASM)
-    if (change == ItemChange::ItemSceneChange && m_webView)
-        QWebView::get(*m_webView)->setParentView(value.window);
-#endif // Q_OS_WASM
-}
-
 void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)
 {
     if (id == -1)
@@ -403,12 +355,6 @@ void QQuickWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadReque
 {
     QQuickWebViewLoadRequest qqLoadRequest(loadRequest);
     Q_EMIT loadingChanged(&qqLoadRequest);
-}
-
-void QQuickWebView::onNativeWindowChanged(QWindow *nativeWindow)
-{
-    if (nativeWindow)
-        setContainedWindow(nativeWindow);
 }
 
 QJSValue QQuickWebView::takeCallback(int id)

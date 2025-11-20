@@ -60,7 +60,6 @@ signals:
     void javaScriptEnabledChanged();
     void allowFileAccessChanged();
     void localContentCanAccessFileUrlsChanged();
-    void nativeWindowChanged(QWindow *window);
 
 private:
     QPointer<QAbstractWebViewSettings> d;
@@ -91,9 +90,6 @@ public:
     bool isLoading() const;
 
     QWebViewSettings *settings() const;
-    // NOTE: This is a temporary solution for WASM and should
-    // be removed once window containers are supported.
-    static QAbstractWebView *get(QWebView &q) { return q.d; }
 
 public Q_SLOTS:
     void goBack();

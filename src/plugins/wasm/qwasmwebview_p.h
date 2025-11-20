@@ -66,10 +66,6 @@ public:
     bool isLoading() const final;
 
     QWindow *nativeWindow() const override { return m_window; }
-    // NOTE: This is a temporary solution for WASM and should
-    // be removed once window containers are supported.
-    void setParentView(QObject *view) override;
-    void geometryChange(const QRectF &geometry) override;
 
 public Q_SLOTS:
     void goBack() final;
@@ -91,7 +87,6 @@ private:
     void updateGeometry();
 
     QWasmWebViewSettingsPrivate *m_settings;
-    QPointer<QWindow> m_parentWindow;
     QWindow *m_window = nullptr;
     std::optional<emscripten::val> m_iframe;
     std::optional<QRect> m_geometry;

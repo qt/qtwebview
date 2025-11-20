@@ -70,12 +70,6 @@ public:
     virtual void deleteCookie(const QString &domain, const QString &name) = 0;
     virtual void deleteAllCookies() = 0;
     virtual QWindow *nativeWindow() const = 0;
-    // NOTE: This is a temporary solution for WASM and should
-    // be removed once window containers are supported.
-#if defined(Q_OS_WASM) || 1
-    virtual void setParentView(QObject *) { }
-    virtual void geometryChange(const QRectF &) { }
-#endif // Q_OS_WASM
 
 Q_SIGNALS:
     void titleChanged(const QString &title);
@@ -86,7 +80,6 @@ Q_SIGNALS:
     void httpUserAgentChanged(const QString &httpUserAgent);
     void cookieAdded(const QString &domain, const QString &name);
     void cookieRemoved(const QString &domain, const QString &name);
-    void nativeWindowChanged(QWindow *window);
 
 protected:
     explicit QAbstractWebView(QWebView *view) : q_ptr(view) { };

@@ -16,6 +16,7 @@
 #include <QAbstractEventDispatcher>
 #include <QThread>
 
+#include <emscripten/emscripten.h>
 #include <iostream>
 
 QT_BEGIN_NAMESPACE
@@ -72,25 +73,13 @@ void QWasmWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
     qWarning("setAllowFileAccess() not supported on this platform");
 }
 
-QWasmWebViewPrivate::QWasmWebViewPrivate(QWebView *view) : QAbstractWebView(view), m_window(0)
+QWasmWebViewPrivate::QWasmWebViewPrivate(QWebView *view) : QAbstractWebView(view), m_window(view)
 {
     m_settings = new QWasmWebViewSettingsPrivate(this);
+    QMetaObject::invokeMethod(this, &QWasmWebViewPrivate::initializeIFrame, Qt::QueuedConnection);
 }
 
 QWasmWebViewPrivate::~QWasmWebViewPrivate() { }
-
-void QWasmWebViewPrivate::setParentView(QObject *view)
-{
-    m_parentWindow = qobject_cast<QWindow *>(view);
-    if (m_parentWindow)
-        QMetaObject::invokeMethod(this, &QWasmWebViewPrivate::initializeIFrame, Qt::QueuedConnection);
-}
-
-void QWasmWebViewPrivate::geometryChange(const QRectF &geometry)
-{
-    m_geometry = { geometry.toRect() };
-    updateGeometry();
-}
 
 QString QWasmWebViewPrivate::httpUserAgent() const
 {
@@ -219,32 +208,38 @@ QAbstractWebViewSettings *QWasmWebViewPrivate::settings() const
     return m_settings;
 }
 
+// clang-format off
+EM_JS(void, addResizeObservers, (emscripten::EM_VAL clientAreaHandle, emscripten::EM_VAL frameHandle), {
+    var clientArea = Emval.toValue(clientAreaHandle);
+    var frame = Emval.toValue(frameHandle);
+    const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            frame.width = entry.contentBoxSize[0].inlineSize;
+            frame.height = entry.contentBoxSize[0].blockSize;
+        }
+    });
+    resizeObserver.observe(clientArea);
+});
+// clang-format on
+
 void QWasmWebViewPrivate::initializeIFrame()
 {
-    if (auto wasmWindow = dynamic_cast<QNativeInterface::Private::QWasmWindow *>(m_parentWindow->handle())) {
-        auto document = wasmWindow->document();
-        auto clientArea = wasmWindow->clientArea();
+    auto wasmWindow = dynamic_cast<QNativeInterface::Private::QWasmWindow *>(m_window->handle());
+    Q_ASSERT(wasmWindow);
 
-        m_iframe = document.call<emscripten::val>("createElement", emscripten::val("iframe"));
-        clientArea.call<void>("appendChild", *m_iframe);
-        (*m_iframe)["style"].set("position", "absolute");
-        (*m_iframe)["style"].set("border", "none");
-        m_window = QWindow::fromWinId(reinterpret_cast<WId>(&m_iframe.value()));
-        Q_EMIT nativeWindowChanged(m_window);
-        updateGeometry();
-        // NOTE: Make sure any pending url is set now.
-        setUrl(m_currentUrl);
-    }
-}
+    auto document = wasmWindow->document();
+    auto clientArea = wasmWindow->clientArea();
 
-void QWasmWebViewPrivate::updateGeometry()
-{
-    if (m_iframe && m_geometry) {
-        (*m_iframe)["style"].set("width", std::to_string(m_geometry->width()) + "px");
-        (*m_iframe)["style"].set("height", std::to_string(m_geometry->height()) + "px");
-        (*m_iframe)["style"].set("top", std::to_string(m_geometry->top()) + "px");
-        (*m_iframe)["style"].set("left", std::to_string(m_geometry->left()) + "px");
-    }
+    m_iframe = document.call<emscripten::val>("createElement", emscripten::val("iframe"));
+    clientArea.call<void>("appendChild", *m_iframe);
+    (*m_iframe)["style"].set("position", "absolute");
+    (*m_iframe)["style"].set("border", "none");
+    (*m_iframe)["style"].set("top", "0px");
+    (*m_iframe)["style"].set("left", "0px");
+    addResizeObservers(clientArea.as_handle(), m_iframe.value().as_handle());
+
+    // NOTE: Make sure any pending url is set now.
+    setUrl(m_currentUrl);
 }
 
 QT_END_NAMESPACE
