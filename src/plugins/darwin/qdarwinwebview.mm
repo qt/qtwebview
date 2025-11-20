@@ -31,7 +31,7 @@ typedef NSView UIView;
 #endif
 
 @interface QtWKWebViewDelegate : NSObject<WKNavigationDelegate> {
-    QDarwinWebViewPrivate *qDarwinWebViewPrivate;
+    QPointer<QDarwinWebViewPrivate> qDarwinWebViewPrivate;
 }
 - (QtWKWebViewDelegate *)initWithQAbstractWebView:(QDarwinWebViewPrivate *)webViewPrivate;
 - (void)pageDone;
@@ -59,11 +59,15 @@ typedef NSView UIView;
 
 - (void)pageDone
 {
+    if (!qDarwinWebViewPrivate)
+        return;
     emit qDarwinWebViewPrivate->q_ptr->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
 }
 
 - (void)handleError:(NSError *)error
 {
+    if (!qDarwinWebViewPrivate)
+        return;
     [self pageDone];
     NSString *errorString = [error localizedDescription];
     NSURL *failingURL = error.userInfo[@"NSErrorFailingURLKey"];
@@ -76,6 +80,8 @@ typedef NSView UIView;
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
 {
     Q_UNUSED(webView);
+    if (!qDarwinWebViewPrivate)
+        return;
     // WKNavigationDelegate gives us per-frame notifications while the QWebView API
     // should provide per-page notifications. Therefore we keep track of the last frame
     // to be started, if that finishes or fails then we indicate that it has loaded.
@@ -92,6 +98,8 @@ typedef NSView UIView;
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
     Q_UNUSED(webView);
+    if (!qDarwinWebViewPrivate)
+        return;
     if (qDarwinWebViewPrivate->wkNavigation != navigation)
         return;
 
@@ -104,6 +112,8 @@ typedef NSView UIView;
       withError:(NSError *)error
 {
     Q_UNUSED(webView);
+    if (!qDarwinWebViewPrivate)
+        return;
     if (qDarwinWebViewPrivate->wkNavigation != navigation)
         return;
     [self handleError:error];
@@ -113,6 +123,8 @@ typedef NSView UIView;
       withError:(NSError *)error
 {
     Q_UNUSED(webView);
+    if (!qDarwinWebViewPrivate)
+        return;
     if (qDarwinWebViewPrivate->wkNavigation != navigation)
         return;
     [self handleError:error];
@@ -446,10 +458,12 @@ QVariant fromJSValue(id result)
 
 void QDarwinWebViewPrivate::runJavaScriptPrivate(const QString &script, int callbackId)
 {
-    [wkWebView evaluateJavaScript:script.toNSString() completionHandler:^(id result, NSError *) {
-        if (callbackId != -1)
-            emit q_ptr->javaScriptResult(callbackId, fromJSValue(result));
-    }];
+    QPointer<QDarwinWebViewPrivate> observer(this);
+    [wkWebView evaluateJavaScript:script.toNSString()
+                completionHandler:^(id result, NSError *) {
+                    if (callbackId != -1 && observer)
+                        emit q_ptr->javaScriptResult(callbackId, fromJSValue(result));
+                }];
 }
 
 void QDarwinWebViewPrivate::setCookie(const QString &domain, const QString &name, const QString &value)
@@ -477,11 +491,12 @@ void QDarwinWebViewPrivate::setCookie(const QString &domain, const QString &name
     if (cookie == nullptr) {
         return;
     }
-
+    QPointer<QDarwinWebViewPrivate> observer(this);
     [cookieStore setCookie:cookie
             completionHandler:^{
-                emit q_ptr->cookieAdded(QString::fromNSString(cookie.domain),
-                                        QString::fromNSString(cookie.name));
+                if (observer)
+                    emit q_ptr->cookieAdded(QString::fromNSString(cookie.domain),
+                                            QString::fromNSString(cookie.name));
             }];
 }
 
@@ -496,14 +511,16 @@ void QDarwinWebViewPrivate::deleteCookie(const QString &domain, const QString &n
         return;
     }
 
+    QPointer<QDarwinWebViewPrivate> observer(this);
     [cookieStore getAllCookies:^(NSArray *cookies) {
         NSHTTPCookie *cookie;
         for (cookie in cookies) {
             if ([cookie.domain isEqualToString:cookieDomain] && [cookie.name isEqualToString:cookieName]) {
                 [cookieStore deleteCookie:cookie
                         completionHandler:^{
-                            emit q_ptr->cookieRemoved(QString::fromNSString(cookie.domain),
-                                                      QString::fromNSString(cookie.name));
+                            if (observer)
+                                emit q_ptr->cookieRemoved(QString::fromNSString(cookie.domain),
+                                                          QString::fromNSString(cookie.name));
                         }];
             }
         }
@@ -514,13 +531,15 @@ void QDarwinWebViewPrivate::deleteAllCookies()
 {
     WKHTTPCookieStore *cookieStore = wkWebView.configuration.websiteDataStore.httpCookieStore;
 
+    QPointer<QDarwinWebViewPrivate> observer(this);
     [cookieStore getAllCookies:^(NSArray *cookies) {
         NSHTTPCookie *cookie;
         for (cookie in cookies) {
             [cookieStore deleteCookie:cookie
                     completionHandler:^{
-                        emit q_ptr->cookieRemoved(QString::fromNSString(cookie.domain),
-                                                  QString::fromNSString(cookie.name));
+                        if (observer)
+                            emit q_ptr->cookieRemoved(QString::fromNSString(cookie.domain),
+                                                      QString::fromNSString(cookie.name));
                     }];
         }
     }];
