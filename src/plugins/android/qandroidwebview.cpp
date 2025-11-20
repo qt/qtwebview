@@ -131,7 +131,7 @@ QString QAndroidWebViewPrivate::httpUserAgent() const
 void QAndroidWebViewPrivate::setHttpUserAgent(const QString &userAgent)
 {
     m_viewController.callMethod<void>("setUserAgent", userAgent);
-    Q_EMIT httpUserAgentChanged(userAgent);
+    emit q_ptr->httpUserAgentChanged(userAgent);
 }
 
 QUrl QAndroidWebViewPrivate::url() const
@@ -198,7 +198,7 @@ void QAndroidWebViewPrivate::runJavaScriptPrivate(const QString &script,
             return;
 
         // Emit signal here to remove the callback.
-        Q_EMIT javaScriptResult(callbackId, QVariant());
+        emit q_ptr->javaScriptResult(callbackId, QVariant());
     }
 
     m_viewController.callMethod<void>("runJavaScript", script, jlong(callbackId));
@@ -284,9 +284,8 @@ static void c_onRunJavaScriptResult(JNIEnv *env,
         jsonValue = object.value(QStringLiteral("data"));
     }
 
-    Q_EMIT wc->javaScriptResult(int(callbackId),
-                                jsonValue.isNull() ? resultString
-                                                   : jsonValue.toVariant());
+    emit wc->q_ptr->javaScriptResult(int(callbackId),
+                                     jsonValue.isNull() ? resultString : jsonValue.toVariant());
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onRunJavaScriptResult)
 
@@ -306,7 +305,7 @@ static void c_onPageFinished(JNIEnv *env,
     QWebViewLoadRequestPrivate loadRequest(QUrl(QJniObject(url).toString()),
                                            QWebView::LoadSucceededStatus,
                                            QString());
-    Q_EMIT wc->loadingChanged(loadRequest);
+    emit wc->q_ptr->loadingChanged(loadRequest);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onPageFinished)
 
@@ -328,7 +327,7 @@ static void c_onPageStarted(JNIEnv *env,
     QWebViewLoadRequestPrivate loadRequest(QUrl(QJniObject(url).toString()),
                                            QWebView::LoadStartedStatus,
                                            QString());
-    Q_EMIT wc->loadingChanged(loadRequest);
+    emit wc->q_ptr->loadingChanged(loadRequest);
 
 //    if (!icon)
 //        return;
@@ -352,7 +351,7 @@ static void c_onProgressChanged(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    Q_EMIT wc->loadProgressChanged(newProgress);
+    emit wc->q_ptr->loadProgressChanged(newProgress);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onProgressChanged)
 
@@ -392,7 +391,7 @@ static void c_onReceivedTitle(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
     const QString &qTitle = QJniObject(title).toString();
-    Q_EMIT wc->titleChanged(qTitle);
+    emit wc->q_ptr->titleChanged(qTitle);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onReceivedTitle)
 
@@ -415,7 +414,7 @@ static void c_onReceivedError(JNIEnv *env,
     QWebViewLoadRequestPrivate loadRequest(QUrl(QJniObject(url).toString()),
                                            QWebView::LoadFailedStatus,
                                            QJniObject(description).toString());
-    Q_EMIT wc->loadingChanged(loadRequest);
+    emit wc->q_ptr->loadingChanged(loadRequest);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onReceivedError)
 
@@ -435,7 +434,7 @@ static void c_onCookieAdded(JNIEnv *env,
         return;
 
     if (result)
-        Q_EMIT wc->cookieAdded(QJniObject(domain).toString(), QJniObject(name).toString());
+        emit wc->q_ptr->cookieAdded(QJniObject(domain).toString(), QJniObject(name).toString());
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onCookieAdded)
 
@@ -455,7 +454,7 @@ static void c_onCookieRemoved(JNIEnv *env,
         return;
 
     if (result)
-        Q_EMIT wc->cookieRemoved(QJniObject(domain).toString(), QJniObject(name).toString());
+        emit wc->q_ptr->cookieRemoved(QJniObject(domain).toString(), QJniObject(name).toString());
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onCookieRemoved)
 QT_END_NAMESPACE

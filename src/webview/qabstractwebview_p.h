@@ -71,18 +71,10 @@ public:
     virtual void deleteAllCookies() = 0;
     virtual QWindow *nativeWindow() const = 0;
 
-Q_SIGNALS:
-    void titleChanged(const QString &title);
-    void urlChanged(const QUrl &url);
-    void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-    void loadProgressChanged(int progress);
-    void javaScriptResult(int id, const QVariant &result);
-    void httpUserAgentChanged(const QString &httpUserAgent);
-    void cookieAdded(const QString &domain, const QString &name);
-    void cookieRemoved(const QString &domain, const QString &name);
-
 protected:
     explicit QAbstractWebView(QWebView *view) : q_ptr(view) { };
+
+public:
     QWebView *q_ptr;
 };
 

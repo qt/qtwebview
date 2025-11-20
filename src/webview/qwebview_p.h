@@ -91,7 +91,6 @@ public:
 
     QWebViewSettings *settings() const;
 
-public Q_SLOTS:
     void goBack();
     void goForward();
     void reload();
@@ -102,24 +101,17 @@ public Q_SLOTS:
     void deleteAllCookies();
 
 Q_SIGNALS:
-    void titleChanged();
-    void urlChanged();
+    void titleChanged(const QString &title);
+    void urlChanged(const QUrl &url);
     void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-    void loadProgressChanged();
+    void loadProgressChanged(int progress);
     void javaScriptResult(int id, const QVariant &result);
-    void httpUserAgentChanged();
+    void httpUserAgentChanged(const QString &agent);
     void cookieAdded(const QString &domain, const QString &name);
     void cookieRemoved(const QString &domain, const QString &name);
 
 protected:
     void runJavaScriptPrivate(const QString &script, int callbackId);
-
-private Q_SLOTS:
-    void onTitleChanged(const QString &title);
-    void onUrlChanged(const QUrl &url);
-    void onLoadProgressChanged(int progress);
-    void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
-    void onHttpUserAgentChanged(const QString &httpUserAgent);
 
 private:
     friend class QQuickWebView;
@@ -127,12 +119,6 @@ private:
 
     QAbstractWebView *d = nullptr;
     QWebViewSettings *m_settings = nullptr;
-
-    // provisional data
-    int m_progress;
-    QString m_title;
-    QUrl m_url;
-    mutable QString m_httpUserAgent;
 };
 
 QT_END_NAMESPACE

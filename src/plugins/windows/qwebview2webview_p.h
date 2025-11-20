@@ -107,6 +107,7 @@ private:
     QWebview2WebViewSettingsPrivate *m_settings;
     QWindow *m_window;
     bool m_isLoading;
+    int m_progress;
     QUrl m_url;
     QWebViewInitData m_initData;
 };

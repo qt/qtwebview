@@ -255,7 +255,7 @@ void tst_QWebView::loadRequest()
             QCOMPARE(lr.m_status, QWebView::LoadFailedStatus);
         }
         if (QWebViewFactory::loadedPluginHasKey("webengine"))
-            QCOMPARE(view.loadProgress(), 0); // darwin plugin returns 100
+            QCOMPARE(view.loadProgress(), 100);
     }
 }
 

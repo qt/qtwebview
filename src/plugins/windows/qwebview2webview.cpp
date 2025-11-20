@@ -109,7 +109,8 @@ QWebView2WebViewPrivate::QWebView2WebViewPrivate(QWebView *view)
     : QAbstractWebView(view),
       m_settings(new QWebview2WebViewSettingsPrivate(this)),
       m_window(view),
-      m_isLoading(false)
+      m_isLoading(false),
+      m_progress(0)
 {
     // Create a QWindow without a parent
     // This window is used for initializing the WebView2
@@ -192,7 +193,7 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
                         if (SUCCEEDED(hr))
                             QTimer::singleShot(0, thisPtr, [thisPtr] {
                                 if (!thisPtr.isNull())
-                                    emit thisPtr->httpUserAgentChanged(
+                                    emit thisPtr->q_ptr->httpUserAgentChanged(
                                             thisPtr->m_initData.m_httpUserAgent);
                             });
                     }
@@ -311,7 +312,7 @@ void QWebView2WebViewPrivate::setHttpUserAgent(const QString &userAgent)
         if (settings2) {
             hr = settings2->put_UserAgent((wchar_t*)userAgent.utf16());
             if (SUCCEEDED(hr))
-                emit httpUserAgentChanged(userAgent);
+                emit q_ptr->httpUserAgentChanged(userAgent);
             return;
         } else {
             qWarning() << "No http user agent setting available.";
@@ -332,10 +333,11 @@ void QWebView2WebViewPrivate::setUrl(const QUrl &url)
     if (m_webview) {
         HRESULT hr = m_webview->Navigate((wchar_t*)url.toString().utf16());
         if (FAILED(hr)) {
-            emit loadProgressChanged(100);
-            emit loadingChanged(QWebViewLoadRequestPrivate(url,
-                                                           QWebView::LoadFailedStatus,
-                                                           QString()));
+            m_isLoading = false;
+            m_progress = 100;
+            emit q_ptr->loadProgressChanged(100);
+            emit q_ptr->loadingChanged(
+                    QWebViewLoadRequestPrivate(url, QWebView::LoadFailedStatus, QString()));
         }
     }
 }
@@ -375,7 +377,7 @@ QString QWebView2WebViewPrivate::title() const
 
 int QWebView2WebViewPrivate::loadProgress() const
 {
-    return m_isLoading ? 0 : 100;
+    return m_progress;
 }
 
 bool QWebView2WebViewPrivate::isLoading() const
@@ -453,7 +455,7 @@ void QWebView2WebViewPrivate::setCookie(const QString &domain,
             Q_ASSERT_SUCCEEDED(hr);
             hr = m_cookieManager->AddOrUpdateCookie(cookie.Get());
             Q_ASSERT_SUCCEEDED(hr);
-            emit cookieAdded(domain, name);
+            emit q_ptr->cookieAdded(domain, name);
         }
     } else {
         m_initData.m_cookies.insert(domain + "/" + name, {domain, name, value});
@@ -486,7 +488,7 @@ void QWebView2WebViewPrivate::deleteCookie(const QString &domainName, const QStr
                             CoTaskMemFree(namePtr);
                             CoTaskMemFree(domainPtr);
                             if (domainName == domain && cookieName == name) {
-                                emit cookieRemoved(domain, cookieName);
+                                emit q_ptr->cookieRemoved(domain, cookieName);
                                 return S_OK;
                             }
                         }
@@ -524,7 +526,7 @@ void QWebView2WebViewPrivate::deleteAllCookies()
                         wchar_t *name;
                         if (SUCCEEDED(cookie->get_Domain(&domain))) {
                             if (SUCCEEDED(cookie->get_Name(&name))) {
-                                emit cookieRemoved(QString(domain), QString(name));
+                                emit q_ptr->cookieRemoved(QString(domain), QString(name));
                                 CoTaskMemFree(name);
                             }
                             CoTaskMemFree(domain);
@@ -549,7 +551,7 @@ HRESULT QWebView2WebViewPrivate::onNavigationStarting(ICoreWebView2* webview, IC
     Q_ASSERT_SUCCEEDED(hr);
     std::wstring_view source(uri);
     m_url = QString(source);
-    emit urlChanged(m_url);
+    emit q_ptr->urlChanged(m_url);
     CoTaskMemFree(uri);
     return S_OK;
 }
@@ -558,6 +560,7 @@ HRESULT QWebView2WebViewPrivate::onNavigationStarting(ICoreWebView2* webview, IC
 HRESULT QWebView2WebViewPrivate::onNavigationCompleted(ICoreWebView2* webview, ICoreWebView2NavigationCompletedEventArgs* args)
 {
     m_isLoading = false;
+    m_progress = 100;
 
     BOOL isSuccess;
     HRESULT hr = args->get_IsSuccess(&isSuccess);
@@ -571,15 +574,12 @@ HRESULT QWebView2WebViewPrivate::onNavigationCompleted(ICoreWebView2* webview, I
     Q_ASSERT_SUCCEEDED(hr);
     if (errorStatus != COREWEBVIEW2_WEB_ERROR_STATUS_OPERATION_CANCELED) {
         const QString errorStr = isSuccess ? "" : WebErrorStatusToString(errorStatus);
-        emit titleChanged(title());
-        emit loadProgressChanged(100);
-        emit loadingChanged(QWebViewLoadRequestPrivate(m_url,
-                                                       status,
-                                                       errorStr));
+        emit q_ptr->titleChanged(title());
+        emit q_ptr->loadProgressChanged(100);
+        emit q_ptr->loadingChanged(QWebViewLoadRequestPrivate(m_url, status, errorStr));
     } else {
-        emit loadingChanged(QWebViewLoadRequestPrivate(m_url,
-                                                       QWebView::LoadStoppedStatus,
-                                                       QString()));
+        emit q_ptr->loadingChanged(
+                QWebViewLoadRequestPrivate(m_url, QWebView::LoadStoppedStatus, QString()));
     }
     return S_OK;
 }
@@ -613,10 +613,10 @@ HRESULT QWebView2WebViewPrivate::onWebResourceRequested(ICoreWebView2* sender, I
 HRESULT QWebView2WebViewPrivate::onContentLoading(ICoreWebView2* webview, ICoreWebView2ContentLoadingEventArgs* args)
 {
     m_isLoading = true;
-    emit loadingChanged(QWebViewLoadRequestPrivate(m_url,
-                                                   QWebView::LoadStartedStatus,
-                                                   QString()));
-    emit loadProgressChanged(0);
+    m_progress = 0;
+    emit q_ptr->loadingChanged(
+            QWebViewLoadRequestPrivate(m_url, QWebView::LoadStartedStatus, QString()));
+    emit q_ptr->loadProgressChanged(0);
     return S_OK;
 }
 
@@ -667,9 +667,10 @@ void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int ca
                                 }
                             }
                             if (errorCode != S_OK)
-                                emit javaScriptResult(callbackId, qt_error_string(errorCode));
+                                emit q_ptr->javaScriptResult(callbackId,
+                                                             qt_error_string(errorCode));
                             else
-                                emit javaScriptResult(callbackId, resultVariant);
+                                emit q_ptr->javaScriptResult(callbackId, resultVariant);
                             return errorCode;
                         })
                         .Get());

@@ -13,21 +13,11 @@ QT_BEGIN_NAMESPACE
 QWebView::QWebView(QWindow *parent)
     : QWindow(parent),
       d(QWebViewFactory::createWebView(this)),
-      m_settings(new QWebViewSettings(d->settings())),
-      m_progress(0)
+      m_settings(new QWebViewSettings(d->settings()))
 {
+    Q_ASSERT(d);
     d->setParent(this);
     qRegisterMetaType<QWebViewLoadRequestPrivate>();
-
-    connect(d, &QAbstractWebView::titleChanged, this, &QWebView::onTitleChanged);
-    connect(d, &QAbstractWebView::urlChanged, this, &QWebView::onUrlChanged);
-    connect(d, &QAbstractWebView::loadingChanged, this, &QWebView::onLoadingChanged);
-    connect(d, &QAbstractWebView::loadProgressChanged, this, &QWebView::onLoadProgressChanged);
-    connect(d, &QAbstractWebView::httpUserAgentChanged, this, &QWebView::onHttpUserAgentChanged);
-    connect(d, &QAbstractWebView::javaScriptResult,
-            this, &QWebView::javaScriptResult);
-    connect(d, &QAbstractWebView::cookieAdded, this, &QWebView::cookieAdded);
-    connect(d, &QAbstractWebView::cookieRemoved, this, &QWebView::cookieRemoved);
 }
 
 QWebView::~QWebView()
@@ -37,10 +27,7 @@ QWebView::~QWebView()
 
 QString QWebView::httpUserAgent() const
 {
-    if (m_httpUserAgent.isEmpty()){
-        m_httpUserAgent = d->httpUserAgent();
-    }
-    return m_httpUserAgent;
+    return d->httpUserAgent();
 }
 
 void QWebView::setHttpUserAgent(const QString &userAgent)
@@ -50,7 +37,7 @@ void QWebView::setHttpUserAgent(const QString &userAgent)
 
 QUrl QWebView::url() const
 {
-    return m_url;
+    return d->url();
 }
 
 void QWebView::setUrl(const QUrl &url)
@@ -90,12 +77,12 @@ void QWebView::stop()
 
 QString QWebView::title() const
 {
-    return m_title;
+    return d->title();
 }
 
 int QWebView::loadProgress() const
 {
-    return m_progress;
+    return d->loadProgress();
 }
 
 bool QWebView::isLoading() const
@@ -132,50 +119,6 @@ void QWebView::deleteCookie(const QString &domain, const QString &name)
 void QWebView::deleteAllCookies()
 {
     d->deleteAllCookies();
-}
-
-void QWebView::onTitleChanged(const QString &title)
-{
-    if (m_title == title)
-        return;
-
-    m_title = title;
-    Q_EMIT titleChanged();
-}
-
-void QWebView::onUrlChanged(const QUrl &url)
-{
-    if (m_url == url)
-        return;
-
-    m_url = url;
-    Q_EMIT urlChanged();
-}
-
-void QWebView::onLoadProgressChanged(int progress)
-{
-    if (m_progress == progress)
-        return;
-
-    m_progress = progress;
-    Q_EMIT loadProgressChanged();
-}
-
-void QWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest)
-{
-    if (loadRequest.m_status == QWebView::LoadFailedStatus)
-        m_progress = 0;
-
-    onUrlChanged(loadRequest.m_url);
-    Q_EMIT loadingChanged(loadRequest);
-}
-
-void QWebView::onHttpUserAgentChanged(const QString &userAgent)
-{
-    if (m_httpUserAgent == userAgent)
-        return;
-    m_httpUserAgent = userAgent;
-    Q_EMIT httpUserAgentChanged();
 }
 
 QWebViewSettings::QWebViewSettings(QAbstractWebViewSettings *settings)
