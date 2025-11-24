@@ -60,6 +60,7 @@ public:
     explicit QDarwinWebViewPrivate(QWebView *view);
     ~QDarwinWebViewPrivate() override;
 
+    void initialize(QObject *context) override { Q_UNUSED(context); };
     QString httpUserAgent() const override;
     void setHttpUserAgent(const QString &httpUserAgent) override;
     QUrl url() const override;

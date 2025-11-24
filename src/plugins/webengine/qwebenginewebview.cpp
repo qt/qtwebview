@@ -38,6 +38,7 @@ static QByteArray qmlSource()
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
     : QAbstractWebView(p),
       m_profile(nullptr),
+      m_parentItem(nullptr),
       m_window(qobject_cast<QQuickWindow *>(p->parent())),
       m_ownsWindow(!m_window)
 {
@@ -57,6 +58,11 @@ QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate()
     if (m_ownsWindow) {
         delete m_window;
     }
+}
+
+void QWebEngineWebViewPrivate::initialize(QObject *context)
+{
+    m_parentItem = qobject_cast<QQuickItem *>(context);
 }
 
 QString QWebEngineWebViewPrivate::httpUserAgent() const
@@ -231,14 +237,7 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
 {
     Q_ASSERT(!m_webEngineView);
     Q_ASSERT(m_parent->m_window);
-    QObject *p = qobject_cast<QObject *>(m_parent);
-    QQuickItem *parentItem = nullptr;
-    while (p) {
-        p = p->parent();
-        parentItem = qobject_cast<QQuickWebView *>(p);
-        if (parentItem)
-            break;
-    }
+    QQuickItem *parentItem = m_parent->m_parentItem;
 
     if (!parentItem) {
         qWarning("Could not find QQuickWebView");

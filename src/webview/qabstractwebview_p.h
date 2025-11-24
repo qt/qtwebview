@@ -50,6 +50,7 @@ class Q_WEBVIEW_EXPORT QAbstractWebView
     Q_OBJECT
 
 public:
+    virtual void initialize(QObject *context) = 0;
     virtual QAbstractWebViewSettings *settings() const = 0;
     virtual QString httpUserAgent() const = 0;
     virtual void setHttpUserAgent(const QString &httpUserAgent) = 0;

@@ -30,6 +30,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QQuickItem;
 class QQuickWebEngineView;
 class QQuickWindow;
 class QWebEngineLoadingInfo;
@@ -70,6 +71,7 @@ public:
     explicit QWebEngineWebViewPrivate(QWebView *p);
     ~QWebEngineWebViewPrivate() override;
 
+    void initialize(QObject *context) override;
     QString httpUserAgent() const override;
     void setHttpUserAgent(const QString &userAgent) override;
     QUrl url() const override;
@@ -139,6 +141,7 @@ private:
         QQuickWebEngineViewPtr *m_webEngineViewPtr = nullptr;
         mutable QWebEngineCookieStore *m_cookieStore = nullptr;
     } m_cookieStore;
+    QQuickItem *m_parentItem;
     QQuickWindow *m_window;
     bool m_ownsWindow;
 };

@@ -64,7 +64,6 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
       m_webView(new QWebView(window())),
       m_settings(new QQuickWebViewSettings(m_webView->settings(), this))
 {
-    m_webView->QObject::setParent(this);
     if (QWindow *nativeWindow = m_webView->d->nativeWindow())
         setContainedWindow(nativeWindow);
 
@@ -76,6 +75,8 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView, &QWebView::httpUserAgentChanged, this, &QQuickWebView::httpUserAgentChanged);
     connect(m_webView, &QWebView::cookieAdded, this, &QQuickWebView::cookieAdded);
     connect(m_webView, &QWebView::cookieRemoved, this, &QQuickWebView::cookieRemoved);
+
+    m_webView->d->initialize(this);
 }
 
 QQuickWebView::~QQuickWebView() { }

@@ -55,6 +55,7 @@ public:
     explicit QWasmWebViewPrivate(QWebView *view);
     ~QWasmWebViewPrivate() override;
 
+    void initialize(QObject *context) override { Q_UNUSED(context); };
     QString httpUserAgent() const final;
     void setHttpUserAgent(const QString &httpUserAgent) final;
     QUrl url() const override;
