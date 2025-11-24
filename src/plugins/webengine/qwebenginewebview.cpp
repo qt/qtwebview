@@ -18,6 +18,7 @@
 #include <QtQuick/qquickwindow.h>
 #include <QtQuick/qquickview.h>
 #include <QtQuick/qquickitem.h>
+#include <QtQuick/private/qquickitem_p.h>
 
 #include <QtWebEngineQuick/private/qquickwebengineview_p.h>
 #include <QtWebEngineCore/qwebengineloadinginfo.h>
@@ -27,13 +28,7 @@
 
 QT_BEGIN_NAMESPACE
 
-static QByteArray qmlSource()
-{
-    return QByteArrayLiteral("import QtWebEngine 1.1\n"
-                             "    WebEngineView {\n"
-                             "         anchors.fill: parent"
-                             "}\n");
-}
+using namespace Qt::StringLiterals;
 
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
     : QAbstractWebView(p),
@@ -46,7 +41,7 @@ QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
     m_webEngineView.m_parent = this;
     m_cookieStore.m_webEngineViewPtr = &m_webEngineView;
     if (m_ownsWindow) {
-        m_window = new QQuickWindow(p);
+        m_window = new QQuickView(p);
         connect(p, &QWindow::visibleChanged, m_window, &QWindow::setVisible);
         connect(p, &QWindow::widthChanged, m_window, &QWindow::setWidth);
         connect(p, &QWindow::heightChanged, m_window, &QWindow::setHeight);
@@ -56,6 +51,8 @@ QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
 QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate()
 {
     if (m_ownsWindow) {
+        // quickview destructor deletes also webengieview item
+        m_webEngineView.m_webEngineView.release();
         delete m_window;
     }
 }
@@ -237,21 +234,30 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
 {
     Q_ASSERT(!m_webEngineView);
     Q_ASSERT(m_parent->m_window);
+
+    QQuickWebEngineView *webEngineView = nullptr;
     QQuickItem *parentItem = m_parent->m_parentItem;
 
     if (!parentItem) {
-        qWarning("Could not find QQuickWebView");
-        return;
+        // this is non qquickwebview initialization
+        // set the content for qquickview
+        QQuickView *view = qobject_cast<QQuickView *>(m_parent->m_window);
+        Q_ASSERT(view);
+        view->setResizeMode(QQuickView::SizeRootObjectToView);
+        view->loadFromModule("QtWebEngine"_L1, "WebEngineView"_L1);
+        webEngineView = qobject_cast<QQuickWebEngineView *>(view->rootObject());
+        Q_ASSERT(webEngineView);
+    } else {
+        QQmlEngine *engine = qmlEngine(parentItem);
+        Q_ASSERT(engine);
+        QQmlComponent component(engine);
+        component.loadFromModule("QtWebEngine"_L1, "WebEngineView"_L1);
+        webEngineView = qobject_cast<QQuickWebEngineView *>(component.create());
+        Q_ASSERT(webEngineView);
+        webEngineView->setParentItem(parentItem);
+        QQuickItemPrivate::get(webEngineView)->anchors()->setFill(parentItem);
     }
-    QQmlEngine *engine = qmlEngine(parentItem);
-    if (!engine) {
-        qWarning("Could not initialize qmlEngine");
-        return;
-    }
-    QQmlComponent *component = new QQmlComponent(engine);
-    component->setData(qmlSource(), QUrl::fromLocalFile(QLatin1String("")));
-    QQuickWebEngineView *webEngineView = qobject_cast<QQuickWebEngineView *>(component->create());
-    Q_ASSERT(webEngineView);
+
     QQuickWebEngineProfile *profile = webEngineView->profile();
     Q_ASSERT(profile);
     QQuickWebEngineSettings *settings = webEngineView->settings();
@@ -275,7 +281,6 @@ void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
     QObject::connect(webEngineView, &QQuickWebEngineView::profileChanged,m_parent, &QWebEngineWebViewPrivate::q_profileChanged);
     QObject::connect(profile, &QQuickWebEngineProfile::httpUserAgentChanged, m_parent, &QWebEngineWebViewPrivate::q_httpUserAgentChanged);
 
-    webEngineView->setParentItem(parentItem);
     m_webEngineView.reset(webEngineView);
 
     if (!m_parent->m_cookieStore.m_cookieStore)

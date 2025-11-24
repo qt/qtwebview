@@ -25,30 +25,6 @@
 #define ANDROID_REQUIRES_API_LEVEL(N)
 #endif
 
-// TODO: remove when c++ apis come
-class WebViewFactory
-{
-public:
-    WebViewFactory()
-        : m_webengine(QWebViewFactory::loadedPluginHasKey("webengine")),
-          m_engine(m_webengine ? std::make_unique<QQmlEngine>() : nullptr),
-          m_quickView(m_webengine ? std::make_unique<QQuickWebView>() : nullptr),
-          m_view(m_webengine ? nullptr : std::make_unique<QWebView>())
-    {
-        if (m_webengine) {
-            QQmlContext *rootContext = m_engine->rootContext();
-            QQmlEngine::setContextForObject(m_quickView.get(), rootContext);
-        }
-    }
-    QWebView &webViewRef() { return m_webengine ? m_quickView->webView() : *(m_view.get()); }
-
-private:
-    bool m_webengine;
-    std::unique_ptr<QQmlEngine> m_engine;
-    std::unique_ptr<QQuickWebView> m_quickView;
-    std::unique_ptr<QWebView> m_view;
-};
-
 class tst_QWebView : public QObject
 {
     Q_OBJECT
@@ -72,10 +48,6 @@ void tst_QWebView::initTestCase()
 {
     if (!qEnvironmentVariableIsEmpty("QEMU_LD_PREFIX"))
         QSKIP("This test is unstable on QEMU, so it will be skipped.");
-#if QT_CONFIG(webview_webengine_plugin)
-    if (QWebViewFactory::loadedPluginHasKey("webengine"))
-        QtWebEngineQuick::initialize();
-#endif
     if (!QFileInfo(m_cacheLocation).isDir()) {
         QDir dir;
         QVERIFY(dir.mkpath(m_cacheLocation));
@@ -92,8 +64,7 @@ void tst_QWebView::load()
     const QString fileName = file.fileName();
     file.close();
 
-    WebViewFactory factory;
-    QWebView &view = factory.webViewRef();
+    QWebView view;
     view.settings()->setAllowFileAccess(true);
     view.settings()->setLocalContentCanAccessFileUrls(true);
     QCOMPARE(view.loadProgress(), 0);
@@ -136,8 +107,7 @@ void tst_QWebView::loadHtml_data()
     QTest::addColumn<QByteArray>("content");
     QTest::addColumn<QUrl>("loadUrl");
     QTest::addColumn<QUrl>("resultUrl");
-    WebViewFactory factory;
-    QWebView &view = factory.webViewRef();
+    QWebView view;
     QCOMPARE(view.loadProgress(), 0);
     QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
     const QByteArray content(
@@ -168,8 +138,7 @@ void tst_QWebView::loadHtml()
     QFETCH(QUrl, loadUrl);
     QFETCH(QUrl, resultUrl);
 
-    WebViewFactory factory;
-    QWebView &view = factory.webViewRef();
+    QWebView view;
     QCOMPARE(view.loadProgress(), 0);
     QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
     QSignalSpy javaScriptResultSpy(&view, SIGNAL(javaScriptResult(int, QVariant)));
@@ -207,8 +176,7 @@ void tst_QWebView::loadRequest()
         const QString fileName = file.fileName();
         file.close();
 
-        WebViewFactory factory;
-        QWebView &view = factory.webViewRef();
+        QWebView view;
 
         view.settings()->setAllowFileAccess(true);
         view.settings()->setLocalContentCanAccessFileUrls(true);
@@ -235,8 +203,7 @@ void tst_QWebView::loadRequest()
 
     // LoadFailed
     {
-        WebViewFactory factory;
-        QWebView &view = factory.webViewRef();
+        QWebView view;
         view.settings()->setAllowFileAccess(true);
         view.settings()->setLocalContentCanAccessFileUrls(true);
         QCOMPARE(view.loadProgress(), 0);
@@ -261,8 +228,7 @@ void tst_QWebView::loadRequest()
 
 void tst_QWebView::setAndDeleteCookie()
 {
-    WebViewFactory factory;
-    QWebView &view = factory.webViewRef();
+    QWebView view;
     view.settings()->setLocalStorageEnabled(true);
     view.settings()->setAllowFileAccess(true);
     view.settings()->setLocalContentCanAccessFileUrls(true);

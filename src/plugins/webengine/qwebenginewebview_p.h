@@ -121,12 +121,12 @@ private:
         {
             if (!m_webEngineView)
                 init();
-            return m_webEngineView.data();
+            return m_webEngineView.get();
         }
         void init() const;
 
         QWebEngineWebViewPrivate *m_parent;
-        mutable QScopedPointer<QQuickWebEngineView> m_webEngineView;
+        mutable std::unique_ptr<QQuickWebEngineView> m_webEngineView;
     } m_webEngineView;
     struct QWebEngineCookieStorePtr
     {
