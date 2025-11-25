@@ -29,7 +29,7 @@ Q_MOC_INCLUDE(<QtWebView/qwebviewloadrequest.h>)
 QT_BEGIN_NAMESPACE
 
 class QQuickWebViewLoadRequest;
-class QWebViewLoadRequestPrivate;
+class QWebViewLoadRequest;
 class QQuickWebViewSettings;
 
 class Q_WEBVIEWQUICK_EXPORT QQuickWebView : public QQuickWindowContainer
@@ -98,7 +98,7 @@ protected:
 
 private Q_SLOTS:
     void onRunJavaScriptResult(int id, const QVariant &variant);
-    void onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
+    void onLoadingChanged(const QWebViewLoadRequest &loadRequest);
 
 private:
     friend class QWebEngineWebViewPrivate;

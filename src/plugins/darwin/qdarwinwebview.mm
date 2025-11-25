@@ -73,8 +73,9 @@ typedef NSView UIView;
     NSURL *failingURL = error.userInfo[@"NSErrorFailingURLKey"];
     const QUrl url = [failingURL isKindOfClass:[NSURL class]]
                         ? QUrl::fromNSURL(failingURL) : qDarwinWebViewPrivate->url();
-    emit qDarwinWebViewPrivate->q_ptr->loadingChanged(QWebViewLoadRequestPrivate(
-            url, QWebView::LoadFailedStatus, QString::fromNSString(errorString)));
+    emit qDarwinWebViewPrivate->q_ptr->loadingChanged(
+            QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+                                QString::fromNSString(errorString)));
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
@@ -90,8 +91,9 @@ typedef NSView UIView;
     else
         return;
 
-    emit qDarwinWebViewPrivate->q_ptr->loadingChanged(QWebViewLoadRequestPrivate(
-            qDarwinWebViewPrivate->url(), QWebView::LoadStartedStatus, QString()));
+    emit qDarwinWebViewPrivate->q_ptr->loadingChanged(
+            QWebViewLoadRequest(qDarwinWebViewPrivate->url(),
+                                QWebViewLoadRequest::LoadStatus::LoadStartedStatus, QString()));
     emit qDarwinWebViewPrivate->q_ptr->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
 }
 
@@ -104,8 +106,9 @@ typedef NSView UIView;
         return;
 
     [self pageDone];
-    emit qDarwinWebViewPrivate->q_ptr->loadingChanged(QWebViewLoadRequestPrivate(
-            qDarwinWebViewPrivate->url(), QWebView::LoadSucceededStatus, QString()));
+    emit qDarwinWebViewPrivate->q_ptr->loadingChanged(
+            QWebViewLoadRequest(qDarwinWebViewPrivate->url(),
+                                QWebViewLoadRequest::LoadStatus::LoadSucceededStatus, QString()));
 }
 
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation
@@ -316,11 +319,12 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
             if (!QFile::exists(url.toLocalFile())) {
                 QMetaObject::invokeMethod(
                         q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
-                        QWebViewLoadRequestPrivate(url, QWebView::LoadStartedStatus, {}));
+                        QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadStartedStatus,
+                                            {}));
                 QMetaObject::invokeMethod(
                         q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
-                        QWebViewLoadRequestPrivate(url, QWebView::LoadFailedStatus,
-                                                   QStringLiteral("File does not exist")));
+                        QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+                                            QStringLiteral("File does not exist")));
                 return;
             }
             // We need to pass local files via loadFileURL and the read access should cover
@@ -335,9 +339,10 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
             [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
         }
     } else {
-        QMetaObject::invokeMethod(q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
-                                  QWebViewLoadRequestPrivate(url, QWebView::LoadFailedStatus,
-                                                             QStringLiteral("Invalid URL")));
+        QMetaObject::invokeMethod(
+                q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
+                QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+                                    QStringLiteral("Invalid URL")));
     }
 }
 

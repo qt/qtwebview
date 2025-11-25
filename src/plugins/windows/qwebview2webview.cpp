@@ -336,8 +336,8 @@ void QWebView2WebViewPrivate::setUrl(const QUrl &url)
             m_isLoading = false;
             m_progress = 100;
             emit q_ptr->loadProgressChanged(100);
-            emit q_ptr->loadingChanged(
-                    QWebViewLoadRequestPrivate(url, QWebView::LoadFailedStatus, QString()));
+            emit q_ptr->loadingChanged(QWebViewLoadRequest(
+                    url, QWebViewLoadRequest::LoadStatus::LoadFailedStatus, QString()));
         }
     }
 }
@@ -565,9 +565,9 @@ HRESULT QWebView2WebViewPrivate::onNavigationCompleted(ICoreWebView2* webview, I
     BOOL isSuccess;
     HRESULT hr = args->get_IsSuccess(&isSuccess);
     Q_ASSERT_SUCCEEDED(hr);
-    const QWebView::LoadStatus status = isSuccess ?
-            QWebView::LoadSucceededStatus :
-            QWebView::LoadFailedStatus;
+    const QWebViewLoadRequest::LoadStatus status = isSuccess
+            ? QWebViewLoadRequest::LoadStatus::LoadSucceededStatus
+            : QWebViewLoadRequest::LoadStatus::LoadFailedStatus;
 
     COREWEBVIEW2_WEB_ERROR_STATUS errorStatus;
     hr = args->get_WebErrorStatus(&errorStatus);
@@ -576,10 +576,10 @@ HRESULT QWebView2WebViewPrivate::onNavigationCompleted(ICoreWebView2* webview, I
         const QString errorStr = isSuccess ? "" : WebErrorStatusToString(errorStatus);
         emit q_ptr->titleChanged(title());
         emit q_ptr->loadProgressChanged(100);
-        emit q_ptr->loadingChanged(QWebViewLoadRequestPrivate(m_url, status, errorStr));
+        emit q_ptr->loadingChanged(QWebViewLoadRequest(m_url, status, errorStr));
     } else {
-        emit q_ptr->loadingChanged(
-                QWebViewLoadRequestPrivate(m_url, QWebView::LoadStoppedStatus, QString()));
+        emit q_ptr->loadingChanged(QWebViewLoadRequest(
+                m_url, QWebViewLoadRequest::LoadStatus::LoadStoppedStatus, QString()));
     }
     return S_OK;
 }
@@ -614,8 +614,8 @@ HRESULT QWebView2WebViewPrivate::onContentLoading(ICoreWebView2* webview, ICoreW
 {
     m_isLoading = true;
     m_progress = 0;
-    emit q_ptr->loadingChanged(
-            QWebViewLoadRequestPrivate(m_url, QWebView::LoadStartedStatus, QString()));
+    emit q_ptr->loadingChanged(QWebViewLoadRequest(
+            m_url, QWebViewLoadRequest::LoadStatus::LoadStartedStatus, QString()));
     emit q_ptr->loadProgressChanged(0);
     return S_OK;
 }

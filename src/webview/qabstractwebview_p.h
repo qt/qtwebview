@@ -24,7 +24,7 @@ QT_BEGIN_NAMESPACE
 
 class QWebView;
 class QWebViewSettings;
-class QWebViewLoadRequestPrivate;
+class QWebViewLoadRequest;
 
 class Q_WEBVIEW_EXPORT QAbstractWebViewSettings : public QObject
 {

@@ -29,7 +29,7 @@ class tst_QWebView;
 QT_BEGIN_NAMESPACE
 
 class QAbstractWebView;
-class QWebViewLoadRequestPrivate;
+class QWebViewLoadRequest;
 class QWindow;
 class QWebViewSettings;
 
@@ -37,13 +37,6 @@ class Q_WEBVIEW_EXPORT QWebView : public QWindow
 {
     Q_OBJECT
 public:
-    enum LoadStatus { // Changes here needs to be done in QQuickWebView as well
-        LoadStartedStatus,
-        LoadStoppedStatus,
-        LoadSucceededStatus,
-        LoadFailedStatus
-    };
-
     explicit QWebView(QWindow *parent = nullptr);
     ~QWebView() override;
 
@@ -71,7 +64,7 @@ public:
 Q_SIGNALS:
     void titleChanged(const QString &title);
     void urlChanged(const QUrl &url);
-    void loadingChanged(const QWebViewLoadRequestPrivate &loadRequest);
+    void loadingChanged(const QWebViewLoadRequest &loadRequest);
     void loadProgressChanged(int progress);
     void javaScriptResult(int id, const QVariant &result);
     void httpUserAgentChanged(const QString &agent);

@@ -190,9 +190,10 @@ void QWebEngineWebViewPrivate::q_titleChanged()
 
 void QWebEngineWebViewPrivate::q_loadingChanged(const QWebEngineLoadingInfo &loadRequest)
 {
-    QWebViewLoadRequestPrivate lr(loadRequest.url(),
-                                  static_cast<QWebView::LoadStatus>(loadRequest.status()), // These "should" match...
-                                  loadRequest.errorString());
+    QWebViewLoadRequest lr(loadRequest.url(),
+                           static_cast<QWebViewLoadRequest::LoadStatus>(
+                                   loadRequest.status()), // These "should" match...
+                           loadRequest.errorString());
     emit q_ptr->loadingChanged(lr);
 }
 

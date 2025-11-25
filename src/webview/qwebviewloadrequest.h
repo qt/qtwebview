@@ -2,42 +2,49 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 // Qt-Security score:significant reason:default
 
-#ifndef QWEBVIEWLOADREQUESTPRIVATE_H
-#define QWEBVIEWLOADREQUESTPRIVATE_H
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#ifndef QWEBVIEWLOADREQUEST_H
+#define QWEBVIEWLOADREQUEST_H
 
 #include <QtWebView/qwebview.h>
+
 #include <QtCore/qstring.h>
 #include <QtCore/qurl.h>
 
 QT_BEGIN_NAMESPACE
 
-class Q_WEBVIEW_EXPORT QWebViewLoadRequestPrivate
+class Q_WEBVIEW_EXPORT QWebViewLoadRequest
 {
-public:
-    QWebViewLoadRequestPrivate();
-    QWebViewLoadRequestPrivate(const QUrl &url,
-                               QWebView::LoadStatus status,
-                               const QString &errorString);
-    ~QWebViewLoadRequestPrivate();
+    Q_GADGET
+    Q_PROPERTY(QUrl url READ url CONSTANT)
+    Q_PROPERTY(LoadStatus status READ status CONSTANT)
+    Q_PROPERTY(QString errorString READ errorString CONSTANT)
+    Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 
+public:
+    enum class LoadStatus {
+        LoadStartedStatus,
+        LoadStoppedStatus,
+        LoadSucceededStatus,
+        LoadFailedStatus
+    };
+    Q_ENUM(LoadStatus)
+
+    QWebViewLoadRequest();
+    QWebViewLoadRequest(const QUrl &url, LoadStatus status, const QString &errorString);
+    ~QWebViewLoadRequest();
+
+    QUrl url() const;
+    LoadStatus status() const;
+    QString errorString() const;
+
+private:
     QUrl m_url;
-    QWebView::LoadStatus m_status;
+    LoadStatus m_status;
     QString m_errorString;
 };
 
 QT_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QWebViewLoadRequestPrivate)
+Q_DECLARE_METATYPE(QWebViewLoadRequest)
 
-#endif // QWEBVIEWLOADREQUESTPRIVATE_H
+#endif // QWEBVIEWLOADREQUEST_H

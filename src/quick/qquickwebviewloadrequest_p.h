@@ -22,7 +22,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWebViewLoadRequestPrivate;
+class QWebViewLoadRequest;
 
 class Q_WEBVIEWQUICK_EXPORT QQuickWebViewLoadRequest : public QObject
 {
@@ -44,9 +44,8 @@ public:
 
 private:
     friend class QQuickWebView;
-    explicit QQuickWebViewLoadRequest(const QWebViewLoadRequestPrivate &d);
-    Q_DECLARE_PRIVATE(QWebViewLoadRequest)
-    QScopedPointer<QWebViewLoadRequestPrivate> d_ptr;
+    explicit QQuickWebViewLoadRequest(const QWebViewLoadRequest &d);
+    QScopedPointer<QWebViewLoadRequest> d_ptr;
 };
 
 QT_END_NAMESPACE

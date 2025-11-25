@@ -353,7 +353,7 @@ void QQuickWebView::onRunJavaScriptResult(int id, const QVariant &variant)
     callback.call(args);
 }
 
-void QQuickWebView::onLoadingChanged(const QWebViewLoadRequestPrivate &loadRequest)
+void QQuickWebView::onLoadingChanged(const QWebViewLoadRequest &loadRequest)
 {
     QQuickWebViewLoadRequest qqLoadRequest(loadRequest);
     Q_EMIT loadingChanged(&qqLoadRequest);

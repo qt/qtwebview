@@ -18,8 +18,8 @@ QT_BEGIN_NAMESPACE
 
     \sa {WebView::loadingChanged()}{WebView.loadingChanged()}
 */
-QQuickWebViewLoadRequest::QQuickWebViewLoadRequest(const QWebViewLoadRequestPrivate &d)
-    : d_ptr(new QWebViewLoadRequestPrivate(d))
+QQuickWebViewLoadRequest::QQuickWebViewLoadRequest(const QWebViewLoadRequest &d)
+    : d_ptr(new QWebViewLoadRequest(d))
 {
 }
 
@@ -33,8 +33,7 @@ QQuickWebViewLoadRequest::~QQuickWebViewLoadRequest() { }
  */
 QUrl QQuickWebViewLoadRequest::url() const
 {
-    Q_D(const QWebViewLoadRequest);
-    return d->m_url;
+    return d_ptr->url();
 }
 
 /*!
@@ -51,8 +50,7 @@ QUrl QQuickWebViewLoadRequest::url() const
 */
 QQuickWebView::LoadStatus QQuickWebViewLoadRequest::status() const
 {
-    Q_D(const QWebViewLoadRequest);
-    return QQuickWebView::LoadStatus(d->m_status);
+    return QQuickWebView::LoadStatus(d_ptr->status());
 }
 
 /*!
@@ -63,8 +61,7 @@ QQuickWebView::LoadStatus QQuickWebViewLoadRequest::status() const
 */
 QString QQuickWebViewLoadRequest::errorString() const
 {
-    Q_D(const QWebViewLoadRequest);
-    return d->m_errorString;
+    return d_ptr->errorString();
 }
 
 QT_END_NAMESPACE

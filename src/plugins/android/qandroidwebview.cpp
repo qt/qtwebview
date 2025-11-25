@@ -302,9 +302,9 @@ static void c_onPageFinished(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadRequestPrivate loadRequest(QUrl(QJniObject(url).toString()),
-                                           QWebView::LoadSucceededStatus,
-                                           QString());
+    QWebViewLoadRequest loadRequest(QUrl(QJniObject(url).toString()),
+                                    QWebViewLoadRequest::LoadStatus::LoadSucceededStatus,
+                                    QString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onPageFinished)
@@ -324,9 +324,8 @@ static void c_onPageStarted(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadRequestPrivate loadRequest(QUrl(QJniObject(url).toString()),
-                                           QWebView::LoadStartedStatus,
-                                           QString());
+    QWebViewLoadRequest loadRequest(QUrl(QJniObject(url).toString()),
+                                    QWebViewLoadRequest::LoadStatus::LoadStartedStatus, QString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 
 //    if (!icon)
@@ -411,9 +410,9 @@ static void c_onReceivedError(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadRequestPrivate loadRequest(QUrl(QJniObject(url).toString()),
-                                           QWebView::LoadFailedStatus,
-                                           QJniObject(description).toString());
+    QWebViewLoadRequest loadRequest(QUrl(QJniObject(url).toString()),
+                                    QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+                                    QJniObject(description).toString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onReceivedError)

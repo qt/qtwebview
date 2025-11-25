@@ -110,7 +110,7 @@ void tst_QWebView::loadHtml_data()
     QTest::addColumn<QUrl>("resultUrl");
     QWebView view;
     QCOMPARE(view.loadProgress(), 0);
-    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
+    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequest)));
     const QByteArray content(
             QByteArrayLiteral("<html><title>WebViewTitle</title>"
                               "<body><span style=\"color:#ff0000\">Hello</span></body></html>"));
@@ -141,7 +141,7 @@ void tst_QWebView::loadHtml()
 
     QWebView view;
     QCOMPARE(view.loadProgress(), 0);
-    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
+    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequest)));
     QSignalSpy javaScriptResultSpy(&view, SIGNAL(javaScriptResult(int, QVariant)));
     view.loadHtml(content, loadUrl);
     QTRY_COMPARE(view.loadProgress(), 100);
@@ -149,8 +149,8 @@ void tst_QWebView::loadHtml()
     QCOMPARE(view.title(), QStringLiteral("WebViewTitle"));
     QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
     // take load finished
-    const QWebViewLoadRequestPrivate &lr = loadChangedSingalSpy.at(1).at(0).value<QWebViewLoadRequestPrivate>();
-    QCOMPARE(lr.m_status, QWebView::LoadSucceededStatus);
+    const QWebViewLoadRequest &lr = loadChangedSingalSpy.at(1).at(0).value<QWebViewLoadRequest>();
+    QCOMPARE(lr.status(), QWebViewLoadRequest::LoadStatus::LoadSucceededStatus);
     if (QWebViewFactory::loadedPluginHasKey("android_view")) {
         // WebEngine javascript calls work only with qmlengine, however here we use
         // c++ interface
@@ -183,7 +183,7 @@ void tst_QWebView::loadRequest()
         view.settings()->setLocalContentCanAccessFileUrls(true);
         QCOMPARE(view.loadProgress(), 0);
         const QUrl url = QUrl::fromLocalFile(fileName);
-        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
+        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequest)));
         view.setUrl(url);
         QTRY_VERIFY(!view.isLoading());
         QTRY_COMPARE(view.loadProgress(), 100);
@@ -192,13 +192,13 @@ void tst_QWebView::loadRequest()
         QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
-            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
-            QCOMPARE(lr.m_status, QWebView::LoadStartedStatus);
+            const QWebViewLoadRequest &lr = loadStartedArgs.at(0).value<QWebViewLoadRequest>();
+            QCOMPARE(lr.status(), QWebViewLoadRequest::LoadStatus::LoadStartedStatus);
         }
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
-            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
-            QCOMPARE(lr.m_status, QWebView::LoadSucceededStatus);
+            const QWebViewLoadRequest &lr = loadStartedArgs.at(0).value<QWebViewLoadRequest>();
+            QCOMPARE(lr.status(), QWebViewLoadRequest::LoadStatus::LoadSucceededStatus);
         }
     }
 
@@ -208,19 +208,19 @@ void tst_QWebView::loadRequest()
         view.settings()->setAllowFileAccess(true);
         view.settings()->setLocalContentCanAccessFileUrls(true);
         QCOMPARE(view.loadProgress(), 0);
-        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequestPrivate)));
+        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadRequest)));
         view.setUrl(QUrl(QStringLiteral("file:///file_that_does_not_exist.html")));
         QTRY_VERIFY(!view.isLoading());
         QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
-            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
-            QCOMPARE(lr.m_status, QWebView::LoadStartedStatus);
+            const QWebViewLoadRequest &lr = loadStartedArgs.at(0).value<QWebViewLoadRequest>();
+            QCOMPARE(lr.status(), QWebViewLoadRequest::LoadStatus::LoadStartedStatus);
         }
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
-            const QWebViewLoadRequestPrivate &lr = loadStartedArgs.at(0).value<QWebViewLoadRequestPrivate>();
-            QCOMPARE(lr.m_status, QWebView::LoadFailedStatus);
+            const QWebViewLoadRequest &lr = loadStartedArgs.at(0).value<QWebViewLoadRequest>();
+            QCOMPARE(lr.status(), QWebViewLoadRequest::LoadStatus::LoadFailedStatus);
         }
         if (QWebViewFactory::loadedPluginHasKey("webengine"))
             QCOMPARE(view.loadProgress(), 100);

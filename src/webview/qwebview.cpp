@@ -19,7 +19,7 @@ QWebView::QWebView(QWindow *parent)
 {
     Q_ASSERT(d);
     d->setParent(this);
-    qRegisterMetaType<QWebViewLoadRequestPrivate>();
+    qRegisterMetaType<QWebViewLoadRequest>();
 }
 
 QWebView::~QWebView()
