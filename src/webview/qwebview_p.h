@@ -29,41 +29,8 @@ class tst_QWebView;
 QT_BEGIN_NAMESPACE
 
 class QWebViewLoadRequestPrivate;
-
 class QWindow;
-
-class Q_WEBVIEW_EXPORT QWebViewSettings : public QAbstractWebViewSettings
-{
-    Q_OBJECT
-    Q_PROPERTY(bool localStorageEnabled READ localStorageEnabled WRITE setLocalStorageEnabled NOTIFY localStorageEnabledChanged)
-    Q_PROPERTY(bool javaScriptEnabled READ javaScriptEnabled WRITE setJavaScriptEnabled NOTIFY javaScriptEnabledChanged)
-    Q_PROPERTY(bool allowFileAccess READ allowFileAccess WRITE setAllowFileAccess NOTIFY allowFileAccessChanged)
-    Q_PROPERTY(bool localContentCanAccessFileUrls READ localContentCanAccessFileUrls WRITE setLocalContentCanAccessFileUrls NOTIFY localContentCanAccessFileUrlsChanged)
-
-public:
-    explicit QWebViewSettings(QAbstractWebViewSettings *webview);
-    ~QWebViewSettings() override;
-
-    bool localStorageEnabled() const override;
-    bool javaScriptEnabled() const override;
-    bool allowFileAccess() const override;
-    bool localContentCanAccessFileUrls() const override;
-
-public Q_SLOTS:
-    void setLocalStorageEnabled(bool enabled) override;
-    void setJavaScriptEnabled(bool enabled) override;
-    void setAllowFileAccess(bool enabled) override;
-    void setLocalContentCanAccessFileUrls(bool enabled) override;
-
-signals:
-    void localStorageEnabledChanged();
-    void javaScriptEnabledChanged();
-    void allowFileAccessChanged();
-    void localContentCanAccessFileUrlsChanged();
-
-private:
-    QPointer<QAbstractWebViewSettings> d;
-};
+class QWebViewSettings;
 
 class Q_WEBVIEW_EXPORT QWebView : public QWindow
 {

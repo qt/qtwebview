@@ -3,6 +3,7 @@
 // Qt-Security score:significant reason:default
 
 #include "qwebview_p.h"
+#include "qwebviewsettings.h"
 #include "qwebviewplugin_p.h"
 #include "qwebviewloadrequest_p.h"
 #include "qwebviewfactory_p.h"
@@ -119,73 +120,6 @@ void QWebView::deleteCookie(const QString &domain, const QString &name)
 void QWebView::deleteAllCookies()
 {
     d->deleteAllCookies();
-}
-
-QWebViewSettings::QWebViewSettings(QAbstractWebViewSettings *settings)
-    : d(settings)
-{
-    Q_ASSERT(settings != nullptr);
-}
-
-QWebViewSettings::~QWebViewSettings()
-{
-
-}
-
-bool QWebViewSettings::localStorageEnabled() const
-{
-    return d->localStorageEnabled();
-}
-
-void QWebViewSettings::setLocalStorageEnabled(bool enabled)
-{
-    if (d->localStorageEnabled() == enabled)
-        return;
-
-    d->setLocalStorageEnabled(enabled);
-    emit localStorageEnabledChanged();
-}
-
-bool QWebViewSettings::javaScriptEnabled() const
-{
-    return d->javaScriptEnabled();
-}
-
-void QWebViewSettings::setJavaScriptEnabled(bool enabled)
-{
-    if (d->javaScriptEnabled() == enabled)
-        return;
-
-    d->setJavaScriptEnabled(enabled);
-    emit javaScriptEnabledChanged();
-}
-
-void QWebViewSettings::setAllowFileAccess(bool enabled)
-{
-    if (d->allowFileAccess() == enabled)
-        return;
-
-    d->setAllowFileAccess(enabled);
-    emit allowFileAccessChanged();
-}
-
-bool QWebViewSettings::allowFileAccess() const
-{
-    return d->allowFileAccess();
-}
-
-bool QWebViewSettings::localContentCanAccessFileUrls() const
-{
-    return d->localContentCanAccessFileUrls();
-}
-
-void QWebViewSettings::setLocalContentCanAccessFileUrls(bool enabled)
-{
-    if (d->localContentCanAccessFileUrls() == enabled)
-        return;
-
-    d->setLocalContentCanAccessFileUrls(enabled);
-    emit localContentCanAccessFileUrlsChanged();
 }
 
 QT_END_NAMESPACE

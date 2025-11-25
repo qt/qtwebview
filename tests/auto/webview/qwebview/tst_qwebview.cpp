@@ -8,6 +8,7 @@
 #include <QtCore/qfileinfo.h>
 #include <QtWebView/private/qwebview_p.h>
 #include <QtQml/qqmlengine.h>
+#include <QtWebView/qwebviewsettings.h>
 #include <QtWebView/private/qwebviewloadrequest_p.h>
 #include <QtWebView/private/qwebviewfactory_p.h>
 #include <QtWebViewQuick/private/qquickwebview_p.h>
