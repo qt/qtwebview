@@ -12,10 +12,10 @@ qt_internal_add_module(WebView
     SOURCES
         qabstractwebview_p.h
         qtwebviewfunctions.cpp qtwebviewfunctions.h
-        qwebview.cpp qwebview_p.h
+        qwebview.cpp qwebview.h
         qwebview_global.h
         qwebviewfactory.cpp qwebviewfactory_p.h
-        qwebviewloadrequest.cpp qwebviewloadrequest_p.h
+        qwebviewloadrequest.cpp qwebviewloadrequest.h
         qwebviewsettings.cpp qwebviewsettings.h
         qwebviewplugin.cpp qwebviewplugin_p.h
     LIBRARIES

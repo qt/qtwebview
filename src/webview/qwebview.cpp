@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 // Qt-Security score:significant reason:default
 
-#include "qwebview_p.h"
+#include "qwebview.h"
+
 #include "qwebviewsettings.h"
 #include "qwebviewplugin_p.h"
-#include "qwebviewloadrequest_p.h"
+#include "qwebviewloadrequest.h"
 #include "qwebviewfactory_p.h"
 
 

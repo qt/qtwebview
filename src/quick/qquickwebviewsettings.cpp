@@ -4,7 +4,7 @@
 
 #include "qquickwebviewsettings_p.h"
 
-#include <QtWebView/private/qwebview_p.h>
+#include <QtWebView/qwebview.h>
 #include <QtWebView/qwebviewsettings.h>
 
 QT_BEGIN_NAMESPACE

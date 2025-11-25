@@ -16,7 +16,7 @@
 // We mean it.
 //
 
-#include <QtWebView/private/qwebview_p.h>
+#include <QtWebView/qwebview.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qurl.h>
 

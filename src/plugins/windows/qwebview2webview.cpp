@@ -3,7 +3,7 @@
 // Qt-Security score:significant reason:default
 
 #include "qwebview2webview_p.h"
-#include <private/qwebviewloadrequest_p.h>
+#include <QtWebView/qwebviewloadrequest.h>
 #include <QtCore/private/qfunctions_win_p.h>
 #include <QtWidgets/QtWidgets>
 

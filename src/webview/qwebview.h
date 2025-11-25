@@ -16,18 +16,19 @@
 // We mean it.
 //
 
-#include "qabstractwebview_p.h"
+#include <QtWebView/qwebview_global.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
 #include <QtGui/qimage.h>
-
+#include <QtGui/qwindow.h>
 #include <QtCore/qpointer.h>
 
 class tst_QWebView;
 
 QT_BEGIN_NAMESPACE
 
+class QAbstractWebView;
 class QWebViewLoadRequestPrivate;
 class QWindow;
 class QWebViewSettings;

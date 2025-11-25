@@ -17,14 +17,14 @@
 //
 
 #include <QtWebViewQuick/private/qtwebviewquickglobal_p.h>
-#include <QtWebView/private/qwebview_p.h>
+#include <QtWebView/qwebview.h>
 #include <QtQml/qqmlregistration.h>
 
 #include <QtQuick/private/qquickwindowcontainer_p.h>
 
 Q_MOC_INCLUDE(<QtWebViewQuick/private/qquickwebviewloadrequest_p.h>)
 Q_MOC_INCLUDE(<QtWebViewQuick/private/qquickwebviewsettings_p.h>)
-Q_MOC_INCLUDE(<QtWebView/private/qwebviewloadrequest_p.h>)
+Q_MOC_INCLUDE(<QtWebView/qwebviewloadrequest.h>)
 
 QT_BEGIN_NAMESPACE
 

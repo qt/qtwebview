@@ -19,7 +19,7 @@
 #include <QtWebViewQuick/private/qtwebviewquickglobal_p.h>
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
-#include <QtWebView/private/qwebview_p.h>
+#include <QtWebView/qwebview.h>
 #include <QtCore/qpointer.h>
 
 QT_BEGIN_NAMESPACE

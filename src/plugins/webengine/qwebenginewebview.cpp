@@ -3,8 +3,8 @@
 // Qt-Security score:significant reason:default
 
 #include "qwebenginewebview_p.h"
-#include <QtWebView/private/qwebview_p.h>
-#include <QtWebView/private/qwebviewloadrequest_p.h>
+#include <QtWebView/qwebview.h>
+#include <QtWebView/qwebviewloadrequest.h>
 #include <QtWebViewQuick/private/qquickwebview_p.h>
 
 #include <QtCore/qmap.h>
