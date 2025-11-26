@@ -16,13 +16,15 @@
 // We mean it.
 //
 
-#include <QtWebView/qwebview_global.h>
+#include "qwebview_global.h"
+#include "qwebview.h"
+
 #include <QtCore/qobject.h>
-#include <QtGui/qwindow.h>
+#include <QtCore/qpointer.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWebView;
+class QWindow;
 class QWebViewSettings;
 class QWebViewLoadRequest;
 
@@ -44,11 +46,8 @@ protected:
     explicit QAbstractWebViewSettings(QObject *p = nullptr) : QObject(p) {}
 };
 
-class Q_WEBVIEW_EXPORT QAbstractWebView
-        : public QObject
+class Q_WEBVIEW_EXPORT QAbstractWebView : public QObject
 {
-    Q_OBJECT
-
 public:
     virtual void initialize(QObject *context) = 0;
     virtual QAbstractWebViewSettings *settings() const = 0;
@@ -76,6 +75,7 @@ protected:
     explicit QAbstractWebView(QWebView *view) : q_ptr(view) { };
 
 public:
+    std::unique_ptr<QWebViewSettings> m_settings;
     QWebView *q_ptr;
 };
 

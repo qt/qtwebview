@@ -9,23 +9,23 @@
 #include "qwebviewloadrequest.h"
 #include "qwebviewfactory_p.h"
 
-
 QT_BEGIN_NAMESPACE
 
-QWebView::QWebView(QWindow *parent)
-    : QWindow(parent),
-      d(QWebViewFactory::createWebView(this)),
-      m_settings(new QWebViewSettings(d->settings()))
+QWebView::QWebView(QWindow *parent) : QWindow(parent), d(QWebViewFactory::createWebView(this))
 {
     Q_ASSERT(d);
-    d->setParent(this);
+    d->m_settings.reset(new QWebViewSettings(d->settings()));
     qRegisterMetaType<QWebViewLoadRequest>();
 }
 
-QWebView::~QWebView()
+QWebView::QWebView(QScreen *screen) : QWindow(screen), d(QWebViewFactory::createWebView(this))
 {
-    delete d;
+    Q_ASSERT(d);
+    d->m_settings.reset(new QWebViewSettings(d->settings()));
+    qRegisterMetaType<QWebViewLoadRequest>();
 }
+
+QWebView::~QWebView() { }
 
 QString QWebView::httpUserAgent() const
 {
@@ -92,9 +92,9 @@ bool QWebView::isLoading() const
     return d->isLoading();
 }
 
-QWebViewSettings *QWebView::settings() const
+QWebViewSettings *QWebView::settings()
 {
-    return m_settings;
+    return d->m_settings.get();
 }
 
 void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
