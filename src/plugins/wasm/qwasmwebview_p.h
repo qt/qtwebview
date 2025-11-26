@@ -30,7 +30,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWasmWebViewSettingsPrivate final : public QAbstractWebViewSettings
+class QWasmWebViewSettingsPrivate final : public QWebViewSettingsPrivate
 {
     Q_OBJECT
 public:
@@ -48,7 +48,7 @@ public Q_SLOTS:
     void setAllowFileAccess(bool enabled) final;
 };
 
-class QWasmWebViewPrivate final : public QAbstractWebView
+class QWasmWebViewPrivate final : public QWebViewPrivate
 {
     Q_OBJECT
 public:
@@ -81,7 +81,7 @@ public Q_SLOTS:
 protected:
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) final;
-    QAbstractWebViewSettings *settings() const final;
+    QWebViewSettingsPrivate *settings() const final;
 
 private:
     Q_INVOKABLE void initializeIFrame();

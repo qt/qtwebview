@@ -28,7 +28,7 @@ class QWindow;
 class QWebViewSettings;
 class QWebViewLoadRequest;
 
-class Q_WEBVIEW_EXPORT QAbstractWebViewSettings : public QObject
+class Q_WEBVIEW_EXPORT QWebViewSettingsPrivate : public QObject
 {
     Q_OBJECT
 public:
@@ -43,14 +43,14 @@ public:
     virtual void setAllowFileAccess(bool) = 0;
 
 protected:
-    explicit QAbstractWebViewSettings(QObject *p = nullptr) : QObject(p) { }
+    explicit QWebViewSettingsPrivate(QObject *p = nullptr) : QObject(p) { }
 };
 
-class Q_WEBVIEW_EXPORT QAbstractWebView : public QObject
+class Q_WEBVIEW_EXPORT QWebViewPrivate : public QObject
 {
 public:
     virtual void initialize(QObject *context) = 0;
-    virtual QAbstractWebViewSettings *settings() const = 0;
+    virtual QWebViewSettingsPrivate *settings() const = 0;
     virtual QString httpUserAgent() const = 0;
     virtual void setHttpUserAgent(const QString &httpUserAgent) = 0;
     virtual void setUrl(const QUrl &url) = 0;
@@ -72,7 +72,7 @@ public:
     virtual QWindow *nativeWindow() const = 0;
 
 protected:
-    explicit QAbstractWebView(QWebView *view) : q_ptr(view) { };
+    explicit QWebViewPrivate(QWebView *view) : q_ptr(view) { };
 
 public:
     std::unique_ptr<QWebViewSettings> m_settings;

@@ -33,7 +33,7 @@ typedef NSView UIView;
 @interface QtWKWebViewDelegate : NSObject<WKNavigationDelegate> {
     QPointer<QDarwinWebViewPrivate> qDarwinWebViewPrivate;
 }
-- (QtWKWebViewDelegate *)initWithQAbstractWebView:(QDarwinWebViewPrivate *)webViewPrivate;
+- (QtWKWebViewDelegate *)initWithQWebViewPrivate:(QDarwinWebViewPrivate *)webViewPrivate;
 - (void)pageDone;
 - (void)handleError:(NSError *)error;
 
@@ -48,7 +48,7 @@ typedef NSView UIView;
 @end
 
 @implementation QtWKWebViewDelegate
-- (QtWKWebViewDelegate *)initWithQAbstractWebView:(QDarwinWebViewPrivate *)webViewPrivate
+- (QtWKWebViewDelegate *)initWithQWebViewPrivate:(QDarwinWebViewPrivate *)webViewPrivate
 {
     if ((self = [super init])) {
         Q_ASSERT(webViewPrivate);
@@ -200,9 +200,9 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
 
 QT_BEGIN_NAMESPACE
 
-QDarwinWebViewSettingsPrivate::QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf, QObject *p)
-    : QAbstractWebViewSettings(p)
-    , m_conf(conf)
+QDarwinWebViewSettingsPrivate::QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf,
+                                                             QObject *p)
+    : QWebViewSettingsPrivate(p), m_conf(conf)
 {
 
 }
@@ -268,12 +268,11 @@ void QDarwinWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
     m_allowFileAccess = enabled;
 }
 
-QDarwinWebViewPrivate::QDarwinWebViewPrivate(QWebView *view)
-    : QAbstractWebView(view), wkWebView(nil)
+QDarwinWebViewPrivate::QDarwinWebViewPrivate(QWebView *view) : QWebViewPrivate(view), wkWebView(nil)
 {
     CGRect frame = CGRectMake(0.0, 0.0, 400, 400);
     wkWebView = [[WKWebView alloc] initWithFrame:frame];
-    wkWebView.navigationDelegate = [[QtWKWebViewDelegate alloc] initWithQAbstractWebView:this];
+    wkWebView.navigationDelegate = [[QtWKWebViewDelegate alloc] initWithQWebViewPrivate:this];
     [wkWebView addObserver:wkWebView.navigationDelegate forKeyPath:@"estimatedProgress"
                    options:NSKeyValueObservingOptions(NSKeyValueObservingOptionNew)
                    context:nil];
@@ -563,9 +562,7 @@ void QDarwinWebViewPrivate::setHttpUserAgent(const QString &userAgent)
     emit q_ptr->httpUserAgentChanged(userAgent);
 }
 
-
-
-QAbstractWebViewSettings *QDarwinWebViewPrivate::settings() const
+QWebViewSettingsPrivate *QDarwinWebViewPrivate::settings() const
 {
     return m_settings;
 }

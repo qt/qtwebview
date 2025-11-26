@@ -18,7 +18,7 @@ QT_BEGIN_NAMESPACE
 
 using namespace Microsoft::WRL;
 
-class QWebview2WebViewSettingsPrivate final : public QAbstractWebViewSettings
+class QWebview2WebViewSettingsPrivate final : public QWebViewSettingsPrivate
 {
     Q_OBJECT
 public:
@@ -58,7 +58,7 @@ struct QWebViewInitData{
     QString m_httpUserAgent;
 };
 
-class QWebView2WebViewPrivate : public QAbstractWebView
+class QWebView2WebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
 public:
@@ -99,7 +99,7 @@ private Q_SLOTS:
 
 protected:
     void runJavaScriptPrivate(const QString &script, int callbackId) override;
-    QAbstractWebViewSettings *settings() const override;
+    QWebViewSettingsPrivate *settings() const override;
 
 private:
     ComPtr<ICoreWebView2Controller> m_webviewController;

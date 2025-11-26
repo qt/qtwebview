@@ -28,8 +28,9 @@ Q_DECLARE_JNI_CLASS(Bitmap, "android/graphics/Bitmap");
 using namespace QtJniTypes;
 using namespace Qt::StringLiterals;
 
-QAndroidWebViewSettingsPrivate::QAndroidWebViewSettingsPrivate(const WebViewController &viewController, QObject *p)
-    : QAbstractWebViewSettings(p), m_viewController(viewController)
+QAndroidWebViewSettingsPrivate::QAndroidWebViewSettingsPrivate(
+        const WebViewController &viewController, QObject *p)
+    : QWebViewSettingsPrivate(p), m_viewController(viewController)
 {
 }
 
@@ -77,7 +78,7 @@ typedef QSet<QAndroidWebViewPrivate *> WebViews;
 Q_GLOBAL_STATIC(WebViews, g_webViews)
 
 QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *view)
-    : QAbstractWebView(view),
+    : QWebViewPrivate(view),
       m_callbackId(0),
       m_window(nullptr),
       m_viewController(nullptr),
@@ -204,7 +205,7 @@ void QAndroidWebViewPrivate::runJavaScriptPrivate(const QString &script,
     m_viewController.callMethod<void>("runJavaScript", script, jlong(callbackId));
 }
 
-QAbstractWebViewSettings *QAndroidWebViewPrivate::settings() const
+QWebViewSettingsPrivate *QAndroidWebViewPrivate::settings() const
 {
     return m_settings;
 }

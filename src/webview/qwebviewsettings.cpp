@@ -9,7 +9,7 @@ QT_BEGIN_NAMESPACE
 
 // FIXME add c++ docs
 
-QWebViewSettings::QWebViewSettings(QAbstractWebViewSettings *settings) : d(settings)
+QWebViewSettings::QWebViewSettings(QWebViewSettingsPrivate *settings) : d(settings)
 {
     Q_ASSERT(settings != nullptr);
 }

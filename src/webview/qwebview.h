@@ -19,7 +19,7 @@ class tst_QWebView;
 
 QT_BEGIN_NAMESPACE
 
-class QAbstractWebView;
+class QWebViewPrivate;
 class QWebViewLoadRequest;
 
 class Q_WEBVIEW_EXPORT QWebView : public QWindow
@@ -82,7 +82,7 @@ private:
     friend class QQuickWebView;
     friend class ::tst_QWebView;
 
-    std::unique_ptr<QAbstractWebView> d;
+    std::unique_ptr<QWebViewPrivate> d;
 };
 
 QT_END_NAMESPACE

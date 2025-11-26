@@ -30,7 +30,7 @@ Q_FORWARD_DECLARE_OBJC_CLASS(WKWebViewConfiguration);
 
 QT_BEGIN_NAMESPACE
 
-class QDarwinWebViewSettingsPrivate : public QAbstractWebViewSettings
+class QDarwinWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
     Q_OBJECT
 public:
@@ -53,7 +53,7 @@ private:
     bool m_localContentCanAccessFileUrls = false;
 };
 
-class QDarwinWebViewPrivate : public QAbstractWebView
+class QDarwinWebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
 public:
@@ -72,7 +72,7 @@ public:
     bool isLoading() const override;
 
     QWindow *nativeWindow() const override { return m_window; }
-    QAbstractWebViewSettings *settings() const override;
+    QWebViewSettingsPrivate *settings() const override;
 
 public Q_SLOTS:
     void goBack() override;

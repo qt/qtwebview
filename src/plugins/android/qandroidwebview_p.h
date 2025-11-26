@@ -29,8 +29,7 @@ QT_BEGIN_NAMESPACE
 Q_DECLARE_JNI_CLASS(WebViewController, "org/qtproject/qt/android/view/QtAndroidWebViewController");
 Q_DECLARE_JNI_CLASS(WebView, "android/webkit/WebView");
 
-
-class QAndroidWebViewSettingsPrivate : public QAbstractWebViewSettings
+class QAndroidWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
     Q_OBJECT
 public:
@@ -52,7 +51,7 @@ private:
     QtJniTypes::WebViewController m_viewController;
 };
 
-class QAndroidWebViewPrivate : public QAbstractWebView
+class QAndroidWebViewPrivate : public QWebViewPrivate
 {
     Q_OBJECT
 public:
@@ -85,7 +84,7 @@ public Q_SLOTS:
 protected:
     void runJavaScriptPrivate(const QString& script,
                               int callbackId) override;
-    QAbstractWebViewSettings *settings() const override;
+    QWebViewSettingsPrivate *settings() const override;
 
 private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);

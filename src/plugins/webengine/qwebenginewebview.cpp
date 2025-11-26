@@ -31,7 +31,7 @@ QT_BEGIN_NAMESPACE
 using namespace Qt::StringLiterals;
 
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
-    : QAbstractWebView(p),
+    : QWebViewPrivate(p),
       m_profile(nullptr),
       m_parentItem(nullptr),
       m_window(qobject_cast<QQuickWindow *>(p->parent())),
@@ -153,7 +153,7 @@ void QWebEngineWebViewPrivate::deleteAllCookies()
     m_cookieStore->deleteAllCookies();
 }
 
-QAbstractWebViewSettings *QWebEngineWebViewPrivate::settings() const
+QWebViewSettingsPrivate *QWebEngineWebViewPrivate::settings() const
 {
     return m_settings;
 }
@@ -303,7 +303,7 @@ void QWebEngineWebViewPrivate::QWebEngineCookieStorePtr::init() const
 }
 
 QWebEngineWebViewSettingsPrivate::QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p)
-    : QAbstractWebViewSettings(p)
+    : QWebViewSettingsPrivate(p)
 {
 
 }

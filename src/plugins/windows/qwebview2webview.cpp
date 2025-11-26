@@ -42,7 +42,7 @@ QString WebErrorStatusToString(COREWEBVIEW2_WEB_ERROR_STATUS status)
 }
 
 QWebview2WebViewSettingsPrivate::QWebview2WebViewSettingsPrivate(QObject *p)
-    : QAbstractWebViewSettings(p)
+    : QWebViewSettingsPrivate(p)
 {
 }
 
@@ -106,7 +106,7 @@ void QWebview2WebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 }
 
 QWebView2WebViewPrivate::QWebView2WebViewPrivate(QWebView *view)
-    : QAbstractWebView(view),
+    : QWebViewPrivate(view),
       m_settings(new QWebview2WebViewSettingsPrivate(this)),
       m_window(view),
       m_isLoading(false),
@@ -678,7 +678,7 @@ void QWebView2WebViewPrivate::runJavaScriptPrivate(const QString &script, int ca
     }
 }
 
-QAbstractWebViewSettings *QWebView2WebViewPrivate::settings() const
+QWebViewSettingsPrivate *QWebView2WebViewPrivate::settings() const
 {
     return m_settings;
 }

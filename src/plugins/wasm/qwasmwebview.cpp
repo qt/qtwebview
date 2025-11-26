@@ -21,9 +21,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QWasmWebViewSettingsPrivate::QWasmWebViewSettingsPrivate(QObject *p) : QAbstractWebViewSettings(p)
-{
-}
+QWasmWebViewSettingsPrivate::QWasmWebViewSettingsPrivate(QObject *p)
+    : QWebViewSettingsPrivate(p) { }
 
 bool QWasmWebViewSettingsPrivate::localStorageEnabled() const
 {
@@ -73,7 +72,7 @@ void QWasmWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
     qWarning("setAllowFileAccess() not supported on this platform");
 }
 
-QWasmWebViewPrivate::QWasmWebViewPrivate(QWebView *view) : QAbstractWebView(view), m_window(view)
+QWasmWebViewPrivate::QWasmWebViewPrivate(QWebView *view) : QWebViewPrivate(view), m_window(view)
 {
     m_settings = new QWasmWebViewSettingsPrivate(this);
     QMetaObject::invokeMethod(this, &QWasmWebViewPrivate::initializeIFrame, Qt::QueuedConnection);
@@ -203,7 +202,7 @@ void QWasmWebViewPrivate::runJavaScriptPrivate(const QString &script, int callba
     qWarning("runJavaScriptPrivate() not supported on this platform");
 }
 
-QAbstractWebViewSettings *QWasmWebViewPrivate::settings() const
+QWebViewSettingsPrivate *QWasmWebViewPrivate::settings() const
 {
     return m_settings;
 }

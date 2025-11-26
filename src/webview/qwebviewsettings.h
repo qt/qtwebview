@@ -13,7 +13,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QAbstractWebViewSettings;
+class QWebViewSettingsPrivate;
 class QWindow;
 
 class Q_WEBVIEW_EXPORT QWebViewSettings : public QObject
@@ -29,7 +29,7 @@ class Q_WEBVIEW_EXPORT QWebViewSettings : public QObject
                        setLocalContentCanAccessFileUrls NOTIFY localContentCanAccessFileUrlsChanged)
 
 public:
-    explicit QWebViewSettings(QAbstractWebViewSettings *webview);
+    explicit QWebViewSettings(QWebViewSettingsPrivate *webview);
     virtual ~QWebViewSettings() override;
 
     bool localStorageEnabled() const;
@@ -49,7 +49,7 @@ Q_SIGNALS:
     void localContentCanAccessFileUrlsChanged();
 
 private:
-    std::unique_ptr<QAbstractWebViewSettings> d;
+    std::unique_ptr<QWebViewSettingsPrivate> d;
 };
 
 QT_END_NAMESPACE
