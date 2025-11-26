@@ -17,7 +17,7 @@
 //
 
 #include "qwebview_global.h"
-#include "qabstractwebview_p.h"
+#include "qwebview_p.h"
 
 #include <QtCore/qobject.h>
 

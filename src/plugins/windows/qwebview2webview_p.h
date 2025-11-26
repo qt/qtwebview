@@ -5,7 +5,7 @@
 #ifndef QWEBVIEW2WEBVIEW_P_H
 #define QWEBVIEW2WEBVIEW_P_H
 
-#include <private/qabstractwebview_p.h>
+#include <private/qwebview_p.h>
 
 #include <QMap>
 #include <QPointer>

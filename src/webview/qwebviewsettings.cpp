@@ -3,7 +3,7 @@
 // Qt-Security score:significant reason:default
 
 #include "qwebviewsettings.h"
-#include "qabstractwebview_p.h"
+#include "qwebview_p.h"
 
 QT_BEGIN_NAMESPACE
 

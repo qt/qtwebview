@@ -43,7 +43,7 @@ public:
     virtual void setAllowFileAccess(bool) = 0;
 
 protected:
-    explicit QAbstractWebViewSettings(QObject *p = nullptr) : QObject(p) {}
+    explicit QAbstractWebViewSettings(QObject *p = nullptr) : QObject(p) { }
 };
 
 class Q_WEBVIEW_EXPORT QAbstractWebView : public QObject

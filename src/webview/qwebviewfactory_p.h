@@ -16,7 +16,7 @@
 // We mean it.
 //
 
-#include "qabstractwebview_p.h"
+#include "qwebview_p.h"
 
 QT_BEGIN_NAMESPACE
 

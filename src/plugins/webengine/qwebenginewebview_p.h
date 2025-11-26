@@ -22,7 +22,7 @@
 
 #include <QtQml/qqmlcomponent.h>
 
-#include <private/qabstractwebview_p.h>
+#include <private/qwebview_p.h>
 #include <QtWebEngineQuick/QQuickWebEngineProfile>
 #include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
 

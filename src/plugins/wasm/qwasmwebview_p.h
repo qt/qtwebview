@@ -24,7 +24,7 @@
 #include <QtGui/qpa/qplatformwindow_p.h>
 #include <emscripten/val.h>
 
-#include <private/qabstractwebview_p.h>
+#include <private/qwebview_p.h>
 
 #include <optional>
 

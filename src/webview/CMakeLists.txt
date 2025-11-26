@@ -10,9 +10,8 @@ qt_internal_add_module(WebView
     DEPENDENCIES
         QtQuick/auto
     SOURCES
-        qabstractwebview_p.h
         qtwebviewfunctions.cpp qtwebviewfunctions.h
-        qwebview.cpp qwebview.h
+        qwebview.cpp qwebview.h qwebview_p.h
         qwebview_global.h
         qwebviewfactory.cpp qwebviewfactory_p.h
         qwebviewloadrequest.cpp qwebviewloadrequest.h

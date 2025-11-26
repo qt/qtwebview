@@ -22,7 +22,7 @@
 #include <QtCore/qjniobject.h>
 #include <QtCore/qjnitypes.h>
 
-#include <private/qabstractwebview_p.h>
+#include <private/qwebview_p.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -20,7 +20,7 @@
 #include <QtCore/qurl.h>
 #include <QtGui/qwindow.h>
 
-#include <private/qabstractwebview_p.h>
+#include <private/qwebview_p.h>
 
 #include <QtCore/qpointer.h>
 
