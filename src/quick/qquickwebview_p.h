@@ -44,7 +44,6 @@ class Q_WEBVIEWQUICK_EXPORT QQuickWebView : public QQuickWindowContainer
     Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged FINAL)
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged FINAL)
     Q_PROPERTY(QQuickWebViewSettings *settings READ settings CONSTANT FINAL REVISION(6, 5))
-    Q_ENUMS(LoadStatus)
     QML_NAMED_ELEMENT(WebView)
     QML_ADDED_IN_VERSION(1, 0)
     QML_EXTRA_VERSION(2, 0)
@@ -56,6 +55,8 @@ public:
         LoadSucceededStatus,
         LoadFailedStatus
     };
+    Q_ENUM(LoadStatus)
+
     QQuickWebView(QQuickItem *parent = nullptr);
     ~QQuickWebView();
 
