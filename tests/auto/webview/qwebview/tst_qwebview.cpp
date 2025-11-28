@@ -46,6 +46,9 @@ private slots:
     void loadHtml();
     void loadRequest();
 
+    void backAndForward();
+    void reload();
+
     void runJavaScript();
     void setAndDeleteCookie();
 
@@ -209,6 +212,47 @@ void tst_QWebView::loadRequest()
         if (QWebViewFactory::loadedPluginHasKey("webengine"))
             QCOMPARE(view.loadProgress(), 100);
     }
+}
+
+void tst_QWebView::backAndForward()
+{
+    TestWebView webView;
+    QUrl page1 = makeTestFileUrl("basic_page.html");
+    QUrl page2 = makeTestFileUrl("basic_page2.html");
+
+    webView.setUrl(page1);
+    QTRY_COMPARE(webView.loadingSpy.size(), 2);
+    QVERIFY(!webView.canGoBack());
+    QVERIFY(!webView.canGoForward());
+
+    webView.setUrl(page2);
+    QTRY_COMPARE(webView.loadingSpy.size(), 4);
+    QVERIFY(webView.canGoBack());
+    QVERIFY(!webView.canGoForward());
+
+    webView.goBack();
+    QTRY_COMPARE(webView.loadingSpy.size(), 6);
+    QVERIFY(!webView.canGoBack());
+    QVERIFY(webView.canGoForward());
+
+    webView.goForward();
+    QTRY_COMPARE(webView.loadingSpy.size(), 8);
+    QVERIFY(webView.canGoBack());
+    QVERIFY(!webView.canGoForward());
+}
+
+void tst_QWebView::reload()
+{
+    TestWebView webView;
+    QUrl url = makeTestFileUrl("basic_page.html");
+    webView.setUrl(url);
+    QTRY_COMPARE(webView.loadingSpy.size(), 2);
+
+    webView.reload();
+    QTRY_COMPARE(webView.loadingSpy.size(), 4);
+
+    QCOMPARE(webView.loadingSpy[3][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Succeeded);
+    QCOMPARE(webView.url(), url);
 }
 
 void tst_QWebView::runJavaScript()
