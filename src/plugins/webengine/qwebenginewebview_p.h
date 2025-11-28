@@ -48,7 +48,6 @@ public:
     bool localContentCanAccessFileUrls() const override;
     bool allowFileAccess() const override;
 
-public Q_SLOTS:
     void setLocalContentCanAccessFileUrls(bool enabled) override;
     void setJavaScriptEnabled(bool enabled) override;
     void setLocalStorageEnabled(bool enabled) override;

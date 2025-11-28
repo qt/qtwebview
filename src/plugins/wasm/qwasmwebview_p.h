@@ -41,7 +41,6 @@ public:
     bool localContentCanAccessFileUrls() const final;
     bool allowFileAccess() const final;
 
-public Q_SLOTS:
     void setLocalContentCanAccessFileUrls(bool enabled) final;
     void setJavaScriptEnabled(bool enabled) final;
     void setLocalStorageEnabled(bool enabled) final;
@@ -68,7 +67,6 @@ public:
 
     QWindow *nativeWindow() const override { return m_window; }
 
-public Q_SLOTS:
     void goBack() final;
     void goForward() final;
     void reload() final;
