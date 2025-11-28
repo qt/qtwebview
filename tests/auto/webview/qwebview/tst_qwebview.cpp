@@ -7,10 +7,11 @@
 #include <QtCore/qtemporarydir.h>
 #include <QtCore/qfileinfo.h>
 #include <QtWebView/qwebview.h>
-#include <QtQml/qqmlengine.h>
 #include <QtWebView/qwebviewsettings.h>
 #include <QtWebView/qwebviewloadinginfo.h>
 #include <QtWebView/private/qwebviewfactory_p.h>
+
+#include <testutil.h>
 
 #if defined(Q_OS_ANDROID) && !defined(Q_OS_ANDROID_NO_SDK)
 #include <QtCore/private/qjnihelpers_p.h>
@@ -21,6 +22,13 @@
 #define ANDROID_REQUIRES_API_LEVEL(N)
 #endif
 
+class TestWebView : public QWebView {
+public:
+    TestWebView() : QWebView() { settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true); };
+    QSignalSpy loadingSpy = QSignalSpy(this, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
+    QSignalSpy titleSpy = QSignalSpy(this, SIGNAL(titleChanged(QString)));
+};
+
 class tst_QWebView : public QObject
 {
     Q_OBJECT
@@ -29,11 +37,16 @@ public:
 
 private slots:
     void initTestCase();
+
+    void startupState();
+
     void load();
     void runJavaScript();
+    void loadNonexistentFileUrl();
     void loadHtml_data();
     void loadHtml();
     void loadRequest();
+
     void setAndDeleteCookie();
 
 private:
@@ -50,52 +63,53 @@ void tst_QWebView::initTestCase()
     }
 }
 
+void tst_QWebView::startupState()
+{
+    QWebView webView;
+    QVERIFY(!webView.canGoBack());
+    QVERIFY(!webView.canGoForward());
+    QVERIFY(!webView.isLoading());
+    QCOMPARE(webView.url(), QUrl());
+}
+
 void tst_QWebView::load()
 {
-    QTemporaryFile file(m_cacheLocation + QStringLiteral("/XXXXXXfile.html"));
-    QVERIFY2(file.open(),
-             qPrintable(QStringLiteral("Cannot create temporary file:") + file.errorString()));
+    TestWebView webView;
+    webView.setUrl(makeTestFileUrl("basic_page.html"));
 
-    file.write("<html><head><title>FooBar</title></head><body />");
-    const QString fileName = file.fileName();
-    file.close();
-
-    QWebView view;
-    view.settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true);
-    view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls,
-                                  true);
-    QCOMPARE(view.loadProgress(), 0);
-    const QUrl url = QUrl::fromLocalFile(fileName);
-    view.setUrl(url);
-    QTRY_COMPARE(view.loadProgress(), 100);
-    QTRY_VERIFY(!view.isLoading());
-    QCOMPARE(view.title(), QStringLiteral("FooBar"));
-    QVERIFY(!view.canGoBack());
-    QVERIFY(!view.canGoForward());
-    QCOMPARE(view.url(), url);
+    QTRY_COMPARE(webView.loadingSpy.size(), 2);
+    QCOMPARE(webView.loadProgress(), 100);
+    QCOMPARE(webView.loadingSpy[0][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Started);
+    QCOMPARE(webView.loadingSpy[1][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Succeeded);
+    QCOMPARE(webView.title(), QStringLiteral("Basic Page"));
 }
 
 void tst_QWebView::runJavaScript()
 {
     ANDROID_REQUIRES_API_LEVEL(19)
-    const QString tstProperty = QString(QLatin1String("Qt.tst_data"));
-    const QString title = QString(QLatin1String("WebViewTitle"));
 
     QWebView view;
-    QCOMPARE(view.loadProgress(), 0);
-    view.loadHtml(QString("<html><head><title>%1</title></head><body/></html>").arg(title));
+    view.show();
+    view.loadHtml(QString("<html><head><title>WebViewTitle</title></head><body/></html>"));
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
-    QCOMPARE(view.title(), title);
-    bool called = false;
-    QString documentTitle;
-    auto callback = [&](const QVariant &result) {
-        called = true;
-        documentTitle = result.value<QString>();
-    };
-    view.runJavaScript(QString(QLatin1String("document.title")), callback);
-    QTRY_COMPARE(called, true);
-    QCOMPARE(documentTitle, title);
+    QTRY_COMPARE(view.title(), "WebViewTitle");
+
+    bool callbackCalled = false;
+    view.runJavaScript(QString(QLatin1String("document.title")), [&callbackCalled](const QVariant &result) {
+        QCOMPARE(result.toString(), "WebViewTitle");
+        callbackCalled = true;
+    });
+
+    QTRY_VERIFY(callbackCalled);
+}
+
+void tst_QWebView::loadNonexistentFileUrl()
+{
+    TestWebView webView;
+    webView.setUrl(QUrl::fromLocalFile("file_that_does_not_exist.html"));
+    QTRY_COMPARE(webView.loadingSpy.size(), 2);
+    QCOMPARE(webView.loadingSpy[1][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Failed);
 }
 
 void tst_QWebView::loadHtml_data()
@@ -103,9 +117,7 @@ void tst_QWebView::loadHtml_data()
     QTest::addColumn<QByteArray>("content");
     QTest::addColumn<QUrl>("loadUrl");
     QTest::addColumn<QUrl>("resultUrl");
-    QWebView view;
-    QCOMPARE(view.loadProgress(), 0);
-    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
+
     const QByteArray content(
             QByteArrayLiteral("<html><title>WebViewTitle</title>"
                               "<body><span style=\"color:#ff0000\">Hello</span></body></html>"));
@@ -113,9 +125,9 @@ void tst_QWebView::loadHtml_data()
     encoded.append(content.toPercentEncoding());
 
     if (!QWebViewFactory::loadedPluginHasKey("webkit")) {
-        QTest::newRow("set conent without base url") << content << QUrl() << QUrl(encoded);
+        QTest::newRow("set content without base url") << content << QUrl() << QUrl(encoded);
     } else {
-        QTest::newRow("set conent without base url") << content << QUrl() << QUrl("about:blank");
+        QTest::newRow("set content without base url") << content << QUrl() << QUrl("about:blank");
     }
     QTest::newRow("set content with data base url") << content << QUrl(encoded) << QUrl(encoded);
 
@@ -134,16 +146,14 @@ void tst_QWebView::loadHtml()
     QFETCH(QUrl, loadUrl);
     QFETCH(QUrl, resultUrl);
 
-    QWebView view;
-    QCOMPARE(view.loadProgress(), 0);
-    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
+    TestWebView view;
     view.loadHtml(content, loadUrl);
-    QTRY_COMPARE(view.loadProgress(), 100);
-    QTRY_VERIFY(!view.isLoading());
-    QCOMPARE(view.title(), QStringLiteral("WebViewTitle"));
-    QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
+    QTRY_COMPARE(view.loadingSpy.size(), 2);
+    QVERIFY(!view.isLoading());
+    QCOMPARE(view.loadProgress(), 100);
+    QTRY_COMPARE(view.title(), QStringLiteral("WebViewTitle"));
     // take load finished
-    const QWebViewLoadingInfo &lr = loadChangedSingalSpy.at(1).at(0).value<QWebViewLoadingInfo>();
+    const QWebViewLoadingInfo &lr = view.loadingSpy.at(1).at(0).value<QWebViewLoadingInfo>();
     QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Succeeded);
     bool called = false;
     QUrl url;
@@ -176,22 +186,21 @@ void tst_QWebView::loadRequest()
         view.settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true);
         view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls,
                                       true);
-        QCOMPARE(view.loadProgress(), 0);
         const QUrl url = QUrl::fromLocalFile(fileName);
-        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
+        QSignalSpy loadChangedSignalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
         view.setUrl(url);
-        QTRY_VERIFY(!view.isLoading());
-        QTRY_COMPARE(view.loadProgress(), 100);
+        QTRY_COMPARE(loadChangedSignalSpy.size(), 2);
+        QVERIFY(!view.isLoading());
+        QCOMPARE(view.loadProgress(), 100);
         QTRY_COMPARE(view.title(), QStringLiteral("FooBar"));
         QCOMPARE(view.url(), url);
-        QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
         {
-            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QList<QVariant> &loadStartedArgs = loadChangedSignalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
             QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Started);
         }
         {
-            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QList<QVariant> &loadStartedArgs = loadChangedSignalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
             QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Succeeded);
         }
@@ -203,18 +212,17 @@ void tst_QWebView::loadRequest()
         view.settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true);
         view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls,
                                       true);
-        QCOMPARE(view.loadProgress(), 0);
-        QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
+        QSignalSpy loadChangedSignalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
         view.setUrl(QUrl(QStringLiteral("file:///file_that_does_not_exist.html")));
         QTRY_VERIFY(!view.isLoading());
-        QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
+        QTRY_COMPARE(loadChangedSignalSpy.size(), 2);
         {
-            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QList<QVariant> &loadStartedArgs = loadChangedSignalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
             QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Started);
         }
         {
-            const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
+            const QList<QVariant> &loadStartedArgs = loadChangedSignalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
             QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Failed);
         }
@@ -252,7 +260,7 @@ void tst_QWebView::setAndDeleteCookie()
 
     view.deleteAllCookies();
     if (QWebViewFactory::loadedPluginHasKey("android_view"))
-        QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue);
+        QEXPECT_FAIL("", "Notification for deleteAllCookies() is not implemented on Android, yet!", Continue); // FIXME
     QTRY_COMPARE(cookieRemovedSpy.size(), 3);
 }
 
