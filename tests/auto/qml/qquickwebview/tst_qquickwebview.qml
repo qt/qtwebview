@@ -174,6 +174,17 @@ RowLayout {
             tryCompare(webView, "title", data.expectedTitle);
         }
 
+        function test_runJavaScript() {
+            webView.url = WebViewTestUtils.makeTestFileUrl("basic_page.html");
+            verify(webView.waitForLoad(WebViewLoadRequest.LoadStatus.LoadSucceededStatus));
+
+            var title = undefined;
+            webView.runJavaScript("document.title", function(result) {
+                title = result;
+            });
+
+            tryVerify(function() { return title === "Basic Page" }, 12000);
+        }
     }
 
     WebViewTestCase {
