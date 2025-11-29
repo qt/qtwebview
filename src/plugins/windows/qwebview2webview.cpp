@@ -548,7 +548,7 @@ HRESULT QWebView2WebViewPrivate::onNavigationStarting(ICoreWebView2* webview, IC
     HRESULT hr = args->get_Uri(&uri);
     Q_ASSERT_SUCCEEDED(hr);
     std::wstring_view source(uri);
-    m_url = QString(source);
+    m_url.setUrl(QString(source));
     emit q_ptr->urlChanged(m_url);
     CoTaskMemFree(uri);
     return S_OK;
