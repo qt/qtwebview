@@ -11,11 +11,6 @@
 #include <QtWebView/qwebviewsettings.h>
 #include <QtWebView/qwebviewloadrequest.h>
 #include <QtWebView/private/qwebviewfactory_p.h>
-#include <QtWebViewQuick/private/qquickwebview_p.h>
-
-#if QT_CONFIG(webview_webengine_plugin)
-#include <QtWebEngineQuick/qtwebenginequickglobal.h>
-#endif
 
 #if defined(Q_OS_ANDROID) && !defined(Q_OS_ANDROID_NO_SDK)
 #include <QtCore/private/qjnihelpers_p.h>
@@ -85,22 +80,21 @@ void tst_QWebView::runJavaScript()
     const QString tstProperty = QString(QLatin1String("Qt.tst_data"));
     const QString title = QString(QLatin1String("WebViewTitle"));
 
-    QQmlEngine engine;
-    QQmlContext *rootContext = engine.rootContext();
-    QQuickWebView view;
-    QQmlEngine::setContextForObject(&view, rootContext);
-
+    QWebView view;
     QCOMPARE(view.loadProgress(), 0);
     view.loadHtml(QString("<html><head><title>%1</title></head><body/></html>").arg(title));
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
     QCOMPARE(view.title(), title);
-    QJSValue callback = engine.evaluate(QString("(function(result) { %1 = result; })").arg(tstProperty));
-    QVERIFY2(!callback.isError(), qPrintable(callback.toString()));
-    QVERIFY(!callback.isUndefined());
-    QVERIFY(callback.isCallable());
+    bool called = false;
+    QString documentTitle;
+    auto callback = [&](const QVariant &result) {
+        called = true;
+        documentTitle = result.value<QString>();
+    };
     view.runJavaScript(QString(QLatin1String("document.title")), callback);
-    QTRY_COMPARE(engine.evaluate(tstProperty).toString(), title);
+    QTRY_COMPARE(called, true);
+    QCOMPARE(documentTitle, title);
 }
 
 void tst_QWebView::loadHtml_data()

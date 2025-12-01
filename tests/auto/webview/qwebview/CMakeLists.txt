@@ -13,14 +13,3 @@ qt_internal_add_test(tst_qwebview
         Qt::WebViewPrivate
 )
 
-qt_internal_extend_target(tst_qwebview CONDITION TARGET Qt::WebViewQuick
-    LIBRARIES
-        Qt::WebViewQuickPrivate
-        Qt::Qml
-)
-
-qt_internal_extend_target(tst_qwebview CONDITION TARGET Qt::WebEngineQuick
-    LIBRARIES
-        Qt::WebEngineQuickPrivate
-        Qt::Qml
-)
