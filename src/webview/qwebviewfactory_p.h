@@ -22,13 +22,16 @@ QT_BEGIN_NAMESPACE
 
 class QWebViewPlugin;
 
-namespace QWebViewFactory
-{
-    QWebViewPlugin *getPlugin();
-    QWebViewPrivate *createWebView(QWebView *view);
-    bool requiresExtraInitializationSteps();
-    Q_WEBVIEW_EXPORT bool loadedPluginHasKey(const QString key);
+namespace QWebViewFactory {
+enum class Hint {
+    NoHint = 0,
+    QuickInitialization = 0x00000001,
 };
+QWebViewPlugin *getPlugin();
+QWebViewPrivate *createWebView(QWebView *view, Hint hint = Hint::NoHint);
+bool requiresExtraInitializationSteps();
+Q_WEBVIEW_EXPORT bool loadedPluginHasKey(const QString key);
+}; // namespace QWebViewFactory
 
 QT_END_NAMESPACE
 

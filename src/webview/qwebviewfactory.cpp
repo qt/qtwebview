@@ -19,12 +19,12 @@ static QString getPluginName()
     return name;
 }
 
-QWebViewPrivate *QWebViewFactory::createWebView(QWebView *view)
+QWebViewPrivate *QWebViewFactory::createWebView(QWebView *view, Hint hint)
 {
     QWebViewPrivate *wv = nullptr;
     QWebViewPlugin *plugin = getPlugin();
     if (plugin)
-        wv = plugin->create(QStringLiteral("webview"), view);
+        wv = plugin->create(QStringLiteral("webview"), view, hint);
 
     if (!wv || !plugin) {
         qFatal("No WebView plug-in found!");

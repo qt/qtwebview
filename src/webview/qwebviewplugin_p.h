@@ -18,6 +18,7 @@
 
 #include "qwebview_global.h"
 #include "qwebview_p.h"
+#include "qwebviewfactory_p.h"
 
 #include <QtCore/qobject.h>
 
@@ -32,7 +33,8 @@ public:
     explicit QWebViewPlugin(QObject *parent = nullptr);
     virtual ~QWebViewPlugin();
 
-    virtual QWebViewPrivate *create(const QString &key, QWebView *view) const = 0;
+    virtual QWebViewPrivate *create(const QString &key, QWebView *view,
+                                    QWebViewFactory::Hint hint) const = 0;
 
     virtual void prepare() const;
 };
