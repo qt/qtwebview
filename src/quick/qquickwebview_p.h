@@ -73,6 +73,9 @@ public:
     QWindow *nativeWindow();
     QQuickWebViewSettings *settings() const;
 
+protected:
+    void classBegin() override;
+
 public Q_SLOTS:
     void goBack();
     void goForward();

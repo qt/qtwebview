@@ -16,6 +16,7 @@ QWebView::QWebView(QWindow *parent) : QWindow(parent), d(QWebViewFactory::create
     Q_ASSERT(d);
     d->m_settings.reset(new QWebViewSettings(d->settings()));
     qRegisterMetaType<QWebViewLoadingInfo>();
+    d->initialize(nullptr);
 }
 
 QWebView::QWebView(QScreen *screen) : QWindow(screen), d(QWebViewFactory::createWebView(this))
@@ -23,6 +24,7 @@ QWebView::QWebView(QScreen *screen) : QWindow(screen), d(QWebViewFactory::create
     Q_ASSERT(d);
     d->m_settings.reset(new QWebViewSettings(d->settings()));
     qRegisterMetaType<QWebViewLoadingInfo>();
+    d->initialize(nullptr);
 }
 
 QWebView::~QWebView() { }

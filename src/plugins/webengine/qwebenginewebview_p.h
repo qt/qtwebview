@@ -21,18 +21,18 @@
 #include <QtGui/qwindow.h>
 
 #include <QtQml/qqmlcomponent.h>
-
 #include <QtWebView/private/qwebview_p.h>
 #include <QtWebEngineQuick/QQuickWebEngineProfile>
 #include <QtWebEngineQuick/private/qquickwebenginesettings_p.h>
 
 #include <QtCore/qpointer.h>
 #include <QVariant>
+#include <QQuickWindow>
+
 QT_BEGIN_NAMESPACE
 
 class QQuickItem;
 class QQuickWebEngineView;
-class QQuickWindow;
 class QWebEngineLoadingInfo;
 class QNetworkCookie;
 class QWebEngineWebViewPrivate;
@@ -86,7 +86,7 @@ public:
     bool isLoading() const override;
 
     QWebViewSettingsPrivate *settings() const override;
-    QWindow *nativeWindow() const override { return nullptr; }
+    QWindow *nativeWindow() const override { return m_window; }
 
     void goBack() override;
     void goForward() override;
@@ -116,32 +116,8 @@ private:
     QQuickWebEngineProfile *m_profile = nullptr;
     mutable QWebEngineWebViewSettingsPrivate *m_settings = nullptr;
     QString m_httpUserAgent;
-    struct QQuickWebEngineViewPtr
-    {
-        inline QQuickWebEngineView *operator->() const
-        {
-            if (!m_webEngineView)
-                init();
-            return m_webEngineView.get();
-        }
-        void init() const;
-
-        QWebEngineWebViewPrivate *m_parent;
-        mutable std::unique_ptr<QQuickWebEngineView> m_webEngineView;
-    } m_webEngineView;
-    struct QWebEngineCookieStorePtr
-    {
-        inline QWebEngineCookieStore *operator->() const
-        {
-            if (!m_cookieStore)
-                init();
-            return m_cookieStore;
-        }
-        void init() const;
-
-        QQuickWebEngineViewPtr *m_webEngineViewPtr = nullptr;
-        mutable QWebEngineCookieStore *m_cookieStore = nullptr;
-    } m_cookieStore;
+    std::unique_ptr<QQuickWebEngineView> m_webEngineView;
+    QWebEngineCookieStore *m_cookieStore = nullptr;
     QQuickItem *m_parentItem;
     QQuickWindow *m_window;
     bool m_ownsWindow;
