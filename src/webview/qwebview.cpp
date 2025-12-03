@@ -11,6 +11,15 @@
 
 QT_BEGIN_NAMESPACE
 
+QWebView::QWebView(QWebViewFactory::Hint hint) : d(QWebViewFactory::createWebView(this, hint))
+{
+    //note this is called only from qquickwebview
+    Q_ASSERT(d);
+    d->m_settings.reset(new QWebViewSettings(d->settings()));
+    qRegisterMetaType<QWebViewLoadingInfo>();
+    d->initialize(nullptr);
+}
+
 QWebView::QWebView(QWindow *parent) : QWindow(parent), d(QWebViewFactory::createWebView(this))
 {
     Q_ASSERT(d);

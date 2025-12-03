@@ -6,6 +6,7 @@
 #include "qquickwebviewloadrequest_p.h"
 #include "qquickwebviewsettings_p.h"
 #include <QtWebView/qwebviewloadinginfo.h>
+#include <QtWebView/private/qwebviewfactory_p.h>
 #include <QtWebView/private/qwebview_p.h>
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
@@ -62,7 +63,7 @@ Q_GLOBAL_STATIC(CallbackStorage, callbacks)
 
 QQuickWebView::QQuickWebView(QQuickItem *parent)
     : QQuickWindowContainer(parent),
-      m_webView(new QWebView(window())),
+      m_webView(new QWebView(QWebViewFactory::Hint::QuickInitialization)),
       m_settings(new QQuickWebViewSettings(m_webView->settings(), this))
 {
     if (QWindow *nativeWindow = m_webView->d->nativeWindow())

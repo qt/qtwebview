@@ -3,7 +3,7 @@
 // Qt-Security score:significant reason:default
 
 #include "qdarwinwebview_p.h"
-#include <private/qwebviewplugin_p.h>
+#include <QtWebView/private/qwebviewplugin_p.h>
 #include <QtCore/qbytearray.h>
 
 QT_BEGIN_NAMESPACE
@@ -14,8 +14,10 @@ class QDarwinWebViewPlugin : public QWebViewPlugin
     Q_PLUGIN_METADATA(IID QWebViewPluginInterface_iid FILE "darwin.json")
 
 public:
-    QWebViewPrivate *create(const QString &key, QWebView *view) const override
+    QWebViewPrivate *create(const QString &key, QWebView *view,
+                            QWebViewFactory::Hint hint) const override
     {
+        Q_UNUSED(hint);
         return (key == QLatin1String("webview")) ? new QDarwinWebViewPrivate(view) : nullptr;
     }
 

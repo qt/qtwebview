@@ -22,6 +22,10 @@ QT_BEGIN_NAMESPACE
 class QWebViewPrivate;
 class QWebViewLoadingInfo;
 
+namespace QWebViewFactory {
+enum class Hint;
+}
+
 class Q_WEBVIEW_EXPORT QWebView : public QWindow
 {
     Q_OBJECT
@@ -74,6 +78,7 @@ Q_SIGNALS:
     void cookieRemoved(const QString &domain, const QString &name);
 
 private:
+    QWebView(QWebViewFactory::Hint);
     Q_DISABLE_COPY(QWebView)
 
     friend class QQuickWebView;
