@@ -75,8 +75,6 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView, &QWebView::httpUserAgentChanged, this, &QQuickWebView::httpUserAgentChanged);
     connect(m_webView, &QWebView::cookieAdded, this, &QQuickWebView::cookieAdded);
     connect(m_webView, &QWebView::cookieRemoved, this, &QQuickWebView::cookieRemoved);
-
-    m_webView->d->initialize(this);
 }
 
 QQuickWebView::~QQuickWebView() { }
@@ -362,4 +360,10 @@ void QQuickWebView::onLoadingChanged(const QWebViewLoadingInfo &loadRequest)
 QQuickWebViewSettings *QQuickWebView::settings() const
 {
     return m_settings;
+}
+
+void QQuickWebView::classBegin()
+{
+    m_webView->d->initialize(this);
+    QQuickWindowContainer::classBegin();
 }

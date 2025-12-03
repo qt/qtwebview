@@ -34,12 +34,10 @@ QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p)
     : QWebViewPrivate(p),
       m_profile(nullptr),
       m_parentItem(nullptr),
-      m_window(qobject_cast<QQuickWindow *>(p->parent())),
+      m_window(nullptr),
       m_ownsWindow(!m_window)
 {
     m_settings = new QWebEngineWebViewSettingsPrivate(this);
-    m_webEngineView.m_parent = this;
-    m_cookieStore.m_webEngineViewPtr = &m_webEngineView;
     if (m_ownsWindow) {
         m_window = new QQuickView(p);
         connect(p, &QWindow::visibleChanged, m_window, &QWindow::setVisible);
@@ -52,14 +50,9 @@ QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate()
 {
     if (m_ownsWindow) {
         // quickview destructor deletes also webengieview item
-        m_webEngineView.m_webEngineView.release();
+        m_webEngineView.release();
         delete m_window;
     }
-}
-
-void QWebEngineWebViewPrivate::initialize(QObject *context)
-{
-    m_parentItem = qobject_cast<QQuickItem *>(context);
 }
 
 QString QWebEngineWebViewPrivate::httpUserAgent() const
@@ -231,75 +224,72 @@ void QWebEngineWebViewPrivate::q_cookieRemoved(const QNetworkCookie &cookie)
     emit q_ptr->cookieRemoved(cookie.domain(), cookie.name());
 }
 
-void QWebEngineWebViewPrivate::QQuickWebEngineViewPtr::init() const
+void QWebEngineWebViewPrivate::initialize(QObject *context)
 {
-    Q_ASSERT(!m_webEngineView);
-    Q_ASSERT(m_parent->m_window);
+    Q_ASSERT(m_window);
+    if (m_webEngineView)
+        return;
+
+    m_parentItem = qobject_cast<QQuickItem *>(context);
 
     QQuickWebEngineView *webEngineView = nullptr;
-    QQuickItem *parentItem = m_parent->m_parentItem;
 
-    if (!parentItem) {
+    if (!m_parentItem) {
         // this is non qquickwebview initialization
         // set the content for qquickview
-        QQuickView *view = qobject_cast<QQuickView *>(m_parent->m_window);
+        QQuickView *view = qobject_cast<QQuickView *>(m_window);
         Q_ASSERT(view);
         view->setResizeMode(QQuickView::SizeRootObjectToView);
         view->loadFromModule("QtWebEngine"_L1, "WebEngineView"_L1);
         webEngineView = qobject_cast<QQuickWebEngineView *>(view->rootObject());
         Q_ASSERT(webEngineView);
     } else {
-        QQmlEngine *engine = qmlEngine(parentItem);
+        QQmlEngine *engine = qmlEngine(m_parentItem);
         Q_ASSERT(engine);
         QQmlComponent component(engine);
         component.loadFromModule("QtWebEngine"_L1, "WebEngineView"_L1);
         webEngineView = qobject_cast<QQuickWebEngineView *>(component.create());
         Q_ASSERT(webEngineView);
-        webEngineView->setParentItem(parentItem);
-        QQuickItemPrivate::get(webEngineView)->anchors()->setFill(parentItem);
+        webEngineView->setParentItem(m_parentItem);
+        QQuickItemPrivate::get(webEngineView)->anchors()->setFill(m_parentItem);
     }
 
     QQuickWebEngineProfile *profile = webEngineView->profile();
     Q_ASSERT(profile);
     QQuickWebEngineSettings *settings = webEngineView->settings();
     Q_ASSERT(settings);
-    m_parent->m_profile = profile;
-    if (!m_parent->m_settings)
-        m_parent->m_settings = new QWebEngineWebViewSettingsPrivate(m_parent);
-    m_parent->m_settings->init(settings);
+    m_profile = profile;
+    if (!m_settings)
+        m_settings = new QWebEngineWebViewSettingsPrivate(this);
+    m_settings->init(settings);
     webEngineView->settings()->setErrorPageEnabled(false);
     webEngineView->settings()->setPluginsEnabled(true);
     // When the httpUserAgent is set as a property then it will be set before
     // init() is called
-    if (m_parent->m_httpUserAgent.isEmpty())
-        m_parent->m_httpUserAgent = profile->httpUserAgent();
+    if (m_httpUserAgent.isEmpty())
+        m_httpUserAgent = profile->httpUserAgent();
     else
-        profile->setHttpUserAgent(m_parent->m_httpUserAgent);
-    QObject::connect(webEngineView, &QQuickWebEngineView::urlChanged, m_parent, &QWebEngineWebViewPrivate::q_urlChanged);
-    QObject::connect(webEngineView, &QQuickWebEngineView::loadProgressChanged, m_parent, &QWebEngineWebViewPrivate::q_loadProgressChanged);
-    QObject::connect(webEngineView, &QQuickWebEngineView::loadingChanged, m_parent, &QWebEngineWebViewPrivate::q_loadingChanged);
-    QObject::connect(webEngineView, &QQuickWebEngineView::titleChanged, m_parent, &QWebEngineWebViewPrivate::q_titleChanged);
-    QObject::connect(webEngineView, &QQuickWebEngineView::profileChanged,m_parent, &QWebEngineWebViewPrivate::q_profileChanged);
-    QObject::connect(profile, &QQuickWebEngineProfile::httpUserAgentChanged, m_parent, &QWebEngineWebViewPrivate::q_httpUserAgentChanged);
+        profile->setHttpUserAgent(m_httpUserAgent);
+    QObject::connect(webEngineView, &QQuickWebEngineView::urlChanged, this,
+                     &QWebEngineWebViewPrivate::q_urlChanged);
+    QObject::connect(webEngineView, &QQuickWebEngineView::loadProgressChanged, this,
+                     &QWebEngineWebViewPrivate::q_loadProgressChanged);
+    QObject::connect(webEngineView, &QQuickWebEngineView::loadingChanged, this,
+                     &QWebEngineWebViewPrivate::q_loadingChanged);
+    QObject::connect(webEngineView, &QQuickWebEngineView::titleChanged, this,
+                     &QWebEngineWebViewPrivate::q_titleChanged);
+    QObject::connect(webEngineView, &QQuickWebEngineView::profileChanged, this,
+                     &QWebEngineWebViewPrivate::q_profileChanged);
+    QObject::connect(profile, &QQuickWebEngineProfile::httpUserAgentChanged, this,
+                     &QWebEngineWebViewPrivate::q_httpUserAgentChanged);
 
     m_webEngineView.reset(webEngineView);
+    m_cookieStore = m_profile->cookieStore();
 
-    if (!m_parent->m_cookieStore.m_cookieStore)
-        m_parent->m_cookieStore.init();
-}
-
-void QWebEngineWebViewPrivate::QWebEngineCookieStorePtr::init() const
-{
-    if (!m_webEngineViewPtr->m_webEngineView)
-        m_webEngineViewPtr->init();
-    else {
-        QWebEngineWebViewPrivate * parent = m_webEngineViewPtr->m_parent;
-        QWebEngineCookieStore *cookieStore = parent->m_profile->cookieStore();
-        m_cookieStore = cookieStore;
-
-        QObject::connect(cookieStore, &QWebEngineCookieStore::cookieAdded, parent, &QWebEngineWebViewPrivate::q_cookieAdded);
-        QObject::connect(cookieStore, &QWebEngineCookieStore::cookieRemoved, parent, &QWebEngineWebViewPrivate::q_cookieRemoved);
-    }
+    QObject::connect(m_cookieStore, &QWebEngineCookieStore::cookieAdded, this,
+                     &QWebEngineWebViewPrivate::q_cookieAdded);
+    QObject::connect(m_cookieStore, &QWebEngineCookieStore::cookieRemoved, this,
+                     &QWebEngineWebViewPrivate::q_cookieRemoved);
 }
 
 QWebEngineWebViewSettingsPrivate::QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p)
