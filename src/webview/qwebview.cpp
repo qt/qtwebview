@@ -17,7 +17,6 @@ QWebView::QWebView(QWebViewFactory::Hint hint) : d(QWebViewFactory::createWebVie
     Q_ASSERT(d);
     d->m_settings.reset(new QWebViewSettings(d->settings()));
     qRegisterMetaType<QWebViewLoadingInfo>();
-    d->initialize(nullptr);
 }
 
 QWebView::QWebView(QWindow *parent) : QWindow(parent), d(QWebViewFactory::createWebView(this))

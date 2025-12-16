@@ -28,6 +28,7 @@ QQuickWebViewSettings::QQuickWebViewSettings(QWebViewSettings *webviewsettings, 
     : QObject(p)
     , d(webviewsettings)
 {
+    Q_ASSERT(d);
 }
 
 QQuickWebViewSettings::~QQuickWebViewSettings()
