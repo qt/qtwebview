@@ -27,12 +27,12 @@
 
 #include <QtCore/qpointer.h>
 #include <QVariant>
-#include <QQuickWindow>
 
 QT_BEGIN_NAMESPACE
 
 class QQuickItem;
 class QQuickWebEngineView;
+class QQuickView;
 class QWebEngineLoadingInfo;
 class QNetworkCookie;
 class QWebEngineWebViewPrivate;
@@ -86,7 +86,7 @@ public:
     bool isLoading() const override;
 
     QWebViewSettingsPrivate *settings() const override;
-    QWindow *nativeWindow() const override { return m_window; }
+    QWindow *nativeWindow() const override { return nullptr; }
 
     void goBack() override;
     void goForward() override;
@@ -99,6 +99,7 @@ public:
     void deleteAllCookies() override;
     void runJavaScript(const QString &script,
                        const std::function<void(const QVariant &)> &resultCallback) override;
+    virtual QQuickWebEngineView *view() const = 0;
 
 private Q_SLOTS:
     void q_urlChanged();
@@ -116,11 +117,29 @@ private:
     QQuickWebEngineProfile *m_profile = nullptr;
     mutable QWebEngineWebViewSettingsPrivate *m_settings = nullptr;
     QString m_httpUserAgent;
-    std::unique_ptr<QQuickWebEngineView> m_webEngineView;
     QWebEngineCookieStore *m_cookieStore = nullptr;
+};
+
+class QQuickViewWebEngineWebViewPrivate : public QWebEngineWebViewPrivate
+{
+public:
+    explicit QQuickViewWebEngineWebViewPrivate(QWebView *p);
+    ~QQuickViewWebEngineWebViewPrivate() override;
+    void initialize(QObject *context) override;
+    QQuickWebEngineView *view() const override;
+    std::unique_ptr<QQuickView> m_view;
+    QQuickWebEngineView *m_webEngineView;
+};
+
+class QQuickItemWebEngineWebViewPrivate : public QWebEngineWebViewPrivate
+{
+public:
+    explicit QQuickItemWebEngineWebViewPrivate(QWebView *p);
+    ~QQuickItemWebEngineWebViewPrivate() override;
+    void initialize(QObject *context) override;
+    QQuickWebEngineView *view() const override;
     QQuickItem *m_parentItem;
-    QQuickWindow *m_window;
-    bool m_ownsWindow;
+    std::unique_ptr<QQuickWebEngineView> m_webEngineView;
 };
 
 QT_END_NAMESPACE

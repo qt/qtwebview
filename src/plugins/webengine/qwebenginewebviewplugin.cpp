@@ -16,8 +16,13 @@ public:
     QWebViewPrivate *create(const QString &key, QWebView *view,
                             QWebViewFactory::Hint hint) const override
     {
-        Q_UNUSED(hint);
-        return (key == QLatin1String("webview")) ? new QWebEngineWebViewPrivate(view) : nullptr;
+        if (key != QLatin1String("webview"))
+            return nullptr;
+        if (hint == QWebViewFactory::Hint::QuickInitialization) {
+            return new QQuickItemWebEngineWebViewPrivate(view);
+        } else {
+            return new QQuickViewWebEngineWebViewPrivate(view);
+        }
     }
 
     void prepare() const override { }
