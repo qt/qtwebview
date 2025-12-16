@@ -11,6 +11,44 @@
 
 QT_BEGIN_NAMESPACE
 
+/*!
+    \class QWebView
+    \brief The QWebView class provides a window that is used to view web content.
+    \since 6.11
+    \ingroup webview
+    \inmodule QtWebView
+
+    A \e {web view} is a window for displaying web content that is implemented
+    using native APIs on the platforms where they are available. Therefore, it does not
+    necessarily require including a full web browser stack as part of the application.
+
+    A \e {web site} can be loaded to a web view with the setUrl() function.
+
+    Alternatively, if you have the HTML content readily available, you can use setHtml()
+    instead.
+
+    The loadingChanged() signal is emitted when the view begins loading and when the
+    view has been loaded completely.
+    Its argument QWebViewLoadRequest object indicates whether loading was
+    successful or failed.
+
+    The title of an HTML document can be accessed with the title() property.
+*/
+
+/*!
+    \fn void QWebView::loadingChanged(const QWebViewLoadingInfo &loadingInfo)
+
+    This signal is emitted when the state of loading the web content changes.
+    By handling this signal it's possible, for example, to react to page load
+    errors.
+
+    The \a loadingInfo parameter holds the \e url and \e status of the request,
+    as well as an \e errorString containing an error message for a failed
+    request.
+
+    \sa QWebViewLoadRequest
+*/
+
 QWebView::QWebView(QWebViewFactory::Hint hint) : d(QWebViewFactory::createWebView(this, hint))
 {
     //note this is called only from qquickwebview
@@ -37,6 +75,12 @@ QWebView::QWebView(QScreen *screen) : QWindow(screen), d(QWebViewFactory::create
 
 QWebView::~QWebView() { }
 
+/*!
+    \property QWebView::httpUserAgent
+    \brief The user agent in use.
+    The user-agent string sent with HTTP to identify the browser.
+*/
+
 QString QWebView::httpUserAgent() const
 {
     return d->httpUserAgent();
@@ -46,6 +90,18 @@ void QWebView::setHttpUserAgent(const QString &userAgent)
 {
     return d->setHttpUserAgent(userAgent);
 }
+
+/*!
+    \property QWebView::url
+    \brief The URL of the web page currently viewed.
+
+    Setting this property clears the view and loads the URL.
+    By default, this property contains an empty, invalid URL.
+    URLs that originate from user input should be parsed with QUrl::fromUserInput().
+    \note QWebView does not support loading content through the Qt Resource system.
+
+    \sa loadingChanged()
+*/
 
 QUrl QWebView::url() const
 {
@@ -57,60 +113,146 @@ void QWebView::setUrl(const QUrl &url)
     d->setUrl(url);
 }
 
+/*!
+    \property QWebView::canGoBack
+    Holds \c true if it's currently possible to navigate back in the web history.
+*/
+
 bool QWebView::canGoBack() const
 {
     return d->canGoBack();
 }
+
+/*!
+    Navigates back in the web history.
+*/
 
 void QWebView::goBack()
 {
     d->goBack();
 }
 
+/*!
+    \property QWebView::canGoForward
+    Holds \c true if it's currently possible to navigate forward in the web history.
+*/
+
 bool QWebView::canGoForward() const
 {
     return d->canGoForward();
 }
 
+/*!
+    Navigates forward in the web history.
+*/
 void QWebView::goForward()
 {
     d->goForward();
 }
 
+/*!
+    Reloads the current \l url.
+*/
 void QWebView::reload()
 {
     d->reload();
 }
 
+/*!
+    Stops loading the current \l url.
+*/
 void QWebView::stop()
 {
     d->stop();
 }
+
+/*!
+    \property QWebView::title
+    \brief The title of the currently loaded web page.
+
+    The title of the page as defined by the HTML \c <title> element.
+
+    \sa titleChanged()
+*/
+
+/*!
+    \fn void QWebView::titleChanged(QString title)
+    This signal is emitted whenever the \a title of the view changes.
+
+    \sa title()
+*/
 
 QString QWebView::title() const
 {
     return d->title();
 }
 
+/*!
+    \property QWebView::loadProgress
+    The current load progress of the web content, represented as
+    an integer between 0 and 100.
+*/
+
 int QWebView::loadProgress() const
 {
     return d->loadProgress();
 }
+
+/*!
+    \property QWebView::loading
+    Holds \c true if the WebView is currently in the process of loading
+    new content, \c false otherwise.
+*/
 
 bool QWebView::isLoading() const
 {
     return d->isLoading();
 }
 
+/*!
+    \property QWebView::settings
+    \brief Settings object for the QWebView.
+    The settings for a web view.
+    \sa WebViewSettings
+*/
+
 QWebViewSettings *QWebView::settings()
 {
     return d->m_settings.get();
 }
 
+/*!
+    \fn void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
+    Loads the specified \a html content to the web view.
+
+    This method offers a lower-level alternative to the \l url property,
+    which references HTML pages via URL.
+
+    External objects such as stylesheets or images referenced in the HTML
+    document should be located relative to \a baseUrl. For example, if \a html
+    is retrieved from \c http://www.example.com/documents/overview.html, which
+    is the base URL, then an image referenced with the relative URL \c diagram.png,
+    should be at \c{http://www.example.com/documents/diagram.png}.
+
+    \note The QWebView does not support loading content through the Qt Resource system.
+*/
+
 void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
 {
     d->loadHtml(html, baseUrl);
 }
+
+/*!
+    \fn void runJavaScript(const QString &script,
+                           const std::function<void(const QVariant &)> &resultCallback)
+    Runs the specified JavaScript.
+    In case a \a resultCallback function is provided, it will be invoked after the \a script
+    finishes running.
+
+    \code
+    view.runJavaScript("document.title", [](const QVariant &v) { qDebug() << v.toString(); });
+    \endcode
+*/
 
 void QWebView::runJavaScript(const QString &script,
                              const std::function<void(const QVariant &)> &resultCallback)
@@ -118,15 +260,48 @@ void QWebView::runJavaScript(const QString &script,
     return d->runJavaScript(script, resultCallback);
 }
 
+/*!
+    \fn void cookieAdded(const QString &domain, const QString &name)
+
+    This signal is emitted when a cookie is added.
+
+    The parameters provide information about the \a domain and the \a name of the added cookie.
+
+    \note When the Qt WebEngine module is used as a backend, the cookieAdded signal will
+    be emitted for any cookie added to the underlying QWebEngineCookieStore, including
+    those added by websites. In other cases cookieAdded signal is only emitted for cookies
+    explicitly added with \l setCookie().
+*/
+/*!
+    \fn void setCookie(const QString &domain, const QString &name, const QString &value)
+    Adds a cookie with the specified \a domain, \a name and \a value.
+    The cookieAdded() signal will be emitted when the cookie is added.
+*/
 void QWebView::setCookie(const QString &domain, const QString &name, const QString &value)
 {
     d->setCookie(domain, name, value);
 }
 
+/*!
+    \fn void cookieRemoved(const QString &domain, const QString &name)
+    This signal is emitted when a cookie is deleted.
+    The parameters provide information about the \a domain and the \a name of the deleted cookie.
+*/
+/*!
+    \fn void deleteCookie(const QString &domain, const QString &name)
+    Deletes a cookie with the specified \a domain and \a name.
+
+    The cookieRemoved() signal will be emitted when the cookie is deleted.
+*/
+
 void QWebView::deleteCookie(const QString &domain, const QString &name)
 {
     d->deleteCookie(domain, name);
 }
+
+/*!
+    Deletes all the cookies.
+*/
 
 void QWebView::deleteAllCookies()
 {

@@ -25,6 +25,16 @@ public:
 
 QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QWebViewLoadingInfoPrivate)
 
+/*!
+    \class QWebViewLoadingInfo
+    \brief The class provides load status information for the \l {QWebView::loadingChanged()} signal.
+    \since 6.11
+    \ingroup webview
+    \inmodule QtWebView
+
+    The QWebViewLoadingInfo type contains load status information for the requested URL.
+*/
+
 QWebViewLoadingInfo::QWebViewLoadingInfo()
     : d{new QWebViewLoadingInfoPrivate()},
       m_status{LoadStatus::Started}
@@ -45,7 +55,12 @@ QWebViewLoadingInfo &QWebViewLoadingInfo::operator=(const QWebViewLoadingInfo &o
 
 QWebViewLoadingInfo::~QWebViewLoadingInfo() { }
 
-// FIXME add c++ docs
+/*!
+    \property QWebViewLoadingInfo::url
+    \brief The URL of the load request.
+    The URL of the load request.
+    \sa {QWebView::url}
+*/
 
 /*!
     \fn QWebViewLoadingInfo::swap(QWebViewLoadingInfo &other)
@@ -56,6 +71,35 @@ QUrl QWebViewLoadingInfo::url() const
 {
     return d->url;
 }
+
+/*!
+    \property QWebViewLoadingInfo::status
+    \brief The status of a web page load request.
+
+    This enumeration represents the load status of a web page load request.
+    \sa {QWebView::loadingChanged()}
+*/
+
+/*!
+    \enum QWebViewLoadingInfo::LoadStatus
+
+    This enumeration represents the load status of a web page load request.
+
+    \value Started The page is currently loading.
+    \value Succeeded The page was loaded successfully.
+    \value Failed The page could not be loaded.
+    \value Stopped The page load was stoped.
+
+    \sa {QWebView::loadingChanged()}
+*/
+
+/*!
+    \property QWebViewLoadingInfo::errorString
+    \brief Holds the error message.
+
+    Holds the error message if the load request failed.
+    \sa {QWebView::loadingChanged()}
+*/
 
 QString QWebViewLoadingInfo::errorString() const
 {
