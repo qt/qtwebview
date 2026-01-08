@@ -22,10 +22,10 @@ class Q_WEBVIEW_EXPORT QWebViewLoadingInfo
 
 public:
     enum class LoadStatus {
-        LoadStartedStatus,
-        LoadStoppedStatus,
-        LoadSucceededStatus,
-        LoadFailedStatus
+        Started,
+        Stopped,
+        Succeeded,
+        Failed
     };
     Q_ENUM(LoadStatus)
 

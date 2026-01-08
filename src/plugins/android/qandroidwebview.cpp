@@ -348,7 +348,7 @@ static void c_onPageFinished(JNIEnv *env,
         return;
 
     QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadingInfo::LoadStatus::LoadSucceededStatus,
+                                    QWebViewLoadingInfo::LoadStatus::Succeeded,
                                     QString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 }
@@ -370,7 +370,7 @@ static void c_onPageStarted(JNIEnv *env,
         return;
 
     QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadingInfo::LoadStatus::LoadStartedStatus, QString());
+                                    QWebViewLoadingInfo::LoadStatus::Started, QString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 
 //    if (!icon)
@@ -456,7 +456,7 @@ static void c_onReceivedError(JNIEnv *env,
         return;
 
     QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadingInfo::LoadStatus::LoadFailedStatus,
+                                    QWebViewLoadingInfo::LoadStatus::Failed,
                                     QJniObject(description).toString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 }
