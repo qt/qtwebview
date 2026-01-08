@@ -24,12 +24,12 @@
 
 Q_MOC_INCLUDE(<QtWebViewQuick/private/qquickwebviewloadrequest_p.h>)
 Q_MOC_INCLUDE(<QtWebViewQuick/private/qquickwebviewsettings_p.h>)
-Q_MOC_INCLUDE(<QtWebView/qwebviewloadrequest.h>)
+Q_MOC_INCLUDE(<QtWebView/qwebviewloadinginfo.h>)
 
 QT_BEGIN_NAMESPACE
 
 class QQuickWebViewLoadRequest;
-class QWebViewLoadRequest;
+class QWebViewLoadingInfo;
 class QQuickWebViewSettings;
 
 class Q_WEBVIEWQUICK_EXPORT QQuickWebView : public QQuickWindowContainer
@@ -95,7 +95,7 @@ Q_SIGNALS:
     Q_REVISION(6, 3) void cookieRemoved(const QString &domain, const QString &name);
 
 private Q_SLOTS:
-    void onLoadingChanged(const QWebViewLoadRequest &loadRequest);
+    void onLoadingChanged(const QWebViewLoadingInfo &loadRequest);
 
 private:
     friend class QWebEngineWebViewPrivate;

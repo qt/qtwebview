@@ -3,7 +3,7 @@
 
 #include "qdarwinwebview_p.h"
 #include <QtWebView/qwebview.h>
-#include <QtWebView/qwebviewloadrequest.h>
+#include <QtWebView/qwebviewloadinginfo.h>
 #include "qtwebviewfunctions.h"
 
 #include <QtCore/private/qglobal_p.h>
@@ -74,7 +74,7 @@ typedef NSView UIView;
     const QUrl url = [failingURL isKindOfClass:[NSURL class]]
                         ? QUrl::fromNSURL(failingURL) : qDarwinWebViewPrivate->url();
     emit qDarwinWebViewPrivate->q_ptr->loadingChanged(
-            QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+            QWebViewLoadingInfo(url, QWebViewLoadingInfo::LoadStatus::LoadFailedStatus,
                                 QString::fromNSString(errorString)));
 }
 
@@ -92,8 +92,8 @@ typedef NSView UIView;
         return;
 
     emit qDarwinWebViewPrivate->q_ptr->loadingChanged(
-            QWebViewLoadRequest(qDarwinWebViewPrivate->url(),
-                                QWebViewLoadRequest::LoadStatus::LoadStartedStatus, QString()));
+            QWebViewLoadingInfo(qDarwinWebViewPrivate->url(),
+                                QWebViewLoadingInfo::LoadStatus::LoadStartedStatus, QString()));
     emit qDarwinWebViewPrivate->q_ptr->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
 }
 
@@ -107,8 +107,8 @@ typedef NSView UIView;
 
     [self pageDone];
     emit qDarwinWebViewPrivate->q_ptr->loadingChanged(
-            QWebViewLoadRequest(qDarwinWebViewPrivate->url(),
-                                QWebViewLoadRequest::LoadStatus::LoadSucceededStatus, QString()));
+            QWebViewLoadingInfo(qDarwinWebViewPrivate->url(),
+                                QWebViewLoadingInfo::LoadStatus::LoadSucceededStatus, QString()));
 }
 
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation
@@ -351,11 +351,11 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
             if (!QFile::exists(url.toLocalFile())) {
                 QMetaObject::invokeMethod(
                         q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
-                        QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadStartedStatus,
+                        QWebViewLoadingInfo(url, QWebViewLoadingInfo::LoadStatus::LoadStartedStatus,
                                             {}));
                 QMetaObject::invokeMethod(
                         q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
-                        QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+                        QWebViewLoadingInfo(url, QWebViewLoadingInfo::LoadStatus::LoadFailedStatus,
                                             QStringLiteral("File does not exist")));
                 return;
             }
@@ -373,7 +373,7 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
     } else {
         QMetaObject::invokeMethod(
                 q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
-                QWebViewLoadRequest(url, QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+                QWebViewLoadingInfo(url, QWebViewLoadingInfo::LoadStatus::LoadFailedStatus,
                                     QStringLiteral("Invalid URL")));
     }
 }

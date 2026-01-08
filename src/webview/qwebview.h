@@ -20,7 +20,7 @@ class tst_QWebView;
 QT_BEGIN_NAMESPACE
 
 class QWebViewPrivate;
-class QWebViewLoadRequest;
+class QWebViewLoadingInfo;
 
 class Q_WEBVIEW_EXPORT QWebView : public QWindow
 {
@@ -67,7 +67,7 @@ public:
 Q_SIGNALS:
     void titleChanged(QString title);
     void urlChanged(QUrl url);
-    void loadingChanged(const QWebViewLoadRequest &loadRequest);
+    void loadingChanged(const QWebViewLoadingInfo &loadingInfo);
     void loadProgressChanged(int loadProgress);
     void httpUserAgentChanged(QString userAgent);
     void cookieAdded(const QString &domain, const QString &name);

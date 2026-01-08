@@ -6,7 +6,7 @@
 
 #include "qwebviewsettings.h"
 #include "qwebviewplugin_p.h"
-#include "qwebviewloadrequest.h"
+#include "qwebviewloadinginfo.h"
 #include "qwebviewfactory_p.h"
 
 QT_BEGIN_NAMESPACE
@@ -15,14 +15,14 @@ QWebView::QWebView(QWindow *parent) : QWindow(parent), d(QWebViewFactory::create
 {
     Q_ASSERT(d);
     d->m_settings.reset(new QWebViewSettings(d->settings()));
-    qRegisterMetaType<QWebViewLoadRequest>();
+    qRegisterMetaType<QWebViewLoadingInfo>();
 }
 
 QWebView::QWebView(QScreen *screen) : QWindow(screen), d(QWebViewFactory::createWebView(this))
 {
     Q_ASSERT(d);
     d->m_settings.reset(new QWebViewSettings(d->settings()));
-    qRegisterMetaType<QWebViewLoadRequest>();
+    qRegisterMetaType<QWebViewLoadingInfo>();
 }
 
 QWebView::~QWebView() { }
