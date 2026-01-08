@@ -30,7 +30,7 @@ class Q_WEBVIEW_EXPORT QWebViewSettings : public QObject
 
 public:
     explicit QWebViewSettings(QWebViewSettingsPrivate *webview);
-    virtual ~QWebViewSettings() override;
+    ~QWebViewSettings() override;
 
     bool localStorageEnabled() const;
     bool javaScriptEnabled() const;
