@@ -36,6 +36,9 @@ class QDarwinWebViewSettingsPrivate : public QWebViewSettingsPrivate
 public:
     explicit QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf, QObject *p = nullptr);
 
+    bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
+    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;
+
     bool localStorageEnabled() const;
     bool javaScriptEnabled() const;
     bool localContentCanAccessFileUrls() const;

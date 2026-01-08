@@ -34,6 +34,39 @@ QAndroidWebViewSettingsPrivate::QAndroidWebViewSettingsPrivate(
 {
 }
 
+bool QAndroidWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+{
+    switch (attribute) {
+    case QWebViewSettings::WebAttribute::localStorageEnabled:
+        return localStorageEnabled();
+    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+        return javaScriptEnabled();
+    case QWebViewSettings::WebAttribute::allowFileAccess:
+        return allowFileAccess();
+    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+        return localContentCanAccessFileUrls();
+    }
+    return false;
+}
+
+void QAndroidWebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+{
+    switch (attribute) {
+    case QWebViewSettings::WebAttribute::localStorageEnabled:
+        setLocalStorageEnabled(value);
+        break;
+    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+        setJavaScriptEnabled(value);
+        break;
+    case QWebViewSettings::WebAttribute::allowFileAccess:
+        setAllowFileAccess(value);
+        break;
+    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+        setLocalContentCanAccessFileUrls(value);
+        break;
+    }
+}
+
 bool QAndroidWebViewSettingsPrivate::localStorageEnabled() const
 {
      return m_viewController.callMethod<jboolean>("isLocalStorageEnabled");

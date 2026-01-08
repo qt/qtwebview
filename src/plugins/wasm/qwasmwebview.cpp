@@ -24,6 +24,39 @@ QT_BEGIN_NAMESPACE
 QWasmWebViewSettingsPrivate::QWasmWebViewSettingsPrivate(QObject *p)
     : QWebViewSettingsPrivate(p) { }
 
+bool QWasmWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+{
+    switch (attribute) {
+    case QWebViewSettings::WebAttribute::localStorageEnabled:
+        return localStorageEnabled();
+    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+        return javaScriptEnabled();
+    case QWebViewSettings::WebAttribute::allowFileAccess:
+        return allowFileAccess();
+    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+        return localContentCanAccessFileUrls();
+    }
+    return false;
+}
+
+void QWasmWebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+{
+    switch (attribute) {
+    case QWebViewSettings::WebAttribute::localStorageEnabled:
+        setLocalStorageEnabled(value);
+        break;
+    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+        setJavaScriptEnabled(value);
+        break;
+    case QWebViewSettings::WebAttribute::allowFileAccess:
+        setAllowFileAccess(value);
+        break;
+    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+        setLocalContentCanAccessFileUrls(value);
+        break;
+    }
+}
+
 bool QWasmWebViewSettingsPrivate::localStorageEnabled() const
 {
     qWarning("localStorageEnabled() not supported on this platform");

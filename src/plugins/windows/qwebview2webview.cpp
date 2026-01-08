@@ -55,6 +55,39 @@ void QWebview2WebViewSettingsPrivate::init(ICoreWebView2Controller* viewControll
     }
 }
 
+bool QWebview2WebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+{
+    switch (attribute) {
+    case QWebViewSettings::WebAttribute::localStorageEnabled:
+        return localStorageEnabled();
+    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+        return javaScriptEnabled();
+    case QWebViewSettings::WebAttribute::allowFileAccess:
+        return allowFileAccess();
+    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+        return localContentCanAccessFileUrls();
+    }
+    return false;
+}
+
+void QWebview2WebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+{
+    switch (attribute) {
+    case QWebViewSettings::WebAttribute::localStorageEnabled:
+        setLocalStorageEnabled(value);
+        break;
+    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+        setJavaScriptEnabled(value);
+        break;
+    case QWebViewSettings::WebAttribute::allowFileAccess:
+        setAllowFileAccess(value);
+        break;
+    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+        setLocalContentCanAccessFileUrls(value);
+        break;
+    }
+}
+
 bool QWebview2WebViewSettingsPrivate::localStorageEnabled() const
 {
     return true;

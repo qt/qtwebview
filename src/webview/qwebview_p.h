@@ -18,6 +18,7 @@
 
 #include "qwebview_global.h"
 #include "qwebview.h"
+#include "qwebviewsettings.h"
 
 #include <QtCore/qobject.h>
 #include <QtCore/qpointer.h>
@@ -25,22 +26,14 @@
 QT_BEGIN_NAMESPACE
 
 class QWindow;
-class QWebViewSettings;
 class QWebViewLoadRequest;
 
 class Q_WEBVIEW_EXPORT QWebViewSettingsPrivate : public QObject
 {
     Q_OBJECT
 public:
-    virtual bool localStorageEnabled() const = 0;
-    virtual bool javaScriptEnabled() const = 0;
-    virtual bool localContentCanAccessFileUrls() const = 0;
-    virtual bool allowFileAccess() const = 0;
-
-    virtual void setLocalContentCanAccessFileUrls(bool) = 0;
-    virtual void setJavaScriptEnabled(bool) = 0;
-    virtual void setLocalStorageEnabled(bool) = 0;
-    virtual void setAllowFileAccess(bool) = 0;
+    virtual bool testAttribute(QWebViewSettings::WebAttribute attribute) const = 0;
+    virtual void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) = 0;
 
 protected:
     explicit QWebViewSettingsPrivate(QObject *p = nullptr) : QObject(p) { }
