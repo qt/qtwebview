@@ -176,7 +176,7 @@ void QWebView::stop()
 */
 
 /*!
-    \fn void QWebView::titleChanged(QString title)
+    \fn void QWebView::titleChanged(const QString &title)
     This signal is emitted whenever the \a title of the view changes.
 
     \sa title()
