@@ -26,16 +26,18 @@ public:
 
     void init(ICoreWebView2Controller* viewController);
 
-    bool localStorageEnabled() const final;
-    bool javaScriptEnabled() const final;
-    bool localContentCanAccessFileUrls() const final;
-    bool allowFileAccess() const final;
+    bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
+    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;
 
-public:
-    void setLocalContentCanAccessFileUrls(bool enabled) final;
-    void setJavaScriptEnabled(bool enabled) final;
-    void setLocalStorageEnabled(bool enabled) final;
-    void setAllowFileAccess(bool enabled) final;
+    bool localStorageEnabled() const;
+    bool javaScriptEnabled() const;
+    bool localContentCanAccessFileUrls() const;
+    bool allowFileAccess() const;
+
+    void setLocalContentCanAccessFileUrls(bool enabled);
+    void setJavaScriptEnabled(bool enabled);
+    void setLocalStorageEnabled(bool enabled);
+    void setAllowFileAccess(bool enabled);
 
 private:
     ComPtr<ICoreWebView2Controller> m_webviewController;

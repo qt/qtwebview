@@ -28,14 +28,6 @@ QQuickWebViewSettings::QQuickWebViewSettings(QWebViewSettings *webviewsettings, 
     : QObject(p)
     , d(webviewsettings)
 {
-    connect(d, &QWebViewSettings::localStorageEnabledChanged,
-            this, &QQuickWebViewSettings::localStorageEnabledChanged);
-    connect(d, &QWebViewSettings::javaScriptEnabledChanged,
-            this, &QQuickWebViewSettings::javaScriptEnabledChanged);
-    connect(d, &QWebViewSettings::localContentCanAccessFileUrlsChanged,
-            this, &QQuickWebViewSettings::localContentCanAccessFileUrlsChanged);
-    connect(d, &QWebViewSettings::allowFileAccessChanged,
-            this, &QQuickWebViewSettings::allowFileAccessChanged);
 }
 
 QQuickWebViewSettings::~QQuickWebViewSettings()
@@ -50,12 +42,12 @@ QQuickWebViewSettings::~QQuickWebViewSettings()
 */
 bool QQuickWebViewSettings::localStorageEnabled() const
 {
-    return d->localStorageEnabled();
+    return d->testAttribute(QWebViewSettings::WebAttribute::localStorageEnabled);
 }
 
 void QQuickWebViewSettings::setLocalStorageEnabled(bool enabled)
 {
-    d->setLocalStorageEnabled(enabled);
+    return d->setAttribute(QWebViewSettings::WebAttribute::localStorageEnabled, enabled);
 }
 
 /*!
@@ -65,12 +57,12 @@ void QQuickWebViewSettings::setLocalStorageEnabled(bool enabled)
 */
 bool QQuickWebViewSettings::javaScriptEnabled() const
 {
-    return d->javaScriptEnabled();
+    return d->testAttribute(QWebViewSettings::WebAttribute::javaScriptEnabled);
 }
 
 void QQuickWebViewSettings::setJavaScriptEnabled(bool enabled)
 {
-    d->setJavaScriptEnabled(enabled);
+    return d->setAttribute(QWebViewSettings::WebAttribute::javaScriptEnabled, enabled);
 }
 
 /*!
@@ -80,12 +72,12 @@ void QQuickWebViewSettings::setJavaScriptEnabled(bool enabled)
 */
 bool QQuickWebViewSettings::localContentCanAccessFileUrls() const
 {
-    return d->localContentCanAccessFileUrls();
+    return d->testAttribute(QWebViewSettings::WebAttribute::localContentCanAccessFileUrls);
 }
 
 void QQuickWebViewSettings::setLocalContentCanAccessFileUrls(bool enabled)
 {
-    d->setLocalContentCanAccessFileUrls(enabled);
+    return d->setAttribute(QWebViewSettings::WebAttribute::localContentCanAccessFileUrls, enabled);
 }
 
 /*!
@@ -95,12 +87,12 @@ void QQuickWebViewSettings::setLocalContentCanAccessFileUrls(bool enabled)
 */
 bool QQuickWebViewSettings::allowFileAccess() const
 {
-    return d->allowFileAccess();
+    return d->testAttribute(QWebViewSettings::WebAttribute::allowFileAccess);
 }
 
 void QQuickWebViewSettings::setAllowFileAccess(bool enabled)
 {
-    d->setAllowFileAccess(enabled);
+    return d->setAttribute(QWebViewSettings::WebAttribute::allowFileAccess, enabled);
 }
 
 QT_END_NAMESPACE

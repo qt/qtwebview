@@ -19,34 +19,21 @@ class QWindow;
 class Q_WEBVIEW_EXPORT QWebViewSettings : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool localStorageEnabled READ localStorageEnabled WRITE setLocalStorageEnabled NOTIFY
-                       localStorageEnabledChanged)
-    Q_PROPERTY(bool javaScriptEnabled READ javaScriptEnabled WRITE setJavaScriptEnabled NOTIFY
-                       javaScriptEnabledChanged)
-    Q_PROPERTY(bool allowFileAccess READ allowFileAccess WRITE setAllowFileAccess NOTIFY
-                       allowFileAccessChanged)
-    Q_PROPERTY(bool localContentCanAccessFileUrls READ localContentCanAccessFileUrls WRITE
-                       setLocalContentCanAccessFileUrls NOTIFY localContentCanAccessFileUrlsChanged)
 
 public:
     explicit QWebViewSettings(QWebViewSettingsPrivate *webview);
     ~QWebViewSettings() override;
 
-    bool localStorageEnabled() const;
-    bool javaScriptEnabled() const;
-    bool allowFileAccess() const;
-    bool localContentCanAccessFileUrls() const;
+    enum class WebAttribute {
+        localStorageEnabled,
+        javaScriptEnabled,
+        allowFileAccess,
+        localContentCanAccessFileUrls,
+    };
+    Q_ENUM(WebAttribute);
 
-    void setLocalStorageEnabled(bool enabled);
-    void setJavaScriptEnabled(bool enabled);
-    void setAllowFileAccess(bool enabled);
-    void setLocalContentCanAccessFileUrls(bool enabled);
-
-Q_SIGNALS:
-    void localStorageEnabledChanged();
-    void javaScriptEnabledChanged();
-    void allowFileAccessChanged();
-    void localContentCanAccessFileUrlsChanged();
+    bool testAttribute(WebAttribute attribute) const;
+    void setAttribute(WebAttribute attribute, bool value);
 
 private:
     std::unique_ptr<QWebViewSettingsPrivate> d;

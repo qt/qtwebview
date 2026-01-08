@@ -43,17 +43,21 @@ class QWebEngineWebViewSettingsPrivate : public QWebViewSettingsPrivate
 public:
     explicit QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p = nullptr);
 
-    bool localStorageEnabled() const override;
-    bool javaScriptEnabled() const override;
-    bool localContentCanAccessFileUrls() const override;
-    bool allowFileAccess() const override;
-
-    void setLocalContentCanAccessFileUrls(bool enabled) override;
-    void setJavaScriptEnabled(bool enabled) override;
-    void setLocalStorageEnabled(bool enabled) override;
-    void setAllowFileAccess(bool enabled) override;
-
     void init(QQuickWebEngineSettings *settings);
+
+    bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
+    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;
+
+private:
+    bool localStorageEnabled() const;
+    bool javaScriptEnabled() const;
+    bool localContentCanAccessFileUrls() const;
+    bool allowFileAccess() const;
+
+    void setLocalContentCanAccessFileUrls(bool enabled);
+    void setJavaScriptEnabled(bool enabled);
+    void setLocalStorageEnabled(bool enabled);
+    void setAllowFileAccess(bool enabled);
 
 private:
     QPointer<QQuickWebEngineSettings> m_settings;

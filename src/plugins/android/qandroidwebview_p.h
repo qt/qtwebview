@@ -36,12 +36,14 @@ public:
     explicit QAndroidWebViewSettingsPrivate(const QtJniTypes::WebViewController &viewController,
                                             QObject *p = nullptr);
 
+    bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
+    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;
+
     bool localStorageEnabled() const;
     bool javaScriptEnabled() const;
     bool localContentCanAccessFileUrls() const;
     bool allowFileAccess() const;
 
-public:
     void setLocalContentCanAccessFileUrls(bool enabled);
     void setJavaScriptEnabled(bool enabled);
     void setLocalStorageEnabled(bool enabled);
