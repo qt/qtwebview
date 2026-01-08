@@ -216,7 +216,7 @@ bool QWebView::isLoading() const
     \sa WebViewSettings
 */
 
-QWebViewSettings *QWebView::settings()
+QWebViewSettings *QWebView::settings() const
 {
     return d->m_settings.get();
 }
