@@ -69,11 +69,11 @@ public:
                        const std::function<void(const QVariant &)> &resultCallback = {});
 
 Q_SIGNALS:
-    void titleChanged(QString title);
-    void urlChanged(QUrl url);
+    void titleChanged(const QString &title);
+    void urlChanged(const QUrl &url);
     void loadingChanged(const QWebViewLoadingInfo &loadingInfo);
     void loadProgressChanged(int loadProgress);
-    void httpUserAgentChanged(QString userAgent);
+    void httpUserAgentChanged(const QString &userAgent);
     void cookieAdded(const QString &domain, const QString &name);
     void cookieRemoved(const QString &domain, const QString &name);
 
