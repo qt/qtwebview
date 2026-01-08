@@ -54,7 +54,7 @@ public:
     int loadProgress() const;
     bool isLoading() const;
 
-    QWebViewSettings *settings();
+    QWebViewSettings *settings() const;
 
     Q_INVOKABLE void goBack();
     Q_INVOKABLE void goForward();
