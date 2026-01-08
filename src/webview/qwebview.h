@@ -26,14 +26,14 @@ class Q_WEBVIEW_EXPORT QWebView : public QWindow
 {
     Q_OBJECT
     Q_PROPERTY(QString httpUserAgent READ httpUserAgent WRITE setHttpUserAgent NOTIFY
-                       httpUserAgentChanged FINAL REVISION(1, 14))
+                       httpUserAgentChanged FINAL)
     Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged FINAL)
-    Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged FINAL REVISION(1, 1))
+    Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged FINAL)
     Q_PROPERTY(int loadProgress READ loadProgress NOTIFY loadProgressChanged FINAL)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged FINAL)
     Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged FINAL)
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged FINAL)
-    Q_PROPERTY(QWebViewSettings *settings READ settings CONSTANT FINAL REVISION(6, 5))
+    Q_PROPERTY(QWebViewSettings *settings READ settings CONSTANT FINAL)
 
 public:
     explicit QWebView(QScreen *screen = nullptr);
