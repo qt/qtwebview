@@ -143,7 +143,7 @@ void tst_QWebView::loadHtml()
     QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
     // take load finished
     const QWebViewLoadingInfo &lr = loadChangedSingalSpy.at(1).at(0).value<QWebViewLoadingInfo>();
-    QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::LoadSucceededStatus);
+    QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Succeeded);
     bool called = false;
     QUrl url;
     auto callback = [&](const QVariant &result) {
@@ -186,12 +186,12 @@ void tst_QWebView::loadRequest()
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
-            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::LoadStartedStatus);
+            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Started);
         }
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
-            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::LoadSucceededStatus);
+            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Succeeded);
         }
     }
 
@@ -208,12 +208,12 @@ void tst_QWebView::loadRequest()
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
-            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::LoadStartedStatus);
+            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Started);
         }
         {
             const QList<QVariant> &loadStartedArgs = loadChangedSingalSpy.takeFirst();
             const QWebViewLoadingInfo &lr = loadStartedArgs.at(0).value<QWebViewLoadingInfo>();
-            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::LoadFailedStatus);
+            QCOMPARE(lr.status(), QWebViewLoadingInfo::LoadStatus::Failed);
         }
         if (QWebViewFactory::loadedPluginHasKey("webengine"))
             QCOMPARE(view.loadProgress(), 100);
