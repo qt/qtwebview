@@ -3,7 +3,7 @@
 // Qt-Security score:significant reason:default
 
 #include "qquickwebviewloadrequest_p.h"
-#include <QtWebView/qwebviewloadrequest.h>
+#include <QtWebView/qwebviewloadinginfo.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -18,8 +18,8 @@ QT_BEGIN_NAMESPACE
 
     \sa {WebView::loadingChanged()}{WebView.loadingChanged()}
 */
-QQuickWebViewLoadRequest::QQuickWebViewLoadRequest(const QWebViewLoadRequest &d)
-    : d_ptr(new QWebViewLoadRequest(d))
+QQuickWebViewLoadRequest::QQuickWebViewLoadRequest(const QWebViewLoadingInfo &d)
+    : d_ptr(new QWebViewLoadingInfo(d))
 {
 }
 

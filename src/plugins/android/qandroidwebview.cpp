@@ -4,7 +4,7 @@
 
 #include "qandroidwebview_p.h"
 #include <QtWebView/qwebview.h>
-#include <QtWebView/qwebviewloadrequest.h>
+#include <QtWebView/qwebviewloadinginfo.h>
 #include <QtCore/private/qjnihelpers_p.h>
 #include <QtCore/qjniobject.h>
 
@@ -347,8 +347,8 @@ static void c_onPageFinished(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadRequest loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadRequest::LoadStatus::LoadSucceededStatus,
+    QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
+                                    QWebViewLoadingInfo::LoadStatus::LoadSucceededStatus,
                                     QString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 }
@@ -369,8 +369,8 @@ static void c_onPageStarted(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadRequest loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadRequest::LoadStatus::LoadStartedStatus, QString());
+    QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
+                                    QWebViewLoadingInfo::LoadStatus::LoadStartedStatus, QString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 
 //    if (!icon)
@@ -455,8 +455,8 @@ static void c_onReceivedError(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadRequest loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadRequest::LoadStatus::LoadFailedStatus,
+    QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
+                                    QWebViewLoadingInfo::LoadStatus::LoadFailedStatus,
                                     QJniObject(description).toString());
     emit wc->q_ptr->loadingChanged(loadRequest);
 }

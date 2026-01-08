@@ -5,7 +5,7 @@
 #include "qquickwebview_p.h"
 #include "qquickwebviewloadrequest_p.h"
 #include "qquickwebviewsettings_p.h"
-#include <QtWebView/qwebviewloadrequest.h>
+#include <QtWebView/qwebviewloadinginfo.h>
 #include <QtWebView/private/qwebview_p.h>
 #include <QtQml/qqmlengine.h>
 #include <QtCore/qmutex.h>
@@ -343,7 +343,7 @@ void QQuickWebView::deleteAllCookies()
     m_webView->deleteAllCookies();
 }
 
-void QQuickWebView::onLoadingChanged(const QWebViewLoadRequest &loadRequest)
+void QQuickWebView::onLoadingChanged(const QWebViewLoadingInfo &loadRequest)
 {
     QQuickWebViewLoadRequest qqLoadRequest(loadRequest);
     Q_EMIT loadingChanged(&qqLoadRequest);

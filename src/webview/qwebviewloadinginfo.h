@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 // Qt-Security score:significant reason:default
 
-#ifndef QWEBVIEWLOADREQUEST_H
-#define QWEBVIEWLOADREQUEST_H
+#ifndef QWEBVIEWLOADINGINFO_H
+#define QWEBVIEWLOADINGINFO_H
 
 #include <QtWebView/qwebview.h>
 
@@ -12,7 +12,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WEBVIEW_EXPORT QWebViewLoadRequest
+class Q_WEBVIEW_EXPORT QWebViewLoadingInfo
 {
     Q_GADGET
     Q_PROPERTY(QUrl url READ url CONSTANT)
@@ -29,9 +29,9 @@ public:
     };
     Q_ENUM(LoadStatus)
 
-    QWebViewLoadRequest();
-    QWebViewLoadRequest(const QUrl &url, LoadStatus status, const QString &errorString);
-    ~QWebViewLoadRequest();
+    QWebViewLoadingInfo();
+    QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
+    ~QWebViewLoadingInfo();
 
     QUrl url() const;
     LoadStatus status() const;
@@ -45,6 +45,6 @@ private:
 
 QT_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QWebViewLoadRequest)
+Q_DECLARE_METATYPE(QWebViewLoadingInfo)
 
-#endif // QWEBVIEWLOADREQUEST_H
+#endif // QWEBVIEWLOADINGINFO_H

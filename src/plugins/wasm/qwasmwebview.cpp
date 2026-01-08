@@ -4,7 +4,7 @@
 
 #include "qwasmwebview_p.h"
 #include <QtWebView/qwebview.h>
-#include <QtWebView/qwebviewloadrequest.h>
+#include <QtWebView/qwebviewloadinginfo.h>
 
 #include <QtCore/qmap.h>
 #include <QtGui/qguiapplication.h>
