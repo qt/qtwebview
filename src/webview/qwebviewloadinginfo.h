@@ -27,7 +27,6 @@ class QWebViewLoadingInfo
     Q_PROPERTY(QUrl url READ url CONSTANT)
     Q_PROPERTY(LoadStatus status READ status CONSTANT)
     Q_PROPERTY(QString errorString READ errorString CONSTANT)
-    Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 
 public:
     enum class LoadStatus {
