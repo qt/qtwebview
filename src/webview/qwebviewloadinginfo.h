@@ -30,7 +30,7 @@ public:
     Q_ENUM(LoadStatus)
 
     QWebViewLoadingInfo();
-    QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
+    Q_IMPLICIT QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
     ~QWebViewLoadingInfo();
 
     QUrl url() const;
