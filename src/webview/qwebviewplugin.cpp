@@ -22,3 +22,5 @@ void QWebViewPlugin::prepare() const
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwebviewplugin_p.cpp"

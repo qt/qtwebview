@@ -124,3 +124,6 @@ void QWebView::deleteAllCookies()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwebview.cpp"
+#include "moc_qwebview_p.cpp"
