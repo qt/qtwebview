@@ -27,3 +27,5 @@ void QWebViewSettings::setAttribute(QWebViewSettings::WebAttribute attribute, bo
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwebviewsettings.cpp"
