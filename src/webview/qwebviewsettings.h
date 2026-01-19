@@ -25,10 +25,10 @@ public:
     ~QWebViewSettings() override;
 
     enum class WebAttribute {
-        localStorageEnabled,
-        javaScriptEnabled,
-        allowFileAccess,
-        localContentCanAccessFileUrls,
+        LocalStorageEnabled,
+        JavaScriptEnabled,
+        AllowFileAccess,
+        LocalContentCanAccessFileUrls,
     };
     Q_ENUM(WebAttribute);
 
