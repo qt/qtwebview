@@ -41,6 +41,7 @@ private:
     QUrl m_url;
     LoadStatus m_status;
     QString m_errorString;
+    Q_DECL_UNUSED_MEMBER void *m_reserved = nullptr;
 };
 
 QT_END_NAMESPACE
