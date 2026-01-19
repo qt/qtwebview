@@ -12,9 +12,9 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WEBVIEW_EXPORT QWebViewLoadingInfo
+class QWebViewLoadingInfo
 {
-    Q_GADGET
+    Q_GADGET_EXPORT(Q_WEBVIEW_EXPORT)
     Q_PROPERTY(QUrl url READ url CONSTANT)
     Q_PROPERTY(LoadStatus status READ status CONSTANT)
     Q_PROPERTY(QString errorString READ errorString CONSTANT)
@@ -29,10 +29,10 @@ public:
     };
     Q_ENUM(LoadStatus)
 
-    QWebViewLoadingInfo();
-    Q_IMPLICIT QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
-    QWebViewLoadingInfo(const QWebViewLoadingInfo &other);
-    QWebViewLoadingInfo &operator=(const QWebViewLoadingInfo &other);
+    Q_WEBVIEW_EXPORT QWebViewLoadingInfo();
+    Q_WEBVIEW_EXPORT Q_IMPLICIT QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
+    Q_WEBVIEW_EXPORT QWebViewLoadingInfo(const QWebViewLoadingInfo &other);
+    Q_WEBVIEW_EXPORT QWebViewLoadingInfo &operator=(const QWebViewLoadingInfo &other);
     QWebViewLoadingInfo(QWebViewLoadingInfo &&other) noexcept
         : m_url{std::move(other.m_url)},
           m_status{other.m_status},
@@ -40,7 +40,7 @@ public:
           m_reserved{std::exchange(other.m_reserved, nullptr)}
     {}
     QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_PURE_SWAP(QWebViewLoadingInfo)
-    ~QWebViewLoadingInfo();
+    Q_WEBVIEW_EXPORT ~QWebViewLoadingInfo();
 
     void swap(QWebViewLoadingInfo &other) noexcept
     {
@@ -50,9 +50,9 @@ public:
         qt_ptr_swap(m_reserved, other.m_reserved);
     }
 
-    QUrl url() const;
+    Q_WEBVIEW_EXPORT QUrl url() const;
     LoadStatus status() const { return m_status; }
-    QString errorString() const;
+    Q_WEBVIEW_EXPORT QString errorString() const;
 
 private:
     QUrl m_url;
