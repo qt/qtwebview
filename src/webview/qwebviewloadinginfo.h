@@ -51,7 +51,7 @@ public:
     }
 
     QUrl url() const;
-    LoadStatus status() const;
+    LoadStatus status() const { return m_status; }
     QString errorString() const;
 
 private:

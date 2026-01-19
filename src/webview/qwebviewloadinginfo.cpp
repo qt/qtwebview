@@ -34,11 +34,6 @@ QUrl QWebViewLoadingInfo::url() const
     return m_url;
 }
 
-QWebViewLoadingInfo::LoadStatus QWebViewLoadingInfo::status() const
-{
-    return m_status;
-}
-
 QString QWebViewLoadingInfo::errorString() const
 {
     return m_errorString;
