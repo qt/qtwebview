@@ -37,13 +37,13 @@ QAndroidWebViewSettingsPrivate::QAndroidWebViewSettingsPrivate(
 bool QAndroidWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
 {
     switch (attribute) {
-    case QWebViewSettings::WebAttribute::localStorageEnabled:
+    case QWebViewSettings::WebAttribute::LocalStorageEnabled:
         return localStorageEnabled();
-    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+    case QWebViewSettings::WebAttribute::JavaScriptEnabled:
         return javaScriptEnabled();
-    case QWebViewSettings::WebAttribute::allowFileAccess:
+    case QWebViewSettings::WebAttribute::AllowFileAccess:
         return allowFileAccess();
-    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+    case QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls:
         return localContentCanAccessFileUrls();
     }
     return false;
@@ -52,16 +52,16 @@ bool QAndroidWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribut
 void QAndroidWebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
 {
     switch (attribute) {
-    case QWebViewSettings::WebAttribute::localStorageEnabled:
+    case QWebViewSettings::WebAttribute::LocalStorageEnabled:
         setLocalStorageEnabled(value);
         break;
-    case QWebViewSettings::WebAttribute::javaScriptEnabled:
+    case QWebViewSettings::WebAttribute::JavaScriptEnabled:
         setJavaScriptEnabled(value);
         break;
-    case QWebViewSettings::WebAttribute::allowFileAccess:
+    case QWebViewSettings::WebAttribute::AllowFileAccess:
         setAllowFileAccess(value);
         break;
-    case QWebViewSettings::WebAttribute::localContentCanAccessFileUrls:
+    case QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls:
         setLocalContentCanAccessFileUrls(value);
         break;
     }

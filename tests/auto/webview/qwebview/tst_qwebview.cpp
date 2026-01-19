@@ -61,8 +61,9 @@ void tst_QWebView::load()
     file.close();
 
     QWebView view;
-    view.settings()->setAttribute(QWebViewSettings::WebAttribute::allowFileAccess, true);
-    view.settings()->setAttribute(QWebViewSettings::WebAttribute::localContentCanAccessFileUrls, true);
+    view.settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true);
+    view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls,
+                                  true);
     QCOMPARE(view.loadProgress(), 0);
     const QUrl url = QUrl::fromLocalFile(fileName);
     view.setUrl(url);
@@ -172,8 +173,9 @@ void tst_QWebView::loadRequest()
 
         QWebView view;
 
-        view.settings()->setAttribute(QWebViewSettings::WebAttribute::allowFileAccess, true);
-        view.settings()->setAttribute(QWebViewSettings::WebAttribute::localContentCanAccessFileUrls, true);
+        view.settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true);
+        view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls,
+                                      true);
         QCOMPARE(view.loadProgress(), 0);
         const QUrl url = QUrl::fromLocalFile(fileName);
         QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
@@ -198,8 +200,9 @@ void tst_QWebView::loadRequest()
     // LoadFailed
     {
         QWebView view;
-        view.settings()->setAttribute(QWebViewSettings::WebAttribute::allowFileAccess, true);
-        view.settings()->setAttribute(QWebViewSettings::WebAttribute::localContentCanAccessFileUrls, true);
+        view.settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true);
+        view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls,
+                                      true);
         QCOMPARE(view.loadProgress(), 0);
         QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
         view.setUrl(QUrl(QStringLiteral("file:///file_that_does_not_exist.html")));
@@ -223,9 +226,10 @@ void tst_QWebView::loadRequest()
 void tst_QWebView::setAndDeleteCookie()
 {
     QWebView view;
-    view.settings()->setAttribute(QWebViewSettings::WebAttribute::allowFileAccess, true);
-    view.settings()->setAttribute(QWebViewSettings::WebAttribute::localContentCanAccessFileUrls, true);
-    view.settings()->setAttribute(QWebViewSettings::WebAttribute::localStorageEnabled, true);
+    view.settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true);
+    view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls,
+                                  true);
+    view.settings()->setAttribute(QWebViewSettings::WebAttribute::LocalStorageEnabled, true);
 
     QSignalSpy cookieAddedSpy(&view, SIGNAL(cookieAdded(QString,QString)));
     QSignalSpy cookieRemovedSpy(&view, SIGNAL(cookieRemoved(QString,QString)));
