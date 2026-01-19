@@ -14,9 +14,20 @@ QWebViewLoadingInfo::QWebViewLoadingInfo(const QUrl &url, LoadStatus status,
 {
 }
 
+QWebViewLoadingInfo::QWebViewLoadingInfo(const QWebViewLoadingInfo &other)
+    = default; // as long as m_reserved isn't used!
+
+QWebViewLoadingInfo &QWebViewLoadingInfo::operator=(const QWebViewLoadingInfo &other)
+    = default; // as long as m_reserved isn't used!
+
 QWebViewLoadingInfo::~QWebViewLoadingInfo() { }
 
 // FIXME add c++ docs
+
+/*!
+    \fn QWebViewLoadingInfo::swap(QWebViewLoadingInfo &other)
+    \memberswap{loading info}
+*/
 
 QUrl QWebViewLoadingInfo::url() const
 {

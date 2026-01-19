@@ -31,7 +31,24 @@ public:
 
     QWebViewLoadingInfo();
     Q_IMPLICIT QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
+    QWebViewLoadingInfo(const QWebViewLoadingInfo &other);
+    QWebViewLoadingInfo &operator=(const QWebViewLoadingInfo &other);
+    QWebViewLoadingInfo(QWebViewLoadingInfo &&other) noexcept
+        : m_url{std::move(other.m_url)},
+          m_status{other.m_status},
+          m_errorString{std::move(other.m_errorString)},
+          m_reserved{std::exchange(other.m_reserved, nullptr)}
+    {}
+    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_PURE_SWAP(QWebViewLoadingInfo)
     ~QWebViewLoadingInfo();
+
+    void swap(QWebViewLoadingInfo &other) noexcept
+    {
+        m_url.swap(other.m_url);
+        std::swap(m_status, other.m_status);
+        m_errorString.swap(other.m_errorString);
+        qt_ptr_swap(m_reserved, other.m_reserved);
+    }
 
     QUrl url() const;
     LoadStatus status() const;
@@ -43,6 +60,8 @@ private:
     QString m_errorString;
     Q_DECL_UNUSED_MEMBER void *m_reserved = nullptr;
 };
+
+Q_DECLARE_SHARED(QWebViewLoadingInfo)
 
 QT_END_NAMESPACE
 
