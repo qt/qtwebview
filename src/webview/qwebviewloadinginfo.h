@@ -63,8 +63,10 @@ private:
     friend void operator==(const QWebViewLoadingInfo &, const QWebViewLoadingInfo &) = delete;
     friend void operator<<(QDataStream &, const QWebViewLoadingInfo &) = delete;
     friend void operator>>(QDataStream &, QWebViewLoadingInfo &) = delete;
-    friend void operator<<(QDebug ds, const QWebViewLoadingInfo &info) = delete;
     // end disabled
+#ifndef QT_NO_DEBUG_STREAM
+    friend Q_WEBVIEW_EXPORT QDebug operator<<(QDebug ds, const QWebViewLoadingInfo &info);
+#endif
 
     QExplicitlySharedDataPointer<QWebViewLoadingInfoPrivate> d;
     LoadStatus m_status;

@@ -4,6 +4,7 @@
 
 #include <QtWebView/qwebviewloadinginfo.h>
 
+#include <QtCore/qdebug.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qstring.h>
 
@@ -60,6 +61,23 @@ QString QWebViewLoadingInfo::errorString() const
 {
     return d->errorString;
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+// friend
+QDebug operator<<(QDebug ds, const QWebViewLoadingInfo &info)
+{
+    const QDebugStateSaver saver{ds};
+    ds.nospace() << "QWebViewLoadingInfo{";
+    if (info.d) {
+        ds << info.d->url << ", "
+           << info.m_status << ", "
+           << info.d->errorString;
+    } else {
+        ds << "<moved-from-object>";
+    }
+    return ds << '}';
+}
+#endif // QT_NO_DEBUG_STREAM
 
 QT_END_NAMESPACE
 
