@@ -6,7 +6,9 @@
 
 QT_BEGIN_NAMESPACE
 
-QWebViewLoadingInfo::QWebViewLoadingInfo() { }
+QWebViewLoadingInfo::QWebViewLoadingInfo()
+    : m_status{LoadStatus::Started}
+{}
 
 QWebViewLoadingInfo::QWebViewLoadingInfo(const QUrl &url, LoadStatus status,
                                          const QString &errorString)
