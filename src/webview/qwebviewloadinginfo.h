@@ -5,8 +5,9 @@
 #ifndef QWEBVIEWLOADINGINFO_H
 #define QWEBVIEWLOADINGINFO_H
 
-#include <QtWebView/qwebview.h>
+#include <QtWebView/qwebview_global.h>
 
+#include <QtCore/qmetatype.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qshareddata.h>
 #include <QtCore/qstringfwd.h>
