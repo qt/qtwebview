@@ -14,6 +14,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QDataStream;
+class QDebug;
 class QUrl;
 
 class QWebViewLoadingInfoPrivate;
@@ -55,6 +57,15 @@ public:
     Q_WEBVIEW_EXPORT QString errorString() const;
 
 private:
+    // disabled, so users don't get the idea to write them themselves, causing ODR violations
+    friend void qHash(const QWebViewLoadingInfo &) = delete;
+    friend void qHash(const QWebViewLoadingInfo &, size_t) = delete;
+    friend void operator==(const QWebViewLoadingInfo &, const QWebViewLoadingInfo &) = delete;
+    friend void operator<<(QDataStream &, const QWebViewLoadingInfo &) = delete;
+    friend void operator>>(QDataStream &, QWebViewLoadingInfo &) = delete;
+    friend void operator<<(QDebug ds, const QWebViewLoadingInfo &info) = delete;
+    // end disabled
+
     QExplicitlySharedDataPointer<QWebViewLoadingInfoPrivate> d;
     LoadStatus m_status;
 };
