@@ -4,23 +4,43 @@
 
 #include <QtWebView/qwebviewloadinginfo.h>
 
+#include <QtCore/qurl.h>
+#include <QtCore/qstring.h>
+
 QT_BEGIN_NAMESPACE
 
+class QWebViewLoadingInfoPrivate : public QSharedData
+{
+public:
+    QWebViewLoadingInfoPrivate() = default;
+    QWebViewLoadingInfoPrivate(const QUrl &url, const QString &errorString)
+        : url{url},
+          errorString{errorString}
+    {}
+
+    QUrl url;
+    QString errorString;
+};
+
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QWebViewLoadingInfoPrivate)
+
 QWebViewLoadingInfo::QWebViewLoadingInfo()
-    : m_status{LoadStatus::Started}
+    : d{new QWebViewLoadingInfoPrivate()},
+      m_status{LoadStatus::Started}
 {}
 
 QWebViewLoadingInfo::QWebViewLoadingInfo(const QUrl &url, LoadStatus status,
                                          const QString &errorString)
-    : m_url(url), m_status(status), m_errorString(errorString)
+    : d{new QWebViewLoadingInfoPrivate(url, errorString)},
+      m_status{status}
 {
 }
 
 QWebViewLoadingInfo::QWebViewLoadingInfo(const QWebViewLoadingInfo &other)
-    = default; // as long as m_reserved isn't used!
+    = default;
 
 QWebViewLoadingInfo &QWebViewLoadingInfo::operator=(const QWebViewLoadingInfo &other)
-    = default; // as long as m_reserved isn't used!
+    = default;
 
 QWebViewLoadingInfo::~QWebViewLoadingInfo() { }
 
@@ -33,12 +53,12 @@ QWebViewLoadingInfo::~QWebViewLoadingInfo() { }
 
 QUrl QWebViewLoadingInfo::url() const
 {
-    return m_url;
+    return d->url;
 }
 
 QString QWebViewLoadingInfo::errorString() const
 {
-    return m_errorString;
+    return d->errorString;
 }
 
 QT_END_NAMESPACE

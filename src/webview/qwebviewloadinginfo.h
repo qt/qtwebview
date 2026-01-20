@@ -7,10 +7,16 @@
 
 #include <QtWebView/qwebview.h>
 
-#include <QtCore/qstring.h>
-#include <QtCore/qurl.h>
+#include <QtCore/qobjectdefs.h>
+#include <QtCore/qshareddata.h>
+#include <QtCore/qstringfwd.h>
 
 QT_BEGIN_NAMESPACE
+
+class QUrl;
+
+class QWebViewLoadingInfoPrivate;
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QWebViewLoadingInfoPrivate)
 
 class QWebViewLoadingInfo
 {
@@ -33,21 +39,14 @@ public:
     Q_WEBVIEW_EXPORT Q_IMPLICIT QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
     Q_WEBVIEW_EXPORT QWebViewLoadingInfo(const QWebViewLoadingInfo &other);
     Q_WEBVIEW_EXPORT QWebViewLoadingInfo &operator=(const QWebViewLoadingInfo &other);
-    QWebViewLoadingInfo(QWebViewLoadingInfo &&other) noexcept
-        : m_url{std::move(other.m_url)},
-          m_status{other.m_status},
-          m_errorString{std::move(other.m_errorString)},
-          m_reserved{std::exchange(other.m_reserved, nullptr)}
-    {}
+    QWebViewLoadingInfo(QWebViewLoadingInfo &&other) = default;
     QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_PURE_SWAP(QWebViewLoadingInfo)
     Q_WEBVIEW_EXPORT ~QWebViewLoadingInfo();
 
     void swap(QWebViewLoadingInfo &other) noexcept
     {
-        m_url.swap(other.m_url);
+        d.swap(other.d);
         std::swap(m_status, other.m_status);
-        m_errorString.swap(other.m_errorString);
-        qt_ptr_swap(m_reserved, other.m_reserved);
     }
 
     Q_WEBVIEW_EXPORT QUrl url() const;
@@ -55,10 +54,8 @@ public:
     Q_WEBVIEW_EXPORT QString errorString() const;
 
 private:
-    QUrl m_url;
+    QExplicitlySharedDataPointer<QWebViewLoadingInfoPrivate> d;
     LoadStatus m_status;
-    QString m_errorString;
-    Q_DECL_UNUSED_MEMBER void *m_reserved = nullptr;
 };
 
 Q_DECLARE_SHARED(QWebViewLoadingInfo)
