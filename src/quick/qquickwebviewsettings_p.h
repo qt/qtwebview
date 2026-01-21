@@ -62,7 +62,7 @@ private:
     friend class QQuickWebView;
 
     explicit QQuickWebViewSettings(QWebViewSettings *webviewsettings, QObject *p = nullptr);
-    QPointer<QWebViewSettings> d;
+    QWebViewSettings *d;
     bool m_allowFileAccess;
 };
 
