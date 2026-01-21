@@ -16,13 +16,12 @@ QT_BEGIN_NAMESPACE
 class QWebViewSettingsPrivate;
 class QWindow;
 
-class Q_WEBVIEW_EXPORT QWebViewSettings : public QObject
+class Q_WEBVIEW_EXPORT QWebViewSettings
 {
-    Q_OBJECT
-
+    Q_GADGET
 public:
     explicit QWebViewSettings(QWebViewSettingsPrivate *webview);
-    ~QWebViewSettings() override;
+    virtual ~QWebViewSettings();
 
     enum class WebAttribute {
         LocalStorageEnabled,
