@@ -41,12 +41,12 @@ private slots:
     void startupState();
 
     void load();
-    void runJavaScript();
     void loadNonexistentFileUrl();
     void loadHtml_data();
     void loadHtml();
     void loadRequest();
 
+    void runJavaScript();
     void setAndDeleteCookie();
 
 private:
@@ -82,26 +82,6 @@ void tst_QWebView::load()
     QCOMPARE(webView.loadingSpy[0][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Started);
     QCOMPARE(webView.loadingSpy[1][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Succeeded);
     QCOMPARE(webView.title(), QStringLiteral("Basic Page"));
-}
-
-void tst_QWebView::runJavaScript()
-{
-    ANDROID_REQUIRES_API_LEVEL(19)
-
-    QWebView view;
-    view.show();
-    view.loadHtml(QString("<html><head><title>WebViewTitle</title></head><body/></html>"));
-    QTRY_COMPARE(view.loadProgress(), 100);
-    QTRY_VERIFY(!view.isLoading());
-    QTRY_COMPARE(view.title(), "WebViewTitle");
-
-    bool callbackCalled = false;
-    view.runJavaScript(QString(QLatin1String("document.title")), [&callbackCalled](const QVariant &result) {
-        QCOMPARE(result.toString(), "WebViewTitle");
-        callbackCalled = true;
-    });
-
-    QTRY_VERIFY(callbackCalled);
 }
 
 void tst_QWebView::loadNonexistentFileUrl()
@@ -229,6 +209,26 @@ void tst_QWebView::loadRequest()
         if (QWebViewFactory::loadedPluginHasKey("webengine"))
             QCOMPARE(view.loadProgress(), 100);
     }
+}
+
+void tst_QWebView::runJavaScript()
+{
+    ANDROID_REQUIRES_API_LEVEL(19)
+
+    QWebView view;
+    view.show();
+    view.loadHtml(QString("<html><head><title>WebViewTitle</title></head><body/></html>"));
+    QTRY_COMPARE(view.loadProgress(), 100);
+    QTRY_VERIFY(!view.isLoading());
+    QTRY_COMPARE(view.title(), "WebViewTitle");
+
+    bool callbackCalled = false;
+    view.runJavaScript(QString(QLatin1String("document.title")), [&callbackCalled](const QVariant &result) {
+        QCOMPARE(result.toString(), "WebViewTitle");
+        callbackCalled = true;
+    });
+
+    QTRY_VERIFY(callbackCalled);
 }
 
 void tst_QWebView::setAndDeleteCookie()
