@@ -7,5 +7,6 @@ if(QT_FEATURE_webview_webengine_plugin OR
     QT_FEATURE_webview_winrt_plugin OR
     QT_FEATURE_webview_wasm_plugin)
     add_subdirectory(webview)
+    add_subdirectory(util)
     add_subdirectory(qml)
 endif()
