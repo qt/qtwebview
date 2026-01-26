@@ -64,7 +64,7 @@ Q_GLOBAL_STATIC(CallbackStorage, callbacks)
 QQuickWebView::QQuickWebView(QQuickItem *parent)
     : QQuickWindowContainer(parent),
       m_webView(new QWebView(QWebViewFactory::Hint::QuickInitialization)),
-      m_settings(new QQuickWebViewSettings(m_webView->settings(), this))
+      m_settings(new QQuickWebViewSettings(m_webView->settings()))
 {
     if (QWindow *nativeWindow = m_webView->d->nativeWindow())
         setContainedWindow(nativeWindow);
@@ -76,6 +76,9 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView, &QWebView::httpUserAgentChanged, this, &QQuickWebView::httpUserAgentChanged);
     connect(m_webView, &QWebView::cookieAdded, this, &QQuickWebView::cookieAdded);
     connect(m_webView, &QWebView::cookieRemoved, this, &QQuickWebView::cookieRemoved);
+
+    m_webView->QObject::setParent(this);
+    m_settings->QObject::setParent(this);
 }
 
 QQuickWebView::~QQuickWebView() { }

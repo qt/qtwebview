@@ -24,9 +24,7 @@ QT_BEGIN_NAMESPACE
     The default values are left as set by the different platforms.
 */
 
-QQuickWebViewSettings::QQuickWebViewSettings(QWebViewSettings *webviewsettings, QObject *p)
-    : QObject(p)
-    , d(webviewsettings)
+QQuickWebViewSettings::QQuickWebViewSettings(QWebViewSettings *webviewsettings) : d(webviewsettings)
 {
     Q_ASSERT(d);
 }
