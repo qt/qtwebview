@@ -61,7 +61,7 @@ Q_SIGNALS:
 private:
     friend class QQuickWebView;
 
-    explicit QQuickWebViewSettings(QWebViewSettings *webviewsettings, QObject *p = nullptr);
+    explicit QQuickWebViewSettings(QWebViewSettings *webviewsettings);
     QWebViewSettings *d;
     bool m_allowFileAccess;
 };

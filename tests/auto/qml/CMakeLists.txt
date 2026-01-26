@@ -1,1 +1,2 @@
 add_subdirectory(qquickwebview)
+add_subdirectory(qmltests)
