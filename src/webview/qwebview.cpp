@@ -46,7 +46,22 @@ QT_BEGIN_NAMESPACE
     as well as an \e errorString containing an error message for a failed
     request.
 
-    \sa QWebViewLoadRequest
+    \sa loadProgressChanged, QWebViewLoadRequest
+*/
+
+/*!
+    \fn void QWebView::loadProgressChanged(int loadProgress)
+
+    This signal is continuously emitted during the loading of a web page.
+    The \a loadProgress parameter is a value between 0 and 100, indicating
+    what percentage of the web page has been loaded. The intended use
+    for this is to display a progress bar to the user.
+
+    \note Some backends do not support fractional load progress changes,
+    and will only emit this signal at the start and end of a load, with
+    values of 0 and 100, respecively.
+
+    \sa loadingChanged
 */
 
 QWebView::QWebView(QWebViewFactory::Hint hint) : d(QWebViewFactory::createWebView(this, hint))
@@ -81,6 +96,13 @@ QWebView::~QWebView() { }
     The user-agent string sent with HTTP to identify the browser.
 */
 
+/*!
+    \fn void QWebView::httpUserAgentChanged(const QString &userAgent)
+    This signal is emitted whenever the \a userAgent of the view changes.
+
+    \sa httpUserAgent()
+*/
+
 QString QWebView::httpUserAgent() const
 {
     return d->httpUserAgent();
@@ -101,6 +123,13 @@ void QWebView::setHttpUserAgent(const QString &userAgent)
     \note QWebView does not support loading content through the Qt Resource system.
 
     \sa loadingChanged()
+*/
+
+/*!
+    \fn void QWebView::urlChanged(const QUrl &url)
+    This signal is emitted whenever the \a url of the view changes.
+
+    \sa url()
 */
 
 QUrl QWebView::url() const

@@ -85,6 +85,12 @@ QQuickWebView::~QQuickWebView() { }
   \since QtWebView 1.14
   The user agent in use.
 */
+/*!
+  \qmlsignal QtWebView::WebView::httpUserAgentChanged(string userAgent)
+  This signal is emitted whenever the \a userAgent of the view changes.
+
+  \sa httpUserAgent
+*/
 
 void QQuickWebView::setHttpUserAgent(const QString &userAgent)
 {
@@ -107,6 +113,12 @@ QString QQuickWebView::httpUserAgent() const
 
   \note The WebView does not support loading content through the Qt Resource system.
 */
+/*!
+    \qmlsignal QtWebView::WebView::urlChanged(url url)
+    This signal is emitted whenever the \a url of the view changes.
+
+    \sa url
+*/
 
 void QQuickWebView::setUrl(const QUrl &url)
 {
@@ -119,7 +131,12 @@ void QQuickWebView::setUrl(const QUrl &url)
 
   The title of the currently loaded web page.
 */
+/*!
+  \qmlsignal QtWebView::WebView::titleChanged(string title)
+  This signal is emitted whenever the \a title of the view changes.
 
+  \sa title
+*/
 QString QQuickWebView::title() const
 {
     return m_webView->title();
@@ -160,6 +177,20 @@ bool QQuickWebView::canGoForward() const
 
   The current load progress of the web content, represented as
   an integer between 0 and 100.
+*/
+/*!
+  \qmlsignal QtWebView::WebView::loadProgressChanged(int loadProgress)
+
+  This signal is continuously emitted during the loading of a web page.
+  The \a loadProgress parameter is a value between 0 and 100, indicating
+  what percentage of the web page has been loaded. The intended use
+  for this is to display a progress bar to the user.
+
+  \note Some backends do not support fractional load progress changes,
+  and will only emit this signal at the start and end of a load, with
+  values of 0 and 100, respecively.
+
+  \sa loadingChanged
 */
 int QQuickWebView::loadProgress() const
 {
