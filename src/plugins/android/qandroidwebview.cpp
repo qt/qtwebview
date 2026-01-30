@@ -5,6 +5,8 @@
 #include "qandroidwebview_p.h"
 #include <QtWebView/qwebview.h>
 #include <QtWebView/qwebviewloadinginfo.h>
+#include <QtWebView/private/qwebviewfactory_p.h>
+
 #include <QtCore/private/qjnihelpers_p.h>
 #include <QtCore/qjniobject.h>
 
@@ -347,10 +349,11 @@ static void c_onPageFinished(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadingInfo::LoadStatus::Succeeded,
-                                    QString());
-    emit wc->q_ptr->loadingChanged(loadRequest);
+    QWebViewLoadingInfo loadingInfo(QWebViewFactory::LoadingInfo::create(
+        QUrl(QJniObject(url).toString()),
+        QWebViewLoadingInfo::LoadStatus::Succeeded,
+        QString()));
+    emit wc->q_ptr->loadingChanged(loadingInfo);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onPageFinished)
 
@@ -369,9 +372,11 @@ static void c_onPageStarted(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadingInfo::LoadStatus::Started, QString());
-    emit wc->q_ptr->loadingChanged(loadRequest);
+    QWebViewLoadingInfo loadingInfo(QWebViewFactory::LoadingInfo::create(
+        QUrl(QJniObject(url).toString()),
+        QWebViewLoadingInfo::LoadStatus::Started,
+        QString()));
+    emit wc->q_ptr->loadingChanged(loadingInfo);
 
 //    if (!icon)
 //        return;
@@ -455,10 +460,11 @@ static void c_onReceivedError(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
-    QWebViewLoadingInfo loadRequest(QUrl(QJniObject(url).toString()),
-                                    QWebViewLoadingInfo::LoadStatus::Failed,
-                                    QJniObject(description).toString());
-    emit wc->q_ptr->loadingChanged(loadRequest);
+    QWebViewLoadingInfo loadingInfo(QWebViewFactory::LoadingInfo::create(
+        QUrl(QJniObject(url).toString()),
+        QWebViewLoadingInfo::LoadStatus::Failed,
+        QJniObject(description).toString()));
+    emit wc->q_ptr->loadingChanged(loadingInfo);
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onReceivedError)
 
