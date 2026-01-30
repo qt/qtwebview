@@ -4,6 +4,7 @@
 
 #include "qwebview2webview_p.h"
 #include <QtWebView/qwebviewloadinginfo.h>
+#include <QtWebView/private/qwebviewfactory_p.h>
 #include <QtCore/private/qfunctions_win_p.h>
 #include <QtWidgets/QtWidgets>
 
@@ -367,7 +368,7 @@ void QWebView2WebViewPrivate::setUrl(const QUrl &url)
             m_isLoading = false;
             m_progress = 100;
             emit q_ptr->loadProgressChanged(100);
-            emit q_ptr->loadingChanged(QWebViewLoadingInfo(
+            emit q_ptr->loadingChanged(QWebViewFactory::LoadingInfo::create(
                     url, QWebViewLoadingInfo::LoadStatus::Failed, QString()));
         }
     }
@@ -607,9 +608,10 @@ HRESULT QWebView2WebViewPrivate::onNavigationCompleted(ICoreWebView2* webview, I
         const QString errorStr = isSuccess ? "" : WebErrorStatusToString(errorStatus);
         emit q_ptr->titleChanged(title());
         emit q_ptr->loadProgressChanged(100);
-        emit q_ptr->loadingChanged(QWebViewLoadingInfo(m_url, status, errorStr));
+        emit q_ptr->loadingChanged(QWebViewFactory::LoadingInfo::create(
+            m_url, status, errorStr));
     } else {
-        emit q_ptr->loadingChanged(QWebViewLoadingInfo(
+        emit q_ptr->loadingChanged(QWebViewFactory::LoadingInfo::create(
                 m_url, QWebViewLoadingInfo::LoadStatus::Stopped, QString()));
     }
     return S_OK;
@@ -645,7 +647,7 @@ HRESULT QWebView2WebViewPrivate::onContentLoading(ICoreWebView2* webview, ICoreW
 {
     m_isLoading = true;
     m_progress = 0;
-    emit q_ptr->loadingChanged(QWebViewLoadingInfo(
+    emit q_ptr->loadingChanged(QWebViewFactory::LoadingInfo::create(
             m_url, QWebViewLoadingInfo::LoadStatus::Started, QString()));
     emit q_ptr->loadProgressChanged(0);
     return S_OK;

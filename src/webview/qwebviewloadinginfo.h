@@ -21,6 +21,10 @@ class QUrl;
 class QWebViewLoadingInfoPrivate;
 QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QWebViewLoadingInfoPrivate)
 
+namespace QWebViewFactory {
+struct LoadingInfo;
+}
+
 class QWebViewLoadingInfo
 {
     Q_GADGET_EXPORT(Q_WEBVIEW_EXPORT)
@@ -38,7 +42,6 @@ public:
     Q_ENUM(LoadStatus)
 
     Q_WEBVIEW_EXPORT QWebViewLoadingInfo();
-    Q_WEBVIEW_EXPORT Q_IMPLICIT QWebViewLoadingInfo(const QUrl &url, LoadStatus status, const QString &errorString);
     Q_WEBVIEW_EXPORT QWebViewLoadingInfo(const QWebViewLoadingInfo &other);
     Q_WEBVIEW_EXPORT QWebViewLoadingInfo &operator=(const QWebViewLoadingInfo &other);
     QWebViewLoadingInfo(QWebViewLoadingInfo &&other) = default;
@@ -66,9 +69,13 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
     friend Q_WEBVIEW_EXPORT QDebug operator<<(QDebug ds, const QWebViewLoadingInfo &info);
 #endif
+    Q_WEBVIEW_EXPORT Q_IMPLICIT QWebViewLoadingInfo(const QUrl &url, LoadStatus status,
+                                                    const QString &errorString);
 
     QExplicitlySharedDataPointer<QWebViewLoadingInfoPrivate> d;
     LoadStatus m_status;
+
+    friend struct QWebViewFactory::LoadingInfo;
 };
 
 Q_DECLARE_SHARED(QWebViewLoadingInfo)

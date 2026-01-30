@@ -17,6 +17,7 @@
 //
 
 #include "qwebview_p.h"
+#include "qwebviewloadinginfo.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -26,6 +27,14 @@ namespace QWebViewFactory {
 enum class Hint {
     NoHint = 0,
     QuickInitialization = 0x00000001,
+};
+struct LoadingInfo // wrapper to use private constructor
+{
+    static QWebViewLoadingInfo create(const QUrl &url, QWebViewLoadingInfo::LoadStatus status,
+                                      const QString &errorString)
+    {
+        return QWebViewLoadingInfo(url, status, errorString);
+    }
 };
 QWebViewPlugin *getPlugin();
 QWebViewPrivate *createWebView(QWebView *view, Hint hint = Hint::NoHint);

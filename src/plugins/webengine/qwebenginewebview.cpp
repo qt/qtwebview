@@ -4,7 +4,7 @@
 
 #include "qwebenginewebview_p.h"
 #include <QtWebView/qwebview.h>
-#include <QtWebView/qwebviewloadinginfo.h>
+#include <QtWebView/private/qwebviewfactory_p.h>
 #include <QtWebViewQuick/private/qquickwebview_p.h>
 
 #include <QtCore/qmap.h>
@@ -165,10 +165,11 @@ void QWebEngineWebViewPrivate::q_titleChanged()
 
 void QWebEngineWebViewPrivate::q_loadingChanged(const QWebEngineLoadingInfo &loadRequest)
 {
-    QWebViewLoadingInfo lr(loadRequest.url(),
-                           static_cast<QWebViewLoadingInfo::LoadStatus>(
-                                   loadRequest.status()), // These "should" match...
-                           loadRequest.errorString());
+    QWebViewLoadingInfo lr(QWebViewFactory::LoadingInfo::create(
+            loadRequest.url(),
+            static_cast<QWebViewLoadingInfo::LoadStatus>(
+                    loadRequest.status()), // These "should" match...
+            loadRequest.errorString()));
     emit q_ptr->loadingChanged(lr);
 }
 
