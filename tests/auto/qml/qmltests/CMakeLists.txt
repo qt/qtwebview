@@ -3,7 +3,7 @@
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS Qml QuickTest)
 
-qt_internal_add_test(tst_qmltests
+qt_internal_add_test(tst_webview_qmltests
     QMLTEST
     SOURCES
         tst_qmltests.cpp
