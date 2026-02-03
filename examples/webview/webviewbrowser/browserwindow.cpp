@@ -11,6 +11,7 @@
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qtoolbar.h>
+#include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qprogressbar.h>
 
 using namespace Qt::StringLiterals;
@@ -20,10 +21,15 @@ BrowserWindow::BrowserWindow()
     , toolBar(addToolBar("Navigation"))
     , lineEdit(new QLineEdit(this))
     , progressBar(new QProgressBar(this))
+    , settingsMenuButton(new QToolButton(toolBar))
     , backAction(new QAction(QIcon(":left-32.png"_L1), "Go back"_L1, this))
     , forwardAction(new QAction(QIcon(":right-32.png"_L1), "Go forward"_L1, this))
     , reloadAction(new QAction(QIcon(":refresh-32.png"_L1), "Reload"_L1, this))
     , stopAction(new QAction(QIcon(":stop-32.png"_L1), "Stop"_L1, this))
+    , localStorageAction(new QAction("Enable Local storage"_L1, settingsMenuButton))
+    , javaScriptAction(new QAction("Enable JavaScript"_L1, settingsMenuButton))
+    , allowFileAccessAction(new QAction("Allow file access"_L1, settingsMenuButton))
+    , localContentsCanAccessFileUrlsAction(new QAction("Enable file URLs for local documents"_L1, settingsMenuButton))
 {
     // Wrap the QWebView in a QWidget
     QWidget *webViewContainer = QWidget::createWindowContainer(webView);
@@ -48,11 +54,24 @@ BrowserWindow::BrowserWindow()
     progressBar->setStyleSheet("QProgressBar {border: 0px} QProgressBar::chunk {background-color: #da4453}"_L1);
     layout()->addWidget(progressBar);
 
+    // Set up settings menu
+    toolBar->addSeparator();
+    settingsMenuButton->setIcon(QIcon(":settings-32.png"_L1));
+    settingsMenuButton->setToolTip("Settings"_L1);
+    settingsMenuButton->setPopupMode(QToolButton::InstantPopup);
+    settingsMenuButton->setStyleSheet("QToolButton::menu-indicator {image: none;}"_L1);
+    addSettingToMenu(localStorageAction, QWebViewSettings::WebAttribute::LocalStorageEnabled);
+    addSettingToMenu(javaScriptAction, QWebViewSettings::WebAttribute::JavaScriptEnabled);
+    addSettingToMenu(allowFileAccessAction, QWebViewSettings::WebAttribute::AllowFileAccess);
+    addSettingToMenu(localContentsCanAccessFileUrlsAction, QWebViewSettings::WebAttribute::LocalContentCanAccessFileUrls);
+    toolBar->addWidget(settingsMenuButton);
+
     // Set up signal/slot connections
     connect(backAction, &QAction::triggered, webView, &QWebView::goBack);
     connect(forwardAction, &QAction::triggered, webView, &QWebView::goForward);
     connect(reloadAction, &QAction::triggered, webView, &QWebView::reload);
     connect(stopAction, &QAction::triggered, webView, &QWebView::stop);
+
     connect(webView, &QWebView::loadingChanged, this, &BrowserWindow::onLoadingChanged);
     connect(webView, &QWebView::loadProgressChanged, this, &BrowserWindow::onLoadProgressChanged);
     connect(webView, &QWebView::titleChanged, this, &BrowserWindow::onTitleChanged);
@@ -113,4 +132,20 @@ void BrowserWindow::onLoadProgressChanged(int loadProgress)
 void BrowserWindow::onUrlInput()
 {
     webView->setUrl(QUrl::fromUserInput(lineEdit->text()));
+}
+
+void BrowserWindow::onSettingToggled(QAction *action, QWebViewSettings::WebAttribute attribute)
+{
+    webView->settings()->setAttribute(attribute, action->isChecked());
+    action->setChecked(webView->settings()->testAttribute(attribute));
+}
+
+void BrowserWindow::addSettingToMenu(QAction *action, QWebViewSettings::WebAttribute setting)
+{
+    action->setCheckable(true);
+    action->setChecked(webView->settings()->testAttribute(setting));
+    connect(action, &QAction::toggled, [this, action, setting](bool){
+        onSettingToggled(action, setting);
+    });
+    settingsMenuButton->addAction(action);
 }
