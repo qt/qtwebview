@@ -23,7 +23,7 @@ public:
     explicit QWebViewSettings(QWebViewSettingsPrivate *webview);
     virtual ~QWebViewSettings();
 
-    enum class WebAttribute {
+    enum class WebAttribute : quint32 {
         LocalStorageEnabled,
         JavaScriptEnabled,
         AllowFileAccess,
