@@ -56,17 +56,17 @@ public:
 
     QWebViewSettings *settings() const;
 
-    Q_INVOKABLE void goBack();
-    Q_INVOKABLE void goForward();
-    Q_INVOKABLE void reload();
-    Q_INVOKABLE void stop();
-    Q_INVOKABLE void loadHtml(const QString &html, const QUrl &baseUrl = QUrl());
-    Q_INVOKABLE void setCookie(const QString &domain, const QString &name, const QString &value);
-    Q_INVOKABLE void deleteCookie(const QString &domain, const QString &name);
-    Q_INVOKABLE void deleteAllCookies();
-
     void runJavaScript(const QString &script,
                        const std::function<void(const QVariant &)> &resultCallback = {});
+public Q_SLOTS:
+    void goBack();
+    void goForward();
+    void reload();
+    void stop();
+    void loadHtml(const QString &html, const QUrl &baseUrl = QUrl());
+    void setCookie(const QString &domain, const QString &name, const QString &value);
+    void deleteCookie(const QString &domain, const QString &name);
+    void deleteAllCookies();
 
 Q_SIGNALS:
     void titleChanged(const QString &title);
