@@ -31,10 +31,9 @@ Q_DECLARE_JNI_CLASS(WebView, "android/webkit/WebView");
 
 class QAndroidWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
-    Q_OBJECT
+    Q_GADGET
 public:
-    explicit QAndroidWebViewSettingsPrivate(const QtJniTypes::WebViewController &viewController,
-                                            QObject *p = nullptr);
+    explicit QAndroidWebViewSettingsPrivate(const QtJniTypes::WebViewController &viewController);
 
     bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
     void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;

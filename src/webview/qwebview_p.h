@@ -28,15 +28,17 @@ QT_BEGIN_NAMESPACE
 class QWindow;
 class QWebViewLoadingInfo;
 
-class Q_WEBVIEW_EXPORT QWebViewSettingsPrivate : public QObject
+class Q_WEBVIEW_EXPORT QWebViewSettingsPrivate : public QWebViewSettings
 {
-    Q_OBJECT
+    Q_GADGET
 public:
-    virtual bool testAttribute(QWebViewSettings::WebAttribute attribute) const = 0;
-    virtual void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) = 0;
+    ~QWebViewSettingsPrivate() override;
+
+    bool testAttribute(QWebViewSettings::WebAttribute attribute) const override = 0;
+    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) override = 0;
 
 protected:
-    explicit QWebViewSettingsPrivate(QObject *p = nullptr) : QObject(p) { }
+    explicit QWebViewSettingsPrivate() { }
 };
 
 class Q_WEBVIEW_EXPORT QWebViewPrivate : public QObject
@@ -69,7 +71,7 @@ protected:
     explicit QWebViewPrivate(QWebView *view) : q_ptr(view) { };
 
 public:
-    std::unique_ptr<QWebViewSettings> m_settings;
+    std::unique_ptr<QWebViewSettingsPrivate> m_settings;
     QWebView *q_ptr;
 };
 

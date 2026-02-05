@@ -32,9 +32,9 @@ QT_BEGIN_NAMESPACE
 
 class QWasmWebViewSettingsPrivate final : public QWebViewSettingsPrivate
 {
-    Q_OBJECT
+    Q_GADGET
 public:
-    explicit QWasmWebViewSettingsPrivate(QObject *p = nullptr);
+    explicit QWasmWebViewSettingsPrivate();
 
     bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
     void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;

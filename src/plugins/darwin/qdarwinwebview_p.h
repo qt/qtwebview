@@ -32,9 +32,9 @@ QT_BEGIN_NAMESPACE
 
 class QDarwinWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
-    Q_OBJECT
+    Q_GADGET
 public:
-    explicit QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf, QObject *p = nullptr);
+    explicit QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf);
 
     bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
     void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;

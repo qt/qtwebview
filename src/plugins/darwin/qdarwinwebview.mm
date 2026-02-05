@@ -201,9 +201,8 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
 
 QT_BEGIN_NAMESPACE
 
-QDarwinWebViewSettingsPrivate::QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf,
-                                                             QObject *p)
-    : QWebViewSettingsPrivate(p), m_conf(conf)
+QDarwinWebViewSettingsPrivate::QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf)
+    :  m_conf(conf)
 {
 
 }
@@ -321,7 +320,7 @@ QDarwinWebViewPrivate::QDarwinWebViewPrivate(QWebView *view) : QWebViewPrivate(v
         connect(view, &QWindow::heightChanged, m_window, &QWindow::setHeight);
         connect(view, &QWindow::visibleChanged, m_window, &QWindow::setVisible);
     }
-    m_settings = new QDarwinWebViewSettingsPrivate(wkWebView.configuration, this);
+    m_settings = new QDarwinWebViewSettingsPrivate(wkWebView.configuration);
 }
 
 QDarwinWebViewPrivate::~QDarwinWebViewPrivate()

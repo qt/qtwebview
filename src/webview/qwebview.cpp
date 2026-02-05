@@ -11,6 +11,9 @@
 
 QT_BEGIN_NAMESPACE
 
+QWebViewSettingsPrivate::~QWebViewSettingsPrivate()
+    = default;
+
 /*!
     \class QWebView
     \brief The QWebView class provides a window that is used to view web content.
@@ -68,14 +71,14 @@ QWebView::QWebView(QWebViewFactory::Hint hint) : d(QWebViewFactory::createWebVie
 {
     //note this is called only from qquickwebview
     Q_ASSERT(d);
-    d->m_settings.reset(new QWebViewSettings(d->settings()));
+    d->m_settings.reset(d->settings());
     qRegisterMetaType<QWebViewLoadingInfo>();
 }
 
 QWebView::QWebView(QWindow *parent) : QWindow(parent), d(QWebViewFactory::createWebView(this))
 {
     Q_ASSERT(d);
-    d->m_settings.reset(new QWebViewSettings(d->settings()));
+    d->m_settings.reset(d->settings());
     qRegisterMetaType<QWebViewLoadingInfo>();
     d->initialize(nullptr);
 }
@@ -83,7 +86,7 @@ QWebView::QWebView(QWindow *parent) : QWindow(parent), d(QWebViewFactory::create
 QWebView::QWebView(QScreen *screen) : QWindow(screen), d(QWebViewFactory::createWebView(this))
 {
     Q_ASSERT(d);
-    d->m_settings.reset(new QWebViewSettings(d->settings()));
+    d->m_settings.reset(d->settings());
     qRegisterMetaType<QWebViewLoadingInfo>();
     d->initialize(nullptr);
 }

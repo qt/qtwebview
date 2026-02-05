@@ -31,8 +31,8 @@ using namespace QtJniTypes;
 using namespace Qt::StringLiterals;
 
 QAndroidWebViewSettingsPrivate::QAndroidWebViewSettingsPrivate(
-        const WebViewController &viewController, QObject *p)
-    : QWebViewSettingsPrivate(p), m_viewController(viewController)
+        const WebViewController &viewController)
+    : m_viewController(viewController)
 {
 }
 
@@ -133,7 +133,7 @@ QAndroidWebViewPrivate::QAndroidWebViewPrivate(QWebView *view)
     QtAndroidPrivate::releaseAndroidDeadlockProtector();
 
     m_webView = m_viewController.callMethod<WebView>("getWebView");
-    m_settings = new QAndroidWebViewSettingsPrivate(m_viewController, this);
+    m_settings = new QAndroidWebViewSettingsPrivate(m_viewController);
 
     m_window = QWindow::fromWinId(reinterpret_cast<WId>(m_webView.object()));
     if (m_window) {
