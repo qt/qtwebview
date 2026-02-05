@@ -42,8 +42,7 @@ QString WebErrorStatusToString(COREWEBVIEW2_WEB_ERROR_STATUS status)
     return QString(L"ERROR");
 }
 
-QWebview2WebViewSettingsPrivate::QWebview2WebViewSettingsPrivate(QObject *p)
-    : QWebViewSettingsPrivate(p)
+QWebview2WebViewSettingsPrivate::QWebview2WebViewSettingsPrivate()
 {
 }
 
@@ -141,7 +140,7 @@ void QWebview2WebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 
 QWebView2WebViewPrivate::QWebView2WebViewPrivate(QWebView *view)
     : QWebViewPrivate(view),
-      m_settings(new QWebview2WebViewSettingsPrivate(this)),
+      m_settings(new QWebview2WebViewSettingsPrivate()),
       m_window(view),
       m_isLoading(false),
       m_progress(0)

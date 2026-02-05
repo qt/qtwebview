@@ -20,9 +20,6 @@ class Q_WEBVIEW_EXPORT QWebViewSettings
 {
     Q_GADGET
 public:
-    explicit QWebViewSettings(QWebViewSettingsPrivate *webview);
-    virtual ~QWebViewSettings();
-
     enum class WebAttribute : quint32 {
         LocalStorageEnabled,
         JavaScriptEnabled,
@@ -31,11 +28,13 @@ public:
     };
     Q_ENUM(WebAttribute);
 
-    bool testAttribute(WebAttribute attribute) const;
-    void setAttribute(WebAttribute attribute, bool value);
+    virtual bool testAttribute(WebAttribute attribute) const = 0;
+    virtual void setAttribute(WebAttribute attribute, bool value) = 0;
 
 private:
-    std::unique_ptr<QWebViewSettingsPrivate> d;
+    friend class QWebViewSettingsPrivate;
+    explicit QWebViewSettings();
+    virtual ~QWebViewSettings();
 };
 
 QT_END_NAMESPACE

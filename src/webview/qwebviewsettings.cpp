@@ -3,7 +3,6 @@
 // Qt-Security score:significant reason:default
 
 #include "qwebviewsettings.h"
-#include "qwebview_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -35,9 +34,8 @@ QT_BEGIN_NAMESPACE
     The default values are left as set by the different platforms.
 */
 
-QWebViewSettings::QWebViewSettings(QWebViewSettingsPrivate *settings) : d(settings)
+QWebViewSettings::QWebViewSettings()
 {
-    Q_ASSERT(settings != nullptr);
 }
 
 QWebViewSettings::~QWebViewSettings() { }
@@ -49,22 +47,12 @@ QWebViewSettings::~QWebViewSettings() { }
     Returns \c true if \a attribute is enabled; otherwise returns \c false.
 */
 
-bool QWebViewSettings::testAttribute(QWebViewSettings::WebAttribute attribute) const
-{
-    return d->testAttribute(attribute);
-}
-
 /*!
     \fn void QWebViewSettings::setAttribute(WebAttribute attribute, bool on)
 
     Enables or disables the specified \a attribute feature depending on the
     value of \a on.
 */
-
-void QWebViewSettings::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
-{
-    d->setAttribute(attribute, value);
-}
 
 QT_END_NAMESPACE
 

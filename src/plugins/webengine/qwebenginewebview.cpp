@@ -308,7 +308,7 @@ QQuickWebEngineView *QQuickItemWebEngineWebViewPrivate::view() const
 // QWebEngineWebViewSettingsPrivate
 
 QWebEngineWebViewSettingsPrivate::QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p)
-    : QWebViewSettingsPrivate(p)
+    : parent(p)
 {
 
 }
@@ -380,9 +380,9 @@ void QWebEngineWebViewSettingsPrivate::setLocalStorageEnabled(bool enabled)
 {
     // This separation is a bit different on the mobile platforms, so for now
     // we'll interpret this property to also affect the "off the record" profile setting.
-    if (auto webview = qobject_cast<QWebEngineWebViewPrivate *>(parent())) {
-        if (webview->m_profile)
-            webview->m_profile->setOffTheRecord(enabled);
+    if (parent) {
+        if (parent->m_profile)
+            parent->m_profile->setOffTheRecord(enabled);
     }
 
     if (m_settings)

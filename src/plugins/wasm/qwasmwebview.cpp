@@ -21,8 +21,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QWasmWebViewSettingsPrivate::QWasmWebViewSettingsPrivate(QObject *p)
-    : QWebViewSettingsPrivate(p) { }
+QWasmWebViewSettingsPrivate::QWasmWebViewSettingsPrivate() { }
 
 bool QWasmWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
 {
@@ -107,7 +106,7 @@ void QWasmWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 
 QWasmWebViewPrivate::QWasmWebViewPrivate(QWebView *view) : QWebViewPrivate(view), m_window(view)
 {
-    m_settings = new QWasmWebViewSettingsPrivate(this);
+    m_settings = new QWasmWebViewSettingsPrivate();
     QMetaObject::invokeMethod(this, &QWasmWebViewPrivate::initializeIFrame, Qt::QueuedConnection);
 }
 

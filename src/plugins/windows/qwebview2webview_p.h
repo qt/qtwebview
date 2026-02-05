@@ -20,9 +20,9 @@ using namespace Microsoft::WRL;
 
 class QWebview2WebViewSettingsPrivate final : public QWebViewSettingsPrivate
 {
-    Q_OBJECT
+    Q_GADGET
 public:
-    explicit QWebview2WebViewSettingsPrivate(QObject *p = nullptr);
+    explicit QWebview2WebViewSettingsPrivate();
 
     void init(ICoreWebView2Controller* viewController);
 
@@ -62,7 +62,7 @@ struct QWebViewInitData{
 
 class QWebView2WebViewPrivate : public QWebViewPrivate
 {
-    Q_OBJECT
+    Q_GADGET
 public:
     explicit QWebView2WebViewPrivate(QWebView *view);
     ~QWebView2WebViewPrivate() override;
