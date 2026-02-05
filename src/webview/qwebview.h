@@ -35,8 +35,6 @@ class Q_WEBVIEW_EXPORT QWebView : public QWindow
     Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged FINAL)
     Q_PROPERTY(int loadProgress READ loadProgress NOTIFY loadProgressChanged FINAL)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged FINAL)
-    Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged FINAL)
-    Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged FINAL)
     Q_PROPERTY(QWebViewSettings *settings READ settings CONSTANT FINAL)
 
 public:

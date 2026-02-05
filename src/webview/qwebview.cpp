@@ -143,8 +143,7 @@ void QWebView::setUrl(const QUrl &url)
 }
 
 /*!
-    \property QWebView::canGoBack
-    Holds \c true if it's currently possible to navigate back in the web history.
+    Returns \c true if it's currently possible to navigate back in the web history.
 */
 
 bool QWebView::canGoBack() const
@@ -162,8 +161,7 @@ void QWebView::goBack()
 }
 
 /*!
-    \property QWebView::canGoForward
-    Holds \c true if it's currently possible to navigate forward in the web history.
+    Returns \c true if it's currently possible to navigate forward in the web history.
 */
 
 bool QWebView::canGoForward() const
