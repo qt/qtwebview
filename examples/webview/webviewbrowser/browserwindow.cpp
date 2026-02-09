@@ -56,6 +56,12 @@ BrowserWindow::BrowserWindow()
 
     stopAction->setVisible(false);
 
+    // Set up shortcuts
+    backAction->setShortcut(QKeySequence::Back);
+    forwardAction->setShortcut(QKeySequence::Forward);
+    reloadAction->setShortcut(QKeySequence::Refresh);
+    stopAction->setShortcut(QKeySequence::Cancel);
+
     // Set up progress bar
     progressBar->setMaximumHeight(2);
     progressBar->setTextVisible(false);
