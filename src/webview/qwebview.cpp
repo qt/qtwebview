@@ -46,7 +46,7 @@ QT_BEGIN_NAMESPACE
     as well as an \e errorString containing an error message for a failed
     request.
 
-    \sa loadProgressChanged, QWebViewLoadRequest
+    \sa loadProgressChanged, QWebViewLoadingInfo
 */
 
 /*!
