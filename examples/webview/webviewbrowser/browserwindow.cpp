@@ -7,7 +7,7 @@
 #include <QtGui/qaction.h>
 #include <QtWebView/qwebview.h>
 #include <QtWebView/qwebviewloadinginfo.h>
-#include <QtWidgets/qlayout.h>
+#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qtoolbar.h>
@@ -31,10 +31,17 @@ BrowserWindow::BrowserWindow()
     , allowFileAccessAction(new QAction("Allow file access"_L1, settingsMenuButton))
     , localContentsCanAccessFileUrlsAction(new QAction("Enable file URLs for local documents"_L1, settingsMenuButton))
 {
+    // Set up central widget. We use a QVBoxLayout to put the progress bar above the web content
+    QWidget *centralWidget = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(centralWidget);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
+    setCentralWidget(centralWidget);
+
     // Wrap the QWebView in a QWidget
     QWidget *webViewContainer = QWidget::createWindowContainer(webView);
     webViewContainer->setMinimumSize(QSize(1280, 720));
-    setCentralWidget(webViewContainer);
+    layout->addWidget(webViewContainer);
 
     // Set up toolbar
     toolBar->setMovable(false);
@@ -49,10 +56,11 @@ BrowserWindow::BrowserWindow()
 
     stopAction->setVisible(false);
 
-    progressBar->setMaximumHeight(1);
+    // Set up progress bar
+    progressBar->setMaximumHeight(2);
     progressBar->setTextVisible(false);
     progressBar->setStyleSheet("QProgressBar {border: 0px} QProgressBar::chunk {background-color: #da4453}"_L1);
-    layout()->addWidget(progressBar);
+    layout->insertWidget(0, progressBar);
 
     // Set up settings menu
     toolBar->addSeparator();
