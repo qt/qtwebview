@@ -509,7 +509,7 @@ static void c_onCookieRemoved(JNIEnv *env,
 Q_DECLARE_JNI_NATIVE_METHOD(c_onCookieRemoved)
 QT_END_NAMESPACE
 
-JNIEXPORT jint JNI_OnLoad(JavaVM* /* vm */, void* /*reserved*/)
+extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* /* vm */, void* /*reserved*/)
 {
     static bool initialized = false;
     if (initialized)
