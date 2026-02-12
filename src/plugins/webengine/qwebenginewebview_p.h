@@ -39,7 +39,6 @@ class QWebEngineWebViewPrivate;
 
 class QWebEngineWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
-    Q_GADGET
 public:
     explicit QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p);
 

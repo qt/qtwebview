@@ -31,7 +31,6 @@ Q_DECLARE_JNI_CLASS(WebView, "android/webkit/WebView");
 
 class QAndroidWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
-    Q_GADGET
 public:
     explicit QAndroidWebViewSettingsPrivate(const QtJniTypes::WebViewController &viewController);
 
