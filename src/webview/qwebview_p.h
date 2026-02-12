@@ -30,7 +30,6 @@ class QWebViewLoadingInfo;
 
 class Q_WEBVIEW_EXPORT QWebViewSettingsPrivate : public QWebViewSettings
 {
-    Q_GADGET
 public:
     ~QWebViewSettingsPrivate() override;
 

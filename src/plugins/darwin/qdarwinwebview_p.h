@@ -32,7 +32,6 @@ QT_BEGIN_NAMESPACE
 
 class QDarwinWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
-    Q_GADGET
 public:
     explicit QDarwinWebViewSettingsPrivate(WKWebViewConfiguration *conf);
 

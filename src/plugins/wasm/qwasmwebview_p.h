@@ -32,7 +32,6 @@ QT_BEGIN_NAMESPACE
 
 class QWasmWebViewSettingsPrivate final : public QWebViewSettingsPrivate
 {
-    Q_GADGET
 public:
     explicit QWasmWebViewSettingsPrivate();
 

@@ -20,7 +20,6 @@ using namespace Microsoft::WRL;
 
 class QWebview2WebViewSettingsPrivate final : public QWebViewSettingsPrivate
 {
-    Q_GADGET
 public:
     explicit QWebview2WebViewSettingsPrivate();
 
