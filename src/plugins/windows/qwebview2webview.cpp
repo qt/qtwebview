@@ -224,7 +224,7 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
                         if (SUCCEEDED(hr))
                             QTimer::singleShot(0, thisPtr, [thisPtr] {
                                 if (!thisPtr.isNull())
-                                    emit thisPtr->q_ptr->httpUserAgentChanged(
+                                    emit thisPtr->q_ptr->httpUserAgentStringChanged(
                                             thisPtr->m_initData.m_httpUserAgent);
                             });
                     }
@@ -343,7 +343,7 @@ void QWebView2WebViewPrivate::setHttpUserAgent(const QString &userAgent)
         if (settings2) {
             hr = settings2->put_UserAgent((wchar_t*)userAgent.utf16());
             if (SUCCEEDED(hr))
-                emit q_ptr->httpUserAgentChanged(userAgent);
+                emit q_ptr->httpUserAgentStringChanged(userAgent);
             return;
         } else {
             qWarning() << "No http user agent setting available.";
