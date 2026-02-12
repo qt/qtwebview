@@ -94,24 +94,24 @@ QWebView::QWebView(QScreen *screen) : QWindow(screen), d(QWebViewFactory::create
 QWebView::~QWebView() { }
 
 /*!
-    \property QWebView::httpUserAgent
+    \property QWebView::httpUserAgentString
     \brief The user agent in use.
     The user-agent string sent with HTTP to identify the browser.
 */
 
 /*!
-    \fn void QWebView::httpUserAgentChanged(const QString &userAgent)
+    \fn void QWebView::httpUserAgentStringChanged(const QString &userAgent)
     This signal is emitted whenever the \a userAgent of the view changes.
 
     \sa httpUserAgent()
 */
 
-QString QWebView::httpUserAgent() const
+QString QWebView::httpUserAgentString() const
 {
     return d->httpUserAgent();
 }
 
-void QWebView::setHttpUserAgent(const QString &userAgent)
+void QWebView::setHttpUserAgentString(const QString &userAgent)
 {
     return d->setHttpUserAgent(userAgent);
 }

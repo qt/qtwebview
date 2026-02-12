@@ -73,7 +73,8 @@ QQuickWebView::QQuickWebView(QQuickItem *parent)
     connect(m_webView, &QWebView::urlChanged, this, &QQuickWebView::urlChanged);
     connect(m_webView, &QWebView::loadProgressChanged, this, &QQuickWebView::loadProgressChanged);
     connect(m_webView, &QWebView::loadingChanged, this, &QQuickWebView::onLoadingChanged);
-    connect(m_webView, &QWebView::httpUserAgentChanged, this, &QQuickWebView::httpUserAgentChanged);
+    connect(m_webView, &QWebView::httpUserAgentStringChanged,
+            this, &QQuickWebView::httpUserAgentChanged);
     connect(m_webView, &QWebView::cookieAdded, this, &QQuickWebView::cookieAdded);
     connect(m_webView, &QWebView::cookieRemoved, this, &QQuickWebView::cookieRemoved);
 
@@ -97,12 +98,12 @@ QQuickWebView::~QQuickWebView() { }
 
 void QQuickWebView::setHttpUserAgent(const QString &userAgent)
 {
-    m_webView->setHttpUserAgent(userAgent);
+    m_webView->setHttpUserAgentString(userAgent);
 }
 
 QString QQuickWebView::httpUserAgent() const
 {
-    return m_webView->httpUserAgent();
+    return m_webView->httpUserAgentString();
 }
 
 /*!

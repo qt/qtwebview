@@ -595,7 +595,7 @@ void QDarwinWebViewPrivate::setHttpUserAgent(const QString &userAgent)
     if (!userAgent.isEmpty()) {
         wkWebView.customUserAgent = userAgent.toNSString();
     }
-    emit q_ptr->httpUserAgentChanged(userAgent);
+    emit q_ptr->httpUserAgentStringChanged(userAgent);
 }
 
 QWebViewSettingsPrivate *QDarwinWebViewPrivate::settings() const

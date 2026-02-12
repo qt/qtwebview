@@ -29,8 +29,8 @@ enum class Hint;
 class Q_WEBVIEW_EXPORT QWebView : public QWindow
 {
     Q_OBJECT
-    Q_PROPERTY(QString httpUserAgent READ httpUserAgent WRITE setHttpUserAgent NOTIFY
-                       httpUserAgentChanged FINAL)
+    Q_PROPERTY(QString httpUserAgentString READ httpUserAgentString
+               WRITE setHttpUserAgentString NOTIFY httpUserAgentStringChanged FINAL)
     Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged FINAL)
     Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged FINAL)
     Q_PROPERTY(int loadProgress READ loadProgress NOTIFY loadProgressChanged FINAL)
@@ -42,8 +42,7 @@ public:
     explicit QWebView(QWindow *parent);
     ~QWebView() override;
 
-    QString httpUserAgent() const;
-    void setHttpUserAgent(const QString &httpUserAgent);
+    QString httpUserAgentString() const;
     QUrl url() const;
     bool canGoBack() const;
     bool canGoForward() const;
@@ -56,6 +55,7 @@ public:
     void runJavaScript(const QString &script,
                        const std::function<void(const QVariant &)> &resultCallback = {});
 public Q_SLOTS:
+    void setHttpUserAgentString(const QString &httpUserAgent);
     void setUrl(const QUrl &url);
     void goBack();
     void goForward();
@@ -71,7 +71,7 @@ Q_SIGNALS:
     void urlChanged(const QUrl &url);
     void loadingChanged(const QWebViewLoadingInfo &loadingInfo);
     void loadProgressChanged(int loadProgress);
-    void httpUserAgentChanged(const QString &userAgent);
+    void httpUserAgentStringChanged(const QString &userAgent);
     void cookieAdded(const QString &domain, const QString &name);
     void cookieRemoved(const QString &domain, const QString &name);
 

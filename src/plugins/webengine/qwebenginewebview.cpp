@@ -46,7 +46,7 @@ void QWebEngineWebViewPrivate::setHttpUserAgent(const QString &userAgent)
     m_httpUserAgent = userAgent;
     if (m_profile) {
         m_profile->setHttpUserAgent(userAgent);
-        emit q_ptr->httpUserAgentChanged(userAgent);
+        emit q_ptr->httpUserAgentStringChanged(userAgent);
     }
 }
 
@@ -185,7 +185,7 @@ void QWebEngineWebViewPrivate::q_profileChanged()
         return;
     m_httpUserAgent = userAgent;
     QObject::connect(m_profile, &QQuickWebEngineProfile::httpUserAgentChanged, this, &QWebEngineWebViewPrivate::q_httpUserAgentChanged);
-    emit q_ptr->httpUserAgentChanged(userAgent);
+    emit q_ptr->httpUserAgentStringChanged(userAgent);
 }
 
 void QWebEngineWebViewPrivate::q_httpUserAgentChanged()
@@ -194,7 +194,7 @@ void QWebEngineWebViewPrivate::q_httpUserAgentChanged()
     if (m_httpUserAgent == httpUserAgent)
         return;
      m_httpUserAgent = httpUserAgent;
-     emit q_ptr->httpUserAgentChanged(m_httpUserAgent);
+     emit q_ptr->httpUserAgentStringChanged(m_httpUserAgent);
 }
 
 void QWebEngineWebViewPrivate::q_cookieAdded(const QNetworkCookie &cookie)
