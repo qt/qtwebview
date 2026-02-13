@@ -45,7 +45,6 @@ public:
     QString httpUserAgent() const;
     void setHttpUserAgent(const QString &httpUserAgent);
     QUrl url() const;
-    void setUrl(const QUrl &url);
     bool canGoBack() const;
     bool canGoForward() const;
     QString title() const;
@@ -57,6 +56,7 @@ public:
     void runJavaScript(const QString &script,
                        const std::function<void(const QVariant &)> &resultCallback = {});
 public Q_SLOTS:
+    void setUrl(const QUrl &url);
     void goBack();
     void goForward();
     void reload();
