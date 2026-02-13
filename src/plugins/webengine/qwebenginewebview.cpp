@@ -180,6 +180,7 @@ void QWebEngineWebViewPrivate::q_profileChanged()
         return;
 
     m_profile = profile;
+    m_profile->setStorageName(QCoreApplication::applicationName());
     auto userAgent = m_profile->httpUserAgent();
     if (m_httpUserAgent == userAgent)
         return;
@@ -216,6 +217,7 @@ void QWebEngineWebViewPrivate::initialize(QObject *context)
     Q_ASSERT(profile);
     QQuickWebEngineSettings *settings = webEngineView->settings();
     m_profile = profile;
+    m_profile->setStorageName(QCoreApplication::applicationName());
     Q_ASSERT(m_settings);
     m_settings->init(settings);
     webEngineView->settings()->setErrorPageEnabled(false);
@@ -378,11 +380,10 @@ void QWebEngineWebViewSettingsPrivate::setJavaScriptEnabled(bool enabled)
 }
 void QWebEngineWebViewSettingsPrivate::setLocalStorageEnabled(bool enabled)
 {
-    // This separation is a bit different on the mobile platforms, so for now
-    // we'll interpret this property to also affect the "off the record" profile setting.
+    // Interpret this property to also affect the "off the record" profile setting.
     if (parent) {
         if (parent->m_profile)
-            parent->m_profile->setOffTheRecord(enabled);
+            parent->m_profile->setOffTheRecord(!enabled);
     }
 
     if (m_settings)
