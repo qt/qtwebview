@@ -394,6 +394,7 @@ void QWebEngineWebViewSettingsPrivate::setLocalStorageEnabled(bool enabled)
 void QWebEngineWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 {
     Q_UNUSED(enabled);
+    qWarning("setAllowFileAccess() not supported with the WebEngine backend");
 }
 
 void QWebEngineWebViewSettingsPrivate::init(QQuickWebEngineSettings *settings)
