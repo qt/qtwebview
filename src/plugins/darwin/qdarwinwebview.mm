@@ -207,7 +207,7 @@ QDarwinWebViewSettingsPrivate::QDarwinWebViewSettingsPrivate(WKWebViewConfigurat
 
 }
 
-bool QDarwinWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+bool QDarwinWebViewSettingsPrivate::doTestAttribute(WebAttribute attribute) const
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:
@@ -222,7 +222,7 @@ bool QDarwinWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute
     return false;
 }
 
-void QDarwinWebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+void QDarwinWebViewSettingsPrivate::doSetAttribute(WebAttribute attribute, bool value)
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:

@@ -55,7 +55,7 @@ void QWebview2WebViewSettingsPrivate::init(ICoreWebView2Controller* viewControll
     }
 }
 
-bool QWebview2WebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+bool QWebview2WebViewSettingsPrivate::doTestAttribute(WebAttribute attribute) const
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:
@@ -70,7 +70,7 @@ bool QWebview2WebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribu
     return false;
 }
 
-void QWebview2WebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+void QWebview2WebViewSettingsPrivate::doSetAttribute(WebAttribute attribute, bool value)
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:

@@ -46,6 +46,10 @@ QWebViewSettings::~QWebViewSettings() { }
 
     Returns \c true if \a attribute is enabled; otherwise returns \c false.
 */
+bool QWebViewSettings::testAttribute(WebAttribute attribute) const
+{
+    return doTestAttribute(attribute);
+}
 
 /*!
     \fn void QWebViewSettings::setAttribute(WebAttribute attribute, bool on)
@@ -53,6 +57,10 @@ QWebViewSettings::~QWebViewSettings() { }
     Enables or disables the specified \a attribute feature depending on the
     value of \a on.
 */
+void QWebViewSettings::setAttribute(WebAttribute attribute, bool value)
+{
+    doSetAttribute(attribute, value);
+}
 
 QT_END_NAMESPACE
 

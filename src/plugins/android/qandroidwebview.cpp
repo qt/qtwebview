@@ -36,7 +36,7 @@ QAndroidWebViewSettingsPrivate::QAndroidWebViewSettingsPrivate(
 {
 }
 
-bool QAndroidWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+bool QAndroidWebViewSettingsPrivate::doTestAttribute(WebAttribute attribute) const
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:
@@ -51,7 +51,7 @@ bool QAndroidWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribut
     return false;
 }
 
-void QAndroidWebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+void QAndroidWebViewSettingsPrivate::doSetAttribute(WebAttribute attribute, bool value)
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:
