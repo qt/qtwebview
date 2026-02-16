@@ -19,6 +19,7 @@ class QWindow;
 class Q_WEBVIEW_EXPORT QWebViewSettings
 {
     Q_GADGET
+    Q_DISABLE_COPY_MOVE(QWebViewSettings)
 public:
     enum class WebAttribute : quint32 {
         LocalStorageEnabled,
