@@ -33,9 +33,6 @@ class Q_WEBVIEW_EXPORT QWebViewSettingsPrivate : public QWebViewSettings
 public:
     ~QWebViewSettingsPrivate() override;
 
-    bool testAttribute(QWebViewSettings::WebAttribute attribute) const override = 0;
-    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) override = 0;
-
 protected:
     explicit QWebViewSettingsPrivate() { }
 };

@@ -28,10 +28,13 @@ public:
     };
     Q_ENUM(WebAttribute);
 
-    virtual bool testAttribute(WebAttribute attribute) const = 0;
-    virtual void setAttribute(WebAttribute attribute, bool value) = 0;
+    bool testAttribute(WebAttribute attribute) const;
+    void setAttribute(WebAttribute attribute, bool value);
 
 private:
+    virtual void doSetAttribute(WebAttribute a, bool v) = 0;
+    virtual bool doTestAttribute(WebAttribute a) const = 0;
+
     friend class QWebViewSettingsPrivate;
     explicit QWebViewSettings();
     virtual ~QWebViewSettings();

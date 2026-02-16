@@ -313,7 +313,7 @@ QWebEngineWebViewSettingsPrivate::QWebEngineWebViewSettingsPrivate(QWebEngineWeb
 
 }
 
-bool QWebEngineWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+bool QWebEngineWebViewSettingsPrivate::doTestAttribute(WebAttribute attribute) const
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:
@@ -328,7 +328,7 @@ bool QWebEngineWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttrib
     return false;
 }
 
-void QWebEngineWebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+void QWebEngineWebViewSettingsPrivate::doSetAttribute(WebAttribute attribute, bool value)
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:

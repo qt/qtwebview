@@ -23,7 +23,7 @@ QT_BEGIN_NAMESPACE
 
 QWasmWebViewSettingsPrivate::QWasmWebViewSettingsPrivate() { }
 
-bool QWasmWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute attribute) const
+bool QWasmWebViewSettingsPrivate::doTestAttribute(WebAttribute attribute) const
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:
@@ -38,7 +38,7 @@ bool QWasmWebViewSettingsPrivate::testAttribute(QWebViewSettings::WebAttribute a
     return false;
 }
 
-void QWasmWebViewSettingsPrivate::setAttribute(QWebViewSettings::WebAttribute attribute, bool value)
+void QWasmWebViewSettingsPrivate::doSetAttribute(WebAttribute attribute, bool value)
 {
     switch (attribute) {
     case QWebViewSettings::WebAttribute::LocalStorageEnabled:

@@ -44,8 +44,9 @@ public:
 
     void init(QQuickWebEngineSettings *settings);
 
-    bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
-    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;
+private:
+    bool doTestAttribute(WebAttribute attribute) const final;
+    void doSetAttribute(WebAttribute attribute, bool value) final;
 
 private:
     bool localStorageEnabled() const;

@@ -35,9 +35,6 @@ class QWasmWebViewSettingsPrivate final : public QWebViewSettingsPrivate
 public:
     explicit QWasmWebViewSettingsPrivate();
 
-    bool testAttribute(QWebViewSettings::WebAttribute attribute) const final;
-    void setAttribute(QWebViewSettings::WebAttribute attribute, bool value) final;
-
     bool localStorageEnabled() const;
     bool javaScriptEnabled() const;
     bool localContentCanAccessFileUrls() const;
@@ -47,6 +44,10 @@ public:
     void setJavaScriptEnabled(bool enabled);
     void setLocalStorageEnabled(bool enabled);
     void setAllowFileAccess(bool enabled);
+
+private:
+    bool doTestAttribute(WebAttribute attribute) const final;
+    void doSetAttribute(WebAttribute attribute, bool value) final;
 };
 
 class QWasmWebViewPrivate final : public QWebViewPrivate
