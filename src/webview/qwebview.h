@@ -75,6 +75,9 @@ Q_SIGNALS:
     void cookieAdded(const QString &domain, const QString &name);
     void cookieRemoved(const QString &domain, const QString &name);
 
+protected:
+    bool event(QEvent *) override;
+
 private:
     explicit QWebView(QWebViewFactory::Hint);
     Q_DISABLE_COPY(QWebView)
