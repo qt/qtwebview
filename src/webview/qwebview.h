@@ -79,7 +79,7 @@ protected:
     bool event(QEvent *) override;
 
 private:
-    QWebView(QWebViewFactory::Hint);
+    explicit QWebView(QWebViewFactory::Hint);
     Q_DISABLE_COPY(QWebView)
 
     friend class QQuickWebView;
