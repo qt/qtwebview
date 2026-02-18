@@ -62,7 +62,6 @@ struct QWebViewInitData{
 
 class QWebView2WebViewPrivate : public QWebViewPrivate
 {
-    Q_GADGET
 public:
     explicit QWebView2WebViewPrivate(QWebView *view);
     ~QWebView2WebViewPrivate() override;
