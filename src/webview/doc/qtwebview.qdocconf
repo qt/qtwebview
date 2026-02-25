@@ -47,3 +47,6 @@ navigation.cppclassespage = "Qt WebView C++ Classes and Namespaces"
 
 # Allow zero warnings when testing documentation in CI
 warninglimit = 0
+
+# Report warnings for images without alt text
+reportmissingalttextforimages = true

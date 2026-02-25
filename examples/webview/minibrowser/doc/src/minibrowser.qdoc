@@ -5,7 +5,7 @@
     \title Qt WebView Examples - Minibrowser
     \example minibrowser
     \brief Minibrowser example demonstrates how to use the Qt WebView module with Qt Quick.
-    \image webview-example.jpg
+    \image webview-example.jpg {Web view displaying the Qt website on an Android device}
     \ingroup qtwebview-examples
     \examplecategory {Web Technologies}
 
