@@ -31,7 +31,7 @@ qt_internal_add_module(WebView
 
 if(ANDROID)
     set_property(TARGET WebView APPEND PROPERTY QT_ANDROID_BUNDLED_JAR_DEPENDENCIES
-        jar/QtAndroidWebView.jar
+        jar/Qt${QtWebView_VERSION_MAJOR}AndroidWebView.jar
     )
     set_property(TARGET WebView APPEND PROPERTY QT_ANDROID_LIB_DEPENDENCIES
         ${INSTALL_PLUGINSDIR}/webview/libplugins_webview_qtwebview_android.so
