@@ -5,23 +5,36 @@
 ## tst_qquickwebview Binary:
 #####################################################################
 
+find_package(Qt6 ${PROJECT_VERSION} CONFIG
+    REQUIRED COMPONENTS Qml QuickTest)
+
+include(../../util/util.cmake)
+
 qt_internal_add_test(tst_qquickwebview
+    QMLTEST
     SOURCES
-        util.h testwindow.h
+        qmltestutil.cpp
+        qmltestutil.h
         tst_qquickwebview.cpp
     LIBRARIES
-        Qt::Quick
+        Qt::WebView
+        Qt::WebViewQuick
         Qt::WebViewPrivate
-        Qt::WebViewQuickPrivate
+        Qt::Qml
+        WebViewTest::Util
+)
+
+qt_add_qml_module(tst_qquickwebview
+    URI QuickWebViewTest
+    VERSION 1.0
+    QML_FILES
+        tst_qquickwebview.qml
+        WebViewTestCase.qml
 )
 
 set(testdata_resource_files
     "html/basic_page.html"
     "html/basic_page2.html"
-    "html/direct-image-compositing.html"
-    "html/inputmethod.html"
-    "html/scroll.html"
-    "html/cookies.html"
     "html/javascript.html"
 )
 
@@ -33,16 +46,3 @@ qt_internal_add_resource(tst_qquickwebview "testdata"
     FILES
         ${testdata_resource_files}
 )
-set(testdata1_resource_files
-    "html/resources/simple_image.png"
-)
-
-qt_internal_add_resource(tst_qquickwebview "testdata1"
-    PREFIX
-        "/resources"
-    BASE
-        "html"
-    FILES
-        ${testdata1_resource_files}
-)
-
