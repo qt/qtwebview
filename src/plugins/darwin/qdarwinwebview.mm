@@ -146,27 +146,7 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
         if (!navigationAction.targetFrame)
             return NO;
 
-#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(101300, 110000)
-        if (__builtin_available(macOS 10.13, iOS 11.0, *)) {
-            return [WKWebView handlesURLScheme:url.scheme];
-        } else
-#endif
-        {
-            // +[WKWebView handlesURLScheme:] is a stub that calls
-            // WebCore::SchemeRegistry::isBuiltinScheme();
-            // replicate that as closely as possible
-            return [@[
-                @"about", @"applewebdata", @"blob", @"data",
-                @"file", @"http", @"https", @"javascript",
-#ifdef Q_OS_MACOS
-                @"safari-extension",
-#endif
-                @"webkit-fake-url", @"wss", @"x-apple-content-filter",
-#ifdef Q_OS_MACOS
-                @"x-apple-ql-id"
-#endif
-                ] containsObject:url.scheme];
-        }
+        return [WKWebView handlesURLScheme:url.scheme];
     })();
     if (!handled) {
 #ifdef Q_OS_MACOS
@@ -247,14 +227,7 @@ bool QDarwinWebViewSettingsPrivate::localStorageEnabled() const
 
 bool QDarwinWebViewSettingsPrivate::javaScriptEnabled() const
 {
-    // Deprecated
-    bool isJsEnabled = false;
-#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(110000, 140000)
-    if (__builtin_available(macOS 11.0, iOS 14.0, *))
-        isJsEnabled = m_conf.defaultWebpagePreferences.allowsContentJavaScript;
-#else
-    isJsEnabled = m_conf.preferences.javaScriptEnabled;
-#endif
+    bool isJsEnabled = m_conf.defaultWebpagePreferences.allowsContentJavaScript;
     return isJsEnabled;
 }
 
@@ -276,12 +249,7 @@ void QDarwinWebViewSettingsPrivate::setLocalContentCanAccessFileUrls(bool enable
 
 void QDarwinWebViewSettingsPrivate::setJavaScriptEnabled(bool enabled)
 {
-#if QT_MACOS_IOS_PLATFORM_SDK_EQUAL_OR_ABOVE(110000, 140000)
-    if (__builtin_available(macOS 11.0, iOS 14.0, *))
-        m_conf.defaultWebpagePreferences.allowsContentJavaScript = enabled;
-#else
-    m_conf.preferences.javaScriptEnabled = enabled;
-#endif
+    m_conf.defaultWebpagePreferences.allowsContentJavaScript = enabled;
 }
 
 void QDarwinWebViewSettingsPrivate::setLocalStorageEnabled(bool enabled)
