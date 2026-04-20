@@ -372,10 +372,12 @@ static void c_onPageStarted(JNIEnv *env,
     if (!g_webViews->contains(wc))
         return;
 
+    QUrl qurl(QJniObject(url).toString());
     QWebViewLoadingInfo loadingInfo(QWebViewFactory::LoadingInfo::create(
-        QUrl(QJniObject(url).toString()),
+        qurl,
         QWebViewLoadingInfo::LoadStatus::Started,
         QString()));
+    emit wc->q_ptr->urlChanged(qurl);
     emit wc->q_ptr->loadingChanged(loadingInfo);
 
 //    if (!icon)
