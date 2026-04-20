@@ -25,6 +25,7 @@
 class TestWebView : public QWebView {
 public:
     TestWebView() : QWebView() { settings()->setAttribute(QWebViewSettings::WebAttribute::AllowFileAccess, true); };
+    QSignalSpy urlSpy = QSignalSpy(this, SIGNAL(urlChanged(QUrl)));
     QSignalSpy loadingSpy = QSignalSpy(this, SIGNAL(loadingChanged(QWebViewLoadingInfo)));
     QSignalSpy titleSpy = QSignalSpy(this, SIGNAL(titleChanged(QString)));
 };
@@ -81,6 +82,7 @@ void tst_QWebView::load()
     webView.setUrl(makeTestFileUrl("basic_page.html"));
 
     QTRY_COMPARE(webView.loadingSpy.size(), 2);
+    QCOMPARE(webView.urlSpy.size(), 1);
     QCOMPARE(webView.loadProgress(), 100);
     QCOMPARE(webView.loadingSpy[0][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Started);
     QCOMPARE(webView.loadingSpy[1][0].value<QWebViewLoadingInfo>().status(), QWebViewLoadingInfo::LoadStatus::Succeeded);

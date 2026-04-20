@@ -92,8 +92,10 @@ typedef NSView UIView;
     else
         return;
 
+    QUrl url = qDarwinWebViewPrivate->url();
+    emit qDarwinWebViewPrivate->q_ptr->urlChanged(url);
     emit qDarwinWebViewPrivate->q_ptr->loadingChanged(
-            QWebViewFactory::LoadingInfo::create(qDarwinWebViewPrivate->url(),
+            QWebViewFactory::LoadingInfo::create(url,
                                 QWebViewLoadingInfo::LoadStatus::Started, QString()));
     emit qDarwinWebViewPrivate->q_ptr->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
 }
