@@ -210,7 +210,6 @@ class QtAndroidWebViewController
                     try { m_webSettingsSetDisplayZoomControls.invoke(webSettings, false); } catch (Exception e) { e.printStackTrace(); }
                 }
                 webSettings.setBuiltInZoomControls(true);
-                webSettings.setPluginState(PluginState.ON);
                 m_webView.setWebViewClient((WebViewClient)new QtAndroidWebViewClient());
                 m_webView.setWebChromeClient((WebChromeClient)new QtAndroidWebChromeClient());
                 sem.release();
