@@ -655,7 +655,6 @@ class QtAndroidWebViewController
     private static boolean hasValidCookie(final String url, final String cookieString)
     {
         CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeExpiredCookie();
         boolean cookieFound = false;
 
         final String domainCookie = cookieManager.getCookie(url);
