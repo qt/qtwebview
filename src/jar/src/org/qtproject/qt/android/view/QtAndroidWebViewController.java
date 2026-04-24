@@ -13,6 +13,7 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.CookieManager;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceError;
 import java.lang.Runnable;
 import android.app.Activity;
 import android.content.Intent;
@@ -131,13 +132,15 @@ class QtAndroidWebViewController
 
         @Override
         public void onReceivedError(WebView view,
-                                    int errorCode,
-                                    String description,
-                                    String url)
+                                    WebResourceRequest request,
+                                    WebResourceError error)
         {
-            super.onReceivedError(view, errorCode, description, url);
+            if (!request.isForMainFrame())
+                return;
+            super.onReceivedError(view, request, error);
             resetLoadingState(INIT_STATE);
-            c_onReceivedError(m_id, errorCode, description, url);
+            c_onReceivedError(m_id, error.getErrorCode(), error.getDescription().toString(),
+                              request.getUrl().toString());
         }
     }
 
