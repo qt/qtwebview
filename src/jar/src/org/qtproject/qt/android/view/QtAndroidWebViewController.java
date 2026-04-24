@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
 import java.lang.Runnable;
 import android.app.Activity;
 import android.content.Intent;
@@ -80,15 +81,15 @@ class QtAndroidWebViewController
         QtAndroidWebViewClient() { super(); }
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url)
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
         {
             // handle http: and http:, etc., as usual
-            if (URLUtil.isValidUrl(url))
+            if (URLUtil.isValidUrl(request.getUrl().toString()))
                 return false;
 
             // try to handle geo:, tel:, mailto: and other schemes
             try {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                Intent intent = new Intent(Intent.ACTION_VIEW, request.getUrl());
                 view.getContext().startActivity(intent);
                 return true;
             } catch (Exception e) {
