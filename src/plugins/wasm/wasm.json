@@ -1,3 +1,7 @@
 {
-    "Keys": ["native"]
+    "Keys": [
+        "native",
+        "wasm",
+        "webassembly"
+    ]
 }
