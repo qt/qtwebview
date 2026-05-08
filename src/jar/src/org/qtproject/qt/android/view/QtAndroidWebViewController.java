@@ -18,11 +18,8 @@ import android.webkit.WebResourceError;
 import java.lang.Runnable;
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import java.lang.String;
 import android.webkit.WebSettings;
-import android.util.Log;
-import android.webkit.WebSettings.PluginState;
 import android.graphics.Bitmap;
 import java.util.concurrent.Semaphore;
 import java.util.OptionalInt;
@@ -32,7 +29,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-import java.time.format.DateTimeFormatter;
 
 class QrcFileResponse
 {
@@ -477,7 +473,6 @@ class QtAndroidWebViewController
         m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                WebSettings webSettings = m_webView.getSettings();
                 url[0] = m_webView.getUrl();
                 sem.release();
             }
@@ -732,12 +727,10 @@ class QtAndroidWebViewController
 
         final String domainCookie = cookieManager.getCookie(url);
 
-        String found = null;
         if (domainCookie != null) {
             String cookies[] = domainCookie.split(";");
             for (final String cookie : cookies) {
                 if (cookie.startsWith(cookieString)) {
-                    found = cookie;
                     // Cookie is "cleared" so not considered valid.
                     cookieFound = !cookie.endsWith("=");
                     break;
