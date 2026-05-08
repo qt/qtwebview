@@ -40,7 +40,7 @@ class QWebEngineWebViewPrivate;
 class QWebEngineWebViewSettingsPrivate : public QWebViewSettingsPrivate
 {
 public:
-    explicit QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p);
+    explicit QWebEngineWebViewSettingsPrivate();
 
     void init(QQuickWebEngineSettings *settings);
 
@@ -60,7 +60,6 @@ private:
     void setAllowFileAccess(bool enabled);
 
 private:
-    QWebEngineWebViewPrivate *parent;
     QPointer<QQuickWebEngineSettings> m_settings;
     bool m_localStorageEnabled = true;
     bool m_javaScriptEnabled = true;

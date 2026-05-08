@@ -31,7 +31,7 @@ using namespace Qt::StringLiterals;
 
 QWebEngineWebViewPrivate::QWebEngineWebViewPrivate(QWebView *p) : QWebViewPrivate(p)
 {
-    m_settings = new QWebEngineWebViewSettingsPrivate(this);
+    m_settings = new QWebEngineWebViewSettingsPrivate();
 }
 
 QWebEngineWebViewPrivate::~QWebEngineWebViewPrivate() = default;
@@ -181,6 +181,7 @@ void QWebEngineWebViewPrivate::q_profileChanged()
 
     m_profile = profile;
     m_profile->setStorageName(QCoreApplication::applicationName());
+    m_profile->setOffTheRecord(false);
     auto userAgent = m_profile->httpUserAgent();
     if (m_httpUserAgent == userAgent)
         return;
@@ -218,6 +219,7 @@ void QWebEngineWebViewPrivate::initialize(QObject *context)
     QQuickWebEngineSettings *settings = webEngineView->settings();
     m_profile = profile;
     m_profile->setStorageName(QCoreApplication::applicationName());
+    m_profile->setOffTheRecord(false);
     Q_ASSERT(m_settings);
     m_settings->init(settings);
     webEngineView->settings()->setErrorPageEnabled(false);
@@ -309,8 +311,7 @@ QQuickWebEngineView *QQuickItemWebEngineWebViewPrivate::view() const
 
 // QWebEngineWebViewSettingsPrivate
 
-QWebEngineWebViewSettingsPrivate::QWebEngineWebViewSettingsPrivate(QWebEngineWebViewPrivate *p)
-    : parent(p)
+QWebEngineWebViewSettingsPrivate::QWebEngineWebViewSettingsPrivate()
 {
 
 }
@@ -380,12 +381,6 @@ void QWebEngineWebViewSettingsPrivate::setJavaScriptEnabled(bool enabled)
 }
 void QWebEngineWebViewSettingsPrivate::setLocalStorageEnabled(bool enabled)
 {
-    // Interpret this property to also affect the "off the record" profile setting.
-    if (parent) {
-        if (parent->m_profile)
-            parent->m_profile->setOffTheRecord(!enabled);
-    }
-
     if (m_settings)
         m_settings->setLocalStorageEnabled(enabled);
 
