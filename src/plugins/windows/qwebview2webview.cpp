@@ -5,8 +5,19 @@
 #include "qwebview2webview_p.h"
 #include <QtWebView/qwebviewloadinginfo.h>
 #include <QtWebView/private/qwebviewfactory_p.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qmimedatabase.h>
+#include <QtCore/qmimetype.h>
 #include <QtCore/private/qfunctions_win_p.h>
 #include <QtWidgets/QtWidgets>
+
+#pragma push_macro("__has_attribute") // https://github.com/MicrosoftEdge/WebView2Feedback/discussions/5317
+#undef __has_attribute
+#include <WebView2EnvironmentOptions.h>
+#pragma pop_macro("__has_attribute")
+
+using namespace Qt::StringLiterals;
 
 QString WebErrorStatusToString(COREWEBVIEW2_WEB_ERROR_STATUS status)
 {
@@ -167,6 +178,23 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
     connect(m_window, &QWindow::screenChanged, this,
             &QWebView2WebViewPrivate::updateWindowGeometry, Qt::QueuedConnection);
 
+    // Set up the qrc scheme
+    const WCHAR* allowedOrigins[1] = {L"https://*.qt.io"};
+    auto environmentOptions = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
+    ComPtr<ICoreWebView2EnvironmentOptions4> environmentOptions4;
+    HRESULT hr;
+    hr = environmentOptions.As(&environmentOptions4);
+    Q_ASSERT_SUCCEEDED(hr);
+    auto qrcSchemeRegistration =
+            Microsoft::WRL::Make<CoreWebView2CustomSchemeRegistration>(L"qrc");
+    qrcSchemeRegistration->put_TreatAsSecure(TRUE);
+    qrcSchemeRegistration->put_HasAuthorityComponent(TRUE);
+    qrcSchemeRegistration->SetAllowedOrigins(1, allowedOrigins);
+    ICoreWebView2CustomSchemeRegistration* schemeRegistrations[1] = {qrcSchemeRegistration.Get()};
+    hr = environmentOptions4->SetCustomSchemeRegistrations(1,
+        static_cast<ICoreWebView2CustomSchemeRegistration**>(schemeRegistrations));
+    Q_ASSERT_SUCCEEDED(hr);
+
     QPointer<QWebView2WebViewPrivate> thisPtr = this;
     const QString userDataFolder = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) % QDir::separator() % QLatin1StringView("WebView2");
     using W2ControllerCallback = ICoreWebView2CreateCoreWebView2ControllerCompletedHandler;
@@ -288,6 +316,10 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
                         L"file://*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
                         COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL);
                 Q_ASSERT_SUCCEEDED(hr);
+                hr = webview22->AddWebResourceRequestedFilterWithRequestSourceKinds(
+                        L"qrc:*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
+                        COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL);
+                Q_ASSERT_SUCCEEDED(hr);
                 this->updateWindowGeometry();
                 return S_OK;
             });
@@ -298,8 +330,9 @@ void QWebView2WebViewPrivate::initialize(HWND hWnd)
                 env->CreateCoreWebView2Controller(hWnd, controllerCallback.Get());
                 return S_OK;
             });
-    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.toStdWString().c_str(),
-                                             nullptr, environmentCallback.Get());
+    hr = CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.toStdWString().c_str(),
+                                             environmentOptions.Get(), environmentCallback.Get());
+    Q_ASSERT_SUCCEEDED(hr);
 }
 
 QWebView2WebViewPrivate::~QWebView2WebViewPrivate()
@@ -620,22 +653,64 @@ HRESULT QWebView2WebViewPrivate::onWebResourceRequested(ICoreWebView2* sender, I
 {
     ComPtr<ICoreWebView2WebResourceRequest> request;
     ComPtr<ICoreWebView2WebResourceResponse> response;
+    ComPtr<ICoreWebView2Environment> environment;
+    ComPtr<ICoreWebView2_2> webview2;
     HRESULT hr = args->get_Request(&request);
     Q_ASSERT_SUCCEEDED(hr);
+    hr = m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
+    Q_ASSERT_SUCCEEDED(hr);
+    hr = webview2->get_Environment(&environment);
+    Q_ASSERT_SUCCEEDED(hr);
+
     wchar_t *uri;
     hr = request->get_Uri(&uri);
-    std::wstring_view source(uri);
+    const QUrl url{QString(uri)};
 
-    if (!m_settings->allowFileAccess()) {
-        ComPtr<ICoreWebView2Environment> environment;
-        ComPtr<ICoreWebView2_2> webview2;
-        m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
-        webview2->get_Environment(&environment);
+    if (url.scheme() == "file"_L1) {
+        if (!m_settings->allowFileAccess()) {
+            hr = environment->CreateWebResourceResponse(nullptr, 403, L"Access Denied", L"", &response);
+            Q_ASSERT_SUCCEEDED(hr)
+            hr = args->put_Response(response.Get());
+            Q_ASSERT_SUCCEEDED(hr)
+        }
+    } else if (url.scheme() == "qrc"_L1) {
+        QFile file(u':' + url.path());
+        bool isOpen = file.exists() && file.size() != 0 && file.open(QIODeviceBase::ReadOnly);
+        if (!isOpen) {
+            ComPtr<ICoreWebView2Environment> environment;
+            ComPtr<ICoreWebView2_2> webview2;
+            m_webview->QueryInterface(IID_PPV_ARGS(&webview2));
+            webview2->get_Environment(&environment);
 
-        hr = environment->CreateWebResourceResponse(nullptr, 403, L"Access Denied", L"", &response);
-        Q_ASSERT_SUCCEEDED(hr)
-        hr = args->put_Response(response.Get());
-        Q_ASSERT_SUCCEEDED(hr)
+            hr = environment->CreateWebResourceResponse(nullptr, 404, L"Not Found", L"", &response);
+            Q_ASSERT_SUCCEEDED(hr)
+            hr = args->put_Response(response.Get());
+            Q_ASSERT_SUCCEEDED(hr)
+        } else {
+            QFileInfo fileInfo(file);
+            QMimeDatabase mimeDatabase;
+            QMimeType mimeType = mimeDatabase.mimeTypeForFile(fileInfo);
+
+            ComPtr<IStream> iStream;
+            hr = CreateStreamOnHGlobal(nullptr, TRUE, &iStream);
+            Q_ASSERT_SUCCEEDED(hr)
+
+            hr = environment->CreateWebResourceResponse(iStream.Get(), 200, L"OK", L"", &response);
+            Q_ASSERT_SUCCEEDED(hr)
+
+            ComPtr<ICoreWebView2HttpResponseHeaders> headers;
+            hr = response->get_Headers(&headers);
+            headers->AppendHeader(L"Content-Type", (LPCWSTR)(mimeType.name().utf16()));
+
+            QByteArray data = file.readAll();
+            hr = iStream->Write(data.data(), data.size(), nullptr);
+            Q_ASSERT_SUCCEEDED(hr)
+            Q_ASSERT(file.atEnd()); // Assumes files in the resource system will be read in one go
+            file.close();
+
+            hr = args->put_Response(response.Get());
+            Q_ASSERT_SUCCEEDED(hr)
+        }
     }
 
     CoTaskMemFree(uri);
