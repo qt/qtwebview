@@ -20,6 +20,9 @@
 
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qmimedatabase.h>
+#include <QtCore/qmimetype.h>
 
 #ifdef Q_OS_IOS
 #import <UIKit/UIKit.h>
@@ -148,7 +151,11 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
         if (!navigationAction.targetFrame)
             return NO;
 
-        return [WKWebView handlesURLScheme:url.scheme];
+        if ([WKWebView handlesURLScheme:url.scheme]
+                || [webView.configuration urlSchemeHandlerForURLScheme:url.scheme]) {
+            return YES;
+        }
+        return NO;
     })();
     if (!handled) {
 #ifdef Q_OS_MACOS
@@ -178,6 +185,50 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
         emit qDarwinWebViewPrivate->q_ptr->titleChanged(qDarwinWebViewPrivate->title());
     }
 }
+
+@end
+
+@interface QrcSchemeHandler : NSObject<WKURLSchemeHandler> {
+}
+
+// protocol:
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask;
+- (void)webView:(WKWebView *)webView stopURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask;
+
+@end
+
+@implementation QrcSchemeHandler
+
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask {
+    QFile file(u':' + QUrl::fromNSURL(urlSchemeTask.request.URL).path());
+    bool isOpen = file.exists() && file.size() != 0 && file.open(QIODeviceBase::ReadOnly);
+    if (!isOpen) {
+        [urlSchemeTask didFailWithError:[NSError
+            errorWithDomain:NSURLErrorDomain
+            code:404
+            userInfo:@{ @"NSErrorFailingURLKey" : urlSchemeTask.request.URL }]];
+        return;
+    }
+
+    QFileInfo fileInfo(file);
+    QMimeDatabase mimeDatabase;
+    QMimeType mimeType = mimeDatabase.mimeTypeForFile(fileInfo);
+
+    [urlSchemeTask didReceiveResponse:[[NSURLResponse alloc]
+        initWithURL:urlSchemeTask.request.URL
+        MIMEType:mimeType.name().toNSString()
+        expectedContentLength:fileInfo.size()
+        textEncodingName:nil]];
+
+    QByteArray data = file.readAll();
+    [urlSchemeTask didReceiveData:data.toRawNSData()];
+
+    Q_ASSERT(file.atEnd());
+    file.close();
+
+    [urlSchemeTask didFinish];
+}
+- (void)webView:(WKWebView *)webView stopURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask {}
 
 @end
 
@@ -273,8 +324,11 @@ void QDarwinWebViewSettingsPrivate::setAllowFileAccess(bool enabled)
 
 QDarwinWebViewPrivate::QDarwinWebViewPrivate(QWebView *view) : QWebViewPrivate(view), wkWebView(nil)
 {
+    auto config = [[[WKWebViewConfiguration alloc] init] autorelease];
+    [config setURLSchemeHandler:[[[QrcSchemeHandler alloc] init] autorelease] forURLScheme:@"qrc"];
+
     CGRect frame = CGRectMake(0.0, 0.0, 400, 400);
-    wkWebView = [[WKWebView alloc] initWithFrame:frame];
+    wkWebView = [[WKWebView alloc] initWithFrame:frame configuration:config];
     wkWebView.navigationDelegate = [[QtWKWebViewDelegate alloc] initWithQWebViewPrivate:this];
     [wkWebView addObserver:wkWebView.navigationDelegate forKeyPath:@"estimatedProgress"
                    options:NSKeyValueObservingOptions(NSKeyValueObservingOptionNew)

@@ -32,7 +32,8 @@ private slots:
 void tst_WebViewQrc::initTestCase()
 {
     if (QWebViewFactory::loadedPluginHasKey("native")
-            && !QWebViewFactory::loadedPluginHasKey("webview2"))
+            && !QWebViewFactory::loadedPluginHasKey("webview2")
+            && !QWebViewFactory::loadedPluginHasKey("webkit"))
         QSKIP("qrc support not available for this backend.");
 }
 
