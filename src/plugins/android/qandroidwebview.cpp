@@ -10,13 +10,18 @@
 #include <QtCore/private/qjnihelpers_p.h>
 #include <QtCore/qjniobject.h>
 
-#include <QtCore/qset.h>
+#include <QtCore/qabstracteventdispatcher.h>
+#include <QtCore/qdebug.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qjsonobject.h>
-#include <QtCore/qurl.h>
-#include <QtCore/qdebug.h>
+#include <QtCore/qmimedatabase.h>
+#include <QtCore/qmimetype.h>
+#include <QtCore/qset.h>
 #include <QtCore/qthread.h>
-#include <QtCore/qabstracteventdispatcher.h>
+#include <QtCore/qtimer.h>
+#include <QtCore/qurl.h>
 
 #include <QtGui/qguiapplication.h>
 
@@ -305,6 +310,31 @@ void QAndroidWebViewPrivate::javaScriptResult(int id, const QVariant &result)
     }
 }
 
+bool QAndroidWebViewPrivate::loadQrcFile(QUrl filePath, QtJniTypes::QrcFileResponse &response, JNIEnv *env)
+{
+    QFile file(u':' + filePath.path());
+    bool isOpen = file.exists() && file.size() != 0 && file.open(QIODeviceBase::ReadOnly);
+    if (!isOpen) {
+        return false;
+    }
+
+    QFileInfo fileInfo(file);
+    QMimeDatabase mimeDatabase;
+    QMimeType mimeType = mimeDatabase.mimeTypeForFile(fileInfo);
+    QString mimeTypeString = mimeType.name();
+
+    response.callMethod<void>("setMimeType", env->NewString(mimeTypeString.utf16(), mimeTypeString.size()));
+    QByteArray data = file.read(file.bytesAvailable());
+    jbyteArray jdata = env->NewByteArray(data.size());
+    env->SetByteArrayRegion(jdata, 0, data.size(), (jbyte *)data.data());
+    response.callMethod<void>("setData", jdata);
+
+    Q_ASSERT(file.atEnd());
+    file.close();
+
+    return true;
+}
+
 static void c_onRunJavaScriptResult(JNIEnv *env,
                                     jobject thiz,
                                     jlong id,
@@ -470,6 +500,23 @@ static void c_onReceivedError(JNIEnv *env,
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onReceivedError)
 
+static bool c_onQrcNavigationRequest(JNIEnv *env,
+                                     jobject thiz,
+                                     jlong id,
+                                     jstring url,
+                                     QtJniTypes::QrcFileResponse response)
+{
+    Q_UNUSED(thiz);
+
+    Q_ASSERT(id);
+    QAndroidWebViewPrivate *wc = reinterpret_cast<QAndroidWebViewPrivate *>(id);
+    if (!g_webViews->contains(wc))
+        return false;
+
+    return wc->loadQrcFile(QUrl(QJniObject(url).toString()), response, env);
+}
+Q_DECLARE_JNI_NATIVE_METHOD(c_onQrcNavigationRequest)
+
 static void c_onCookieAdded(JNIEnv *env,
                             jclass thiz,
                             jlong id,
@@ -526,6 +573,7 @@ extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* /* vm */, void* /*reserved*/)
         Q_JNI_NATIVE_METHOD(c_onReceivedIcon),
         Q_JNI_NATIVE_METHOD(c_onReceivedTitle),
         Q_JNI_NATIVE_METHOD(c_onReceivedError),
+        Q_JNI_NATIVE_METHOD(c_onQrcNavigationRequest),
         Q_JNI_NATIVE_METHOD(c_onCookieAdded),
         Q_JNI_NATIVE_METHOD(c_onCookieRemoved),
     })) {

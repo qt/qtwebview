@@ -28,8 +28,25 @@ import java.util.concurrent.Semaphore;
 import java.util.OptionalInt;
 import java.lang.reflect.Method;
 import android.os.Build;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.time.format.DateTimeFormatter;
+
+class QrcFileResponse
+{
+    public String m_mimeType;
+    public byte[] m_data;
+
+    void setMimeType(String mimeType) {
+        m_mimeType = mimeType;
+    }
+
+    void setData(byte[] data) {
+        m_data = data;
+    }
+}
 
 class QtAndroidWebViewController
 {
@@ -49,6 +66,8 @@ class QtAndroidWebViewController
     private volatile int m_progress = 0;
     private volatile int m_frameCount = 0;
 
+    private static final String QRC_SCHEME = "qrc";
+
     // API 11 methods
     private Method m_webViewOnResume = null;
     private Method m_webViewOnPause = null;
@@ -65,6 +84,7 @@ class QtAndroidWebViewController
     private native void c_onReceivedTitle(long id, String title);
     private native void c_onRunJavaScriptResult(long id, long callbackId, String result);
     private native void c_onReceivedError(long id, int errorCode, String description, String url);
+    private native boolean c_onQrcNavigationRequest(long id, String url, QrcFileResponse response);
     private static native void c_onCookieAdded(long id, boolean result, String domain, String name);
     private static native void c_onCookieRemoved(long id, boolean result, String domain, String name);
 
@@ -88,11 +108,16 @@ class QtAndroidWebViewController
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
         {
-            // handle http: and http:, etc., as usual
+            // Handle http: and http:, etc., as usual
             if (URLUtil.isValidUrl(request.getUrl().toString()))
                 return false;
 
-            // try to handle geo:, tel:, mailto: and other schemes
+            // Handle qrc: as usual, too; shouldInterceptRequest() will ensure we pass the correct response.
+            // We only reach this for resources and redirects, not on loadUrl()
+            if (request.getUrl().getScheme().equals(QRC_SCHEME))
+                return false;
+
+            // Try to handle geo:, tel:, mailto: and other schemes
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW, request.getUrl());
                 view.getContext().startActivity(intent);
@@ -102,6 +127,31 @@ class QtAndroidWebViewController
             }
 
             return false;
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            if (request.getUrl().getScheme().equals(QRC_SCHEME)) {
+                QrcFileResponse response = new QrcFileResponse();
+
+                if (c_onQrcNavigationRequest(m_id, request.getUrl().toString(), response)) {
+                    return new WebResourceResponse(response.m_mimeType, null, new ByteArrayInputStream(response.m_data));
+                } else {
+                    // Some older API levels (tested on 28) don't call onReceivedHttpError() for responses
+                    // returned from here. Manually pass the 404 info to the cache members so we can
+                    // properly emit the failed load signal later, in onPageFinished()
+                    m_errorString.setLength(0);
+                    m_errorString.append("Not Found");
+                    m_errorCode = OptionalInt.of(404);
+
+                    response.setData(new String("<h1>404 Not Found</h1>").getBytes());
+
+                    return new WebResourceResponse("text/html", null, 404, "Not Found", Collections.emptyMap(),
+                        new ByteArrayInputStream(response.m_data));
+                }
+            }
+
+            return null;
         }
 
         @Override

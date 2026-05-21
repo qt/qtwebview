@@ -19,6 +19,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtGui/qwindow.h>
+#include <QtCore/qfile.h>
 #include <QtCore/qjniobject.h>
 #include <QtCore/qjnitypes.h>
 
@@ -26,6 +27,7 @@
 
 QT_BEGIN_NAMESPACE
 
+Q_DECLARE_JNI_CLASS(QrcFileResponse, "org/qtproject/qt/android/view/QrcFileResponse");
 Q_DECLARE_JNI_CLASS(WebViewController, "org/qtproject/qt/android/view/QtAndroidWebViewController");
 Q_DECLARE_JNI_CLASS(WebView, "android/webkit/WebView");
 
@@ -86,8 +88,11 @@ public:
 
     void javaScriptResult(int id, const QVariant &result);
 
+    bool loadQrcFile(QUrl filePath, QtJniTypes::QrcFileResponse &response, JNIEnv *env);
+
 protected:
     QWebViewSettingsPrivate *settings() const override;
+    void readDataIntoQrcStream(JNIEnv *env);
 
 private Q_SLOTS:
     void onApplicationStateChanged(Qt::ApplicationState state);
