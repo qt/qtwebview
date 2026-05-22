@@ -13,6 +13,12 @@ SPDX-FileCopyrightText = "Copyright (C) 2024 The Qt Company Ltd."
 SPDX-License-Identifier = "LicenseRef-Qt-Commercial OR GPL-3.0-only"
 
 [[annotations]]
+path = ["tests/auto/webview/qrc/html/*.html", "tests/auto/webview/qrc/html/prefix/*.html"]
+precedence = "closest"
+SPDX-FileCopyrightText = "Copyright (C) 2024 The Qt Company Ltd."
+SPDX-License-Identifier = "LicenseRef-Qt-Commercial OR GPL-3.0-only"
+
+[[annotations]]
 path = ["src/plugins/android/android.json",
         "src/plugins/darwin/darwin.json",
         "src/plugins/wasm/wasm.json",
