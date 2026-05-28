@@ -13,6 +13,7 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.CookieManager;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebResourceError;
 import java.lang.Runnable;
 import android.app.Activity;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.webkit.WebSettings.PluginState;
 import android.graphics.Bitmap;
 import java.util.concurrent.Semaphore;
+import java.util.OptionalInt;
 import java.lang.reflect.Method;
 import android.os.Build;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +37,8 @@ class QtAndroidWebViewController
     private final long m_id;
     private boolean m_hasLocationPermission;
     private WebView m_webView = null;
+    private StringBuffer m_errorString = new StringBuffer();
+    private OptionalInt m_errorCode;
     private static final String TAG = "QtAndroidWebViewController";
     private final int INIT_STATE = 0;
     private final int STARTED_STATE = 1;
@@ -111,11 +115,13 @@ class QtAndroidWebViewController
         {
             super.onPageFinished(view, url);
             m_frameCount = 0;
-            if (m_loadingState == INIT_STATE) {
-                // we got an error do not call pageFinished
-                m_loadingState = FINISHED_STATE;
+            m_loadingState = FINISHED_STATE;
+            if (m_errorString.length() != 0 && m_errorCode.isPresent()) {
+                // We got an error, call onReceivedError() instead of onPageFinished()
+                c_onReceivedError(m_id, m_errorCode.getAsInt(), m_errorString.toString(), url);
+                m_errorString.setLength(0);
+                m_errorCode = OptionalInt.empty();
             } else {
-                m_loadingState = FINISHED_STATE;
                 c_onPageFinished(m_id, url);
             }
         }
@@ -137,10 +143,26 @@ class QtAndroidWebViewController
         {
             if (!request.isForMainFrame())
                 return;
+            m_errorString.setLength(0);
+            m_errorString.append(error.getDescription());
+            m_errorCode = OptionalInt.of(error.getErrorCode());
             super.onReceivedError(view, request, error);
-            resetLoadingState(INIT_STATE);
-            c_onReceivedError(m_id, error.getErrorCode(), error.getDescription().toString(),
-                              request.getUrl().toString());
+        }
+
+        @Override
+        public void onReceivedHttpError(WebView view,
+                                        WebResourceRequest request,
+                                        WebResourceResponse errorResponse)
+        {
+            // We receive this signal first, before loading the actual 4XX error page has begun.
+            // However, we want to make sure the user is notified of a failed load when the 404 page is fully loaded.
+            // So, cache the response and URL, and handle the rest in onPageFinished()
+            if (!request.isForMainFrame())
+                return;
+            m_errorString.setLength(0);
+            m_errorString.append(errorResponse.getReasonPhrase());
+            m_errorCode = OptionalInt.of(errorResponse.getStatusCode());
+            super.onReceivedHttpError(view, request, errorResponse);
         }
     }
 
