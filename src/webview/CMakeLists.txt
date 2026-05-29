@@ -40,6 +40,12 @@ if(ANDROID)
         NAME android.permission.ACCESS_FINE_LOCATION
     )
 endif()
+
+if(OHOS)
+    qt_internal_add_harmonyos_permission(WebView
+        NAME ohos.permission.INTERNET
+    )
+endif()
 qt_internal_add_docs(WebView
     doc/qtwebview.qdocconf
 )

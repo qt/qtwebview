@@ -5,6 +5,10 @@ if(QT_FEATURE_webview_android_plugin)
     add_subdirectory(android)
 endif()
 
+if(QT_FEATURE_webview_ohos_plugin)
+    add_subdirectory(ohos)
+endif()
+
 if(QT_FEATURE_webview_darwin_plugin)
     add_subdirectory(darwin)
 endif()

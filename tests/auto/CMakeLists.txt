@@ -3,6 +3,7 @@
 if(QT_FEATURE_webview_webengine_plugin OR
     QT_FEATURE_webview_webview2_plugin OR
     QT_FEATURE_webview_android_plugin OR
+    QT_FEATURE_webview_ohos_plugin OR
     QT_FEATURE_webview_darwin_plugin OR
     QT_FEATURE_webview_winrt_plugin OR
     QT_FEATURE_webview_wasm_plugin)
