@@ -7,6 +7,10 @@
 if(WIN32)
     qt_find_package(WebView2 PROVIDED_TARGETS WebView2::WebView2 MODULE_NAME core QMAKE_LIB webview2)
 endif()
+if(OHOS)
+    qt_find_package(NodeAddonApi MODULE
+        PROVIDED_TARGETS NodeAddonApi::NodeAddonApi MODULE_NAME core)
+endif()
 #### Tests
 
 #### Features
@@ -26,6 +30,11 @@ qt_feature("webview-android-plugin" PUBLIC
     PURPOSE "Provides Android WebView plugin for Qt WebView."
     CONDITION ANDROID
 )
+qt_feature("webview-ohos-plugin" PUBLIC
+    LABEL "HarmonyOS WebView (HarmonyOS only)"
+    PURPOSE "Provides HarmonyOS WebView plugin for Qt WebView."
+    CONDITION OHOS
+)
 qt_feature("webview-darwin-plugin" PUBLIC
     LABEL "Darwin WebKit (MacOS and IOS only)"
     PURPOSE "Provides Darwin Webkit plugin for Qt WebView."
@@ -41,6 +50,7 @@ qt_configure_add_summary_section(NAME "Qt WebView plugins")
 qt_configure_add_summary_entry(ARGS "webview-webengine-plugin")
 qt_configure_add_summary_entry(ARGS "webview-webview2-plugin")
 qt_configure_add_summary_entry(ARGS "webview-android-plugin")
+qt_configure_add_summary_entry(ARGS "webview-ohos-plugin")
 qt_configure_add_summary_entry(ARGS "webview-darwin-plugin")
 qt_configure_add_summary_entry(ARGS "webview-wasm-plugin")
 qt_configure_end_summary_section()
