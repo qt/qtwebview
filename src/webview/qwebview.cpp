@@ -102,8 +102,6 @@ QWebView::~QWebView() { }
 /*!
     \fn void QWebView::httpUserAgentStringChanged(const QString &userAgent)
     This signal is emitted whenever the \a userAgent of the view changes.
-
-    \sa httpUserAgent()
 */
 
 QString QWebView::httpUserAgentString() const
