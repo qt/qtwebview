@@ -42,17 +42,35 @@ public:
 
     std::optional<std::string> tryRunJavaScript(const std::string &script) override;
 
+    void setAttribute(QWebViewSettings::WebAttribute attribute, bool enabled) override;
+    bool testAttribute(QWebViewSettings::WebAttribute attribute) const override;
+
 private:
+    using WebAttribute = QWebViewSettings::WebAttribute;
+
     QNapi::Object makeWebComponentAttributes(
         QOhosJsState &jsState,
-        QNapi::Object webViewController, const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const;
+        const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const;
+    void applyUniversalAccessPath(QOhosJsState &jsState);
+    void setPathAllowingUniversalAccess(bool enabled);
+    void updateWebAttribute(WebAttribute attribute, bool enabled);
 
     struct JsScopeData
     {
         QNapi::Reference<QNapi::Object> jsWebViewController;
+        QNapi::Reference<QNapi::Object> jsComponentContent;
+
+        QHash<WebAttribute, bool> attributes = {
+            {WebAttribute::LocalStorageEnabled, false},
+            {WebAttribute::JavaScriptEnabled, true},
+            {WebAttribute::AllowFileAccess, false},
+            {WebAttribute::LocalContentCanAccessFileUrls, false},
+        };
+        std::string universalAccessPath;
     };
 
     std::shared_ptr<JsScopeData> m_jsScopeData;
+    std::shared_ptr<QOhosWebComponentListener> m_webComponentListener;
 };
 
 QNapi::Object createEmbeddedWebComponent(
@@ -65,6 +83,31 @@ QNapi::Object createEmbeddedWebComponent(
             parentAbilityWindowStage.eval<QNapi::Object>("getMainWindowSync().getUIContext()"),
             webComponentAttributes
         });
+}
+
+std::string localDirectoryForTarget(const std::string &target)
+{
+    if (target.empty())
+        return {};
+
+    std::string path = target;
+
+    const std::string filePrefix = "file://";
+    if (path.compare(0, filePrefix.size(), filePrefix) == 0)
+        path.erase(0, filePrefix.size());
+
+    if (path.empty() || path.front() != '/')
+        return {};
+
+    if (path.back() == '/')
+        path.pop_back();
+    else
+        path.erase(path.find_last_of('/'));
+
+    if (path.empty()) // the document sat at the filesystem root, e.g. "/index.html"
+        path = "/";
+
+    return path;
 }
 
 QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
@@ -85,7 +128,7 @@ QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
     std::shared_ptr<QOhosWebComponentListener> webComponentListener,
     QObject *webComponentListenerContext)
 {
-    auto webComponentListenerExecutingInContextThread =
+    m_webComponentListener =
         makeOhosWebComponentListenerExecutingInContextThread(
             webComponentListener, webComponentListenerContext);
 
@@ -95,11 +138,13 @@ QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
             qFatal("Attempting to create Web component without WindowStage object available, which is not supported. Aborting...");
             std::abort();
         }
+
         auto embeddedWebComponent = createEmbeddedWebComponent(
             jsState, optWindowStage,
-            makeWebComponentAttributes(
-                jsState, m_jsScopeData->jsWebViewController.Value(),
-                webComponentListenerExecutingInContextThread));
+            makeWebComponentAttributes(jsState, m_webComponentListener));
+
+        m_jsScopeData->jsComponentContent =
+            QNapi::Reference<>::makePersistentFrom(embeddedWebComponent);
 
         ::ArkUI_NodeHandle handle = nullptr;
         auto getNodeFromNapiValueResult
@@ -117,7 +162,9 @@ QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
 
 bool QOhosWebViewControllerImpl::tryLoadUrl(const std::string &url)
 {
-    return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
+    return QOhosJsThreadGateway::eval([&](QOhosJsState &jsState) {
+        m_jsScopeData->universalAccessPath = localDirectoryForTarget(url);
+        applyUniversalAccessPath(jsState);
         try {
             m_jsScopeData->jsWebViewController.call("loadUrl", {url});
             return true;
@@ -141,7 +188,9 @@ bool QOhosWebViewControllerImpl::tryLoadHtml(const std::string &data, const std:
                                              const std::string &encoding, const std::string &baseUrl,
                                              const std::string &historyUrl)
 {
-    return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
+    return QOhosJsThreadGateway::eval([&](QOhosJsState &jsState) {
+        m_jsScopeData->universalAccessPath = localDirectoryForTarget(baseUrl);
+        applyUniversalAccessPath(jsState);
         try {
             if (baseUrl.empty())
                 m_jsScopeData->jsWebViewController.call("loadData", {data, mimeType, encoding});
@@ -224,14 +273,34 @@ std::optional<std::string> QOhosWebViewControllerImpl::tryRunJavaScript(const st
         });
 }
 
+void QOhosWebViewControllerImpl::setAttribute(WebAttribute attribute, bool enabled)
+{
+    if (attribute == WebAttribute::LocalContentCanAccessFileUrls) {
+        setPathAllowingUniversalAccess(enabled);
+        return;
+    }
+    updateWebAttribute(attribute, enabled);
+}
+
+bool QOhosWebViewControllerImpl::testAttribute(WebAttribute attribute) const
+{
+    return QOhosJsThreadGateway::eval(
+        [&](QOhosJsState &) {
+            return m_jsScopeData->attributes.value(attribute, false);
+        });
+}
+
 QNapi::Object QOhosWebViewControllerImpl::makeWebComponentAttributes(
     QOhosJsState &jsState,
-    QNapi::Object webViewController, const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const
+    const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const
 {
     return QNapi::makeObject(
         jsState.env(),
         {
-            {"webviewController", webViewController},
+            {"webviewController", m_jsScopeData->jsWebViewController.Value()},
+            {"domStorageAccess", m_jsScopeData->attributes.value(WebAttribute::LocalStorageEnabled, false)},
+            {"javaScriptAccess", m_jsScopeData->attributes.value(WebAttribute::JavaScriptEnabled, false)},
+            {"fileAccess", m_jsScopeData->attributes.value(WebAttribute::AllowFileAccess, false)},
             {
                 "onErrorReceive",
                 [webComponentListener](const QOhosCallbackInfo &callbackInfo) {
@@ -275,6 +344,48 @@ QNapi::Object QOhosWebViewControllerImpl::makeWebComponentAttributes(
                 }
             },
         });
+}
+
+void QOhosWebViewControllerImpl::applyUniversalAccessPath(QOhosJsState &jsState)
+{
+    if (!m_jsScopeData->jsComponentContent)
+        return;
+
+    std::vector<std::string> paths;
+    if (m_jsScopeData->attributes[WebAttribute::LocalContentCanAccessFileUrls] && !m_jsScopeData->universalAccessPath.empty())
+        paths.push_back(m_jsScopeData->universalAccessPath);
+
+    try {
+        m_jsScopeData->jsWebViewController.eval(
+            "setPathAllowingUniversalAccess(*)",
+            {QNapi::makeArray(jsState.env(), paths)});
+    } catch (const Napi::Error &error) {
+        qOhosPrintfError(
+            "%s: setPathAllowingUniversalAccess failed (paths must live under "
+            "filesDir or resourceDir, otherwise error 401): %s",
+            Q_FUNC_INFO, error.what());
+    }
+}
+
+void QOhosWebViewControllerImpl::setPathAllowingUniversalAccess(bool enabled)
+{
+    QOhosJsThreadGateway::runAndWait([&](QOhosJsState &jsState) {
+        m_jsScopeData->attributes[WebAttribute::LocalContentCanAccessFileUrls] = enabled;
+        applyUniversalAccessPath(jsState);
+    });
+}
+
+void QOhosWebViewControllerImpl::updateWebAttribute(WebAttribute attribute, bool enabled)
+{
+    QOhosJsThreadGateway::runAndWait([&](QOhosJsState &jsState) {
+        m_jsScopeData->attributes[attribute] = enabled;
+
+        if (!m_jsScopeData->jsComponentContent)
+            return;
+
+        m_jsScopeData->jsComponentContent.eval(
+            "update(*)", {makeWebComponentAttributes(jsState, m_webComponentListener)});
+    });
 }
 
 }

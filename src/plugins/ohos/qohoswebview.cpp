@@ -17,9 +17,14 @@ namespace {
 
 class QOhosWebViewSettingPrivate : public QWebViewSettingsPrivate
 {
+public:
+    explicit QOhosWebViewSettingPrivate(std::shared_ptr<QOhosWebViewController> controller);
+
 private:
     bool doTestAttribute(WebAttribute attribute) const final;
     void doSetAttribute(WebAttribute attribute, bool value) final;
+
+    std::shared_ptr<QOhosWebViewController> m_webViewController;
 };
 
 class QOhosWebViewPrivate : public QWebViewPrivate
@@ -91,16 +96,19 @@ private:
     QPointer<QOhosWebViewPrivate> m_webViewPrivate;
 };
 
+QOhosWebViewSettingPrivate::QOhosWebViewSettingPrivate(std::shared_ptr<QOhosWebViewController> controller)
+    : m_webViewController(controller)
+{
+}
+
 bool QOhosWebViewSettingPrivate::doTestAttribute(WebAttribute attribute) const
 {
-    Q_UNUSED(attribute);
-    return true;
+    return m_webViewController->testAttribute(attribute);
 }
 
 void QOhosWebViewSettingPrivate::doSetAttribute(WebAttribute attribute, bool value)
 {
-    Q_UNUSED(attribute);
-    Q_UNUSED(value);
+    m_webViewController->setAttribute(attribute, value);
 }
 
 QWindow *createEmbeddedWebViewWindow(
@@ -239,7 +247,7 @@ void QOhosWebViewPrivate::runJavaScript(const QString &script,
 
 QWebViewSettingsPrivate *QOhosWebViewPrivate::settings() const
 {
-    return new QOhosWebViewSettingPrivate;
+    return new QOhosWebViewSettingPrivate(m_webViewController);
 }
 
 int QOhosWebViewPrivate::loadProgress() const
