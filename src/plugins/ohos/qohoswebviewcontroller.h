@@ -8,6 +8,7 @@
 #include <QtCore/private/qcore_ohos_p.h>
 #include <QtCore/private/qohoscommon_p.h>
 #include <QtCore/qglobal.h>
+#include <QtWebView/qwebviewsettings.h>
 #include <arkui/native_node.h>
 #include <memory>
 #include <string>
@@ -45,6 +46,9 @@ public:
     virtual std::string getTitle() = 0;
 
     virtual std::optional<std::string> tryRunJavaScript(const std::string &script) = 0;
+
+    virtual void setAttribute(QWebViewSettings::WebAttribute attribute, bool enabled) = 0;
+    virtual bool testAttribute(QWebViewSettings::WebAttribute attribute) const = 0;
 
 protected:
     QOhosWebViewController();
