@@ -271,7 +271,7 @@ void QWebView::loadHtml(const QString &html, const QUrl &baseUrl)
 }
 
 /*!
-    \fn void runJavaScript(const QString &script,
+    \fn void QWebView::runJavaScript(const QString &script,
                            const std::function<void(const QVariant &)> &resultCallback)
     Runs the specified JavaScript.
     In case a \a resultCallback function is provided, it will be invoked after the \a script
@@ -289,7 +289,7 @@ void QWebView::runJavaScript(const QString &script,
 }
 
 /*!
-    \fn void cookieAdded(const QString &domain, const QString &name)
+    \fn void QWebView::cookieAdded(const QString &domain, const QString &name)
 
     This signal is emitted when a cookie is added.
 
@@ -301,7 +301,7 @@ void QWebView::runJavaScript(const QString &script,
     explicitly added with \l setCookie().
 */
 /*!
-    \fn void setCookie(const QString &domain, const QString &name, const QString &value)
+    \fn void QWebView::setCookie(const QString &domain, const QString &name, const QString &value)
     Adds a cookie with the specified \a domain, \a name and \a value.
     The cookieAdded() signal will be emitted when the cookie is added.
 */
@@ -312,12 +312,12 @@ void QWebView::setCookie(const QString &domain, const QString &name, const QStri
 }
 
 /*!
-    \fn void cookieRemoved(const QString &domain, const QString &name)
+    \fn void QWebView::cookieRemoved(const QString &domain, const QString &name)
     This signal is emitted when a cookie is deleted.
     The parameters provide information about the \a domain and the \a name of the deleted cookie.
 */
 /*!
-    \fn void deleteCookie(const QString &domain, const QString &name)
+    \fn void QWebView::deleteCookie(const QString &domain, const QString &name)
     Deletes a cookie with the specified \a domain and \a name.
 
     The cookieRemoved() signal will be emitted when the cookie is deleted.
