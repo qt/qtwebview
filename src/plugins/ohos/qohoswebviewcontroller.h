@@ -50,6 +50,11 @@ public:
     virtual void setAttribute(QWebViewSettings::WebAttribute attribute, bool enabled) = 0;
     virtual bool testAttribute(QWebViewSettings::WebAttribute attribute) const = 0;
 
+    virtual bool trySetCookie(const std::string &url, const std::string &cookie) = 0;
+    virtual std::optional<std::string> tryFetchCookie(const std::string &url) = 0;
+    virtual bool tryClearAllCookies() = 0;
+    virtual std::vector<std::pair<std::string, std::string>> fetchAllCookies() = 0;
+
 protected:
     QOhosWebViewController();
 };

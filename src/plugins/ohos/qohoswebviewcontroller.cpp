@@ -45,6 +45,11 @@ public:
     void setAttribute(QWebViewSettings::WebAttribute attribute, bool enabled) override;
     bool testAttribute(QWebViewSettings::WebAttribute attribute) const override;
 
+    bool trySetCookie(const std::string &url, const std::string &cookie) override;
+    std::optional<std::string> tryFetchCookie(const std::string &url) override;
+    bool tryClearAllCookies() override;
+    std::vector<std::pair<std::string, std::string>> fetchAllCookies() override;
+
 private:
     using WebAttribute = QWebViewSettings::WebAttribute;
 
@@ -287,6 +292,82 @@ bool QOhosWebViewControllerImpl::testAttribute(WebAttribute attribute) const
     return QOhosJsThreadGateway::eval(
         [&](QOhosJsState &) {
             return m_jsScopeData->attributes.value(attribute, false);
+        });
+}
+
+bool QOhosWebViewControllerImpl::trySetCookie(const std::string &url, const std::string &cookie)
+{
+    return QOhosJsThreadGateway::eval([&](QOhosJsState &jsState) {
+        try {
+            jsState.eval("@ohos.web.webview.WebCookieManager.configCookieSync(*)", {url, cookie});
+            return true;
+        } catch (const Napi::Error &error) {
+            qOhosPrintfError(
+                "%s: WebCookieManager.configCookieSync() failed for '%s': %s",
+                Q_FUNC_INFO, url.c_str(), error.what());
+            return false;
+        }
+    });
+}
+
+std::optional<std::string> QOhosWebViewControllerImpl::tryFetchCookie(const std::string &url)
+{
+    return QOhosJsThreadGateway::eval([&](QOhosJsState &jsState) -> std::optional<std::string> {
+        try {
+            const std::string cookie = jsState.eval<QNapi::String>(
+                "@ohos.web.webview.WebCookieManager.fetchCookieSync(*)", {url});
+            return cookie;
+        } catch (const Napi::Error &error) {
+            qOhosPrintfError(
+                "%s: WebCookieManager.fetchCookieSync('%s') failed: %s",
+                Q_FUNC_INFO, url.c_str(), error.what());
+            return {};
+        }
+    });
+}
+
+bool QOhosWebViewControllerImpl::tryClearAllCookies()
+{
+    return QOhosJsThreadGateway::eval([&](QOhosJsState &jsState) {
+        try {
+            jsState.eval("@ohos.web.webview.WebCookieManager.clearAllCookiesSync()");
+            return true;
+        } catch (const Napi::Error &error) {
+            qOhosPrintfError(
+                "%s: WebCookieManager.clearAllCookiesSync() failed: %s", Q_FUNC_INFO, error.what());
+            return false;
+        }
+    });
+}
+
+std::vector<std::pair<std::string, std::string>> QOhosWebViewControllerImpl::fetchAllCookies()
+{
+    using CookieList = std::vector<std::pair<std::string, std::string>>;
+    return QOhosJsThreadGateway::evalWithConsumer<CookieList>(
+        [&](QOhosJsState &jsState, auto cookieListConsumer) {
+            constexpr bool incognitoMode = false;
+            jsState.evalToPromiseOrRejectOnThrow(
+                "@ohos.web.webview.WebCookieManager.fetchAllCookies(*)", {incognitoMode})
+                .withContext(std::move(cookieListConsumer))
+                .onThenWithContext(
+                    [](const QOhosCallbackInfo &cbInfo, auto &cookieListConsumer) {
+                        auto cookies = cbInfo.getFirstArg<QNapi::Array>(Q_FUNC_INFO);
+                        cookieListConsumer(
+                            QNapi::getArrayElements<CookieList, QNapi::Object>(
+                                cookies,
+                                [](const QNapi::Object &cookie) -> std::pair<std::string, std::string> {
+                                    return {
+                                        cookie.get<QNapi::String>("domain"),
+                                        cookie.get<QNapi::String>("name")
+                                    };
+                                }));
+                    })
+                .onCatchWithContext(
+                    [](const QOhosCallbackInfo &cbInfo, auto &cookieListConsumer) {
+                        QtOhos::logJsCallbackError(
+                            cbInfo, "@ohos.web.webview.WebCookieManager.fetchAllCookies() failed");
+                        cookieListConsumer({});
+                    });
         });
 }
 

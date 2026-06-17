@@ -144,6 +144,29 @@ QVariant convertJavaScriptResultToQVariantOrNull(std::optional<std::string> java
         : QVariant();
 }
 
+std::string cookieUrlFromDomain(const QString &domain)
+{
+    QString host = domain;
+    if (host.startsWith(u'.'))
+        host.remove(0, 1);
+    if (!host.contains(QLatin1String("://")))
+        host.prepend(QLatin1String("https://"));
+    return host.toStdString();
+}
+
+bool cookieHeaderHasName(const QString &cookieHeader, const QString &name)
+{
+    const QStringList parts = cookieHeader.split(u';', Qt::SkipEmptyParts);
+    for (const QString &part : parts) {
+        const QString token = part.trimmed();
+        const qsizetype eq = token.indexOf(u'=');
+        const QString key = (eq < 0 ? token : token.left(eq)).trimmed();
+        if (key == name)
+            return true;
+    }
+    return false;
+}
+
 QOhosWebViewPrivate::QOhosWebViewPrivate(QWebView *view)
     : QWebViewPrivate(view)
     , m_webViewController(makeOhosWebViewController())
@@ -267,19 +290,34 @@ void QOhosWebViewPrivate::initialize(QObject *context)
 
 void QOhosWebViewPrivate::setCookie(const QString &domain, const QString &name, const QString &value)
 {
-    Q_UNUSED(domain);
-    Q_UNUSED(name);
-    Q_UNUSED(value);
+    const std::string url = cookieUrlFromDomain(domain);
+    const std::string cookie = QStringLiteral("%1=%2").arg(name, value).toStdString();
+
+    if (m_webViewController->trySetCookie(url, cookie))
+        Q_EMIT q_ptr->cookieAdded(domain, name);
 }
 
 void QOhosWebViewPrivate::deleteCookie(const QString &domain, const QString &name)
 {
-    Q_UNUSED(domain);
-    Q_UNUSED(name);
+    const std::string url = cookieUrlFromDomain(domain);
+
+    const std::optional<std::string> existing = m_webViewController->tryFetchCookie(url);
+    if (!existing || !cookieHeaderHasName(QString::fromStdString(*existing), name))
+        return;
+
+    const std::string expired = QStringLiteral("%1=; Max-Age=0; Path=/").arg(name).toStdString();
+    if (m_webViewController->trySetCookie(url, expired))
+        Q_EMIT q_ptr->cookieRemoved(domain, name);
 }
 
 void QOhosWebViewPrivate::deleteAllCookies()
 {
+    const auto cookies = m_webViewController->fetchAllCookies();
+    if (!m_webViewController->tryClearAllCookies())
+        return;
+
+    for (const auto &[domain, name] : cookies)
+        Q_EMIT q_ptr->cookieRemoved(QString::fromStdString(domain), QString::fromStdString(name));
 }
 
 QWindow *QOhosWebViewPrivate::nativeWindow() const
