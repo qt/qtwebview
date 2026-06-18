@@ -43,64 +43,22 @@ public:
     std::optional<std::string> tryRunJavaScript(const std::string &script) override;
 
 private:
+    QNapi::Object makeWebComponentAttributes(
+        QOhosJsState &jsState,
+        QNapi::Object webViewController, const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const;
+
     std::shared_ptr<QNapi::Reference<QNapi::Object>> m_jsWebViewController;
 };
 
 QNapi::Object createEmbeddedWebComponent(
     QOhosJsState &jsState, QNapi::Object parentAbilityWindowStage,
-    QNapi::Object webViewController, std::shared_ptr<QOhosWebComponentListener> webComponentListener)
+    QNapi::Object webComponentAttributes)
 {
     return jsState.eval<QNapi::Object>(
         "QEmbeddedComponentCreator.makeNewQEmbeddedComponentCreator().createEmbeddedWebComponent(*)",
         {
             parentAbilityWindowStage.eval<QNapi::Object>("getMainWindowSync().getUIContext()"),
-            QNapi::makeObject(
-                jsState.env(),
-                {
-                    {"webviewController", webViewController},
-                    {
-                        "onErrorReceive",
-                        [webComponentListener](const QOhosCallbackInfo &callbackInfo) {
-                            auto onErrorReceiveEvent = callbackInfo.getFirstArg<QNapi::Object>("onErrorReceive");
-                            std::string url = onErrorReceiveEvent.eval<QNapi::String>("request.getRequestUrl()");
-                            auto error = onErrorReceiveEvent.get<QNapi::Object>("error");
-                            webComponentListener->onErrorReceived(
-                                url, WebResourceError::makeFromJsObject(error));
-                        }
-                    },
-                    {
-                        "onPageBegin",
-                        [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
-                            auto onPageBeginEvent = callbackInfo.getFirstArg<QNapi::Object>("onPageBegin");
-                            webComponentListener->onPageBegan(
-                                onPageBeginEvent.get<QNapi::String>("url"));
-                        }
-                    },
-                    {
-                        "onPageEnd",
-                        [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
-                            auto onPageEndEvent = callbackInfo.getFirstArg<QNapi::Object>("onPageEnd");
-                            webComponentListener->onPageEnded(
-                                onPageEndEvent.get<QNapi::String>("url"));
-                        }
-                    },
-                    {
-                        "onProgressChange",
-                        [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
-                            auto onProgressChangeEvent = callbackInfo.getFirstArg<QNapi::Object>("onProgressChange");
-                            webComponentListener->onProgressChanged(
-                                onProgressChangeEvent.get<QNapi::Number>("newProgress"));
-                        }
-                    },
-                    {
-                        "onTitleReceive",
-                        [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
-                            auto onTitleReceivedEvent = callbackInfo.getFirstArg<QNapi::Object>("onTitleReceive");
-                            webComponentListener->onTitleReceived(
-                                onTitleReceivedEvent.get<QNapi::String>("title"));
-                        }
-                    },
-                })
+            webComponentAttributes
         });
 }
 
@@ -130,9 +88,10 @@ QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
             std::abort();
         }
         auto embeddedWebComponent = createEmbeddedWebComponent(
-            jsState, optWindowStage, m_jsWebViewController->Value(),
-            webComponentListenerExecutingInContextThread);
-
+            jsState, optWindowStage,
+            makeWebComponentAttributes(
+                jsState, m_jsWebViewController->Value(),
+                webComponentListenerExecutingInContextThread));
 
         ::ArkUI_NodeHandle handle = nullptr;
         auto getNodeFromNapiValueResult
@@ -254,6 +213,59 @@ std::optional<std::string> QOhosWebViewControllerImpl::tryRunJavaScript(const st
                     QtOhos::logJsCallbackError(cbInfo, "@ohos.web.webview.WebviewController.runJavaScript() failed");
                     javaScriptResultConsumer({});
                 });
+        });
+}
+
+QNapi::Object QOhosWebViewControllerImpl::makeWebComponentAttributes(
+    QOhosJsState &jsState,
+    QNapi::Object webViewController, const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const
+{
+    return QNapi::makeObject(
+        jsState.env(),
+        {
+            {"webviewController", webViewController},
+            {
+                "onErrorReceive",
+                [webComponentListener](const QOhosCallbackInfo &callbackInfo) {
+                    auto onErrorReceiveEvent = callbackInfo.getFirstArg<QNapi::Object>("onErrorReceive");
+                    std::string url = onErrorReceiveEvent.eval<QNapi::String>("request.getRequestUrl()");
+                    auto error = onErrorReceiveEvent.get<QNapi::Object>("error");
+                    webComponentListener->onErrorReceived(
+                        url, WebResourceError::makeFromJsObject(error));
+                }
+            },
+            {
+                "onPageBegin",
+                [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
+                    auto onPageBeginEvent = callbackInfo.getFirstArg<QNapi::Object>("onPageBegin");
+                    webComponentListener->onPageBegan(
+                        onPageBeginEvent.get<QNapi::String>("url"));
+                }
+            },
+            {
+                "onPageEnd",
+                [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
+                    auto onPageEndEvent = callbackInfo.getFirstArg<QNapi::Object>("onPageEnd");
+                    webComponentListener->onPageEnded(
+                        onPageEndEvent.get<QNapi::String>("url"));
+                }
+            },
+            {
+                "onProgressChange",
+                [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
+                    auto onProgressChangeEvent = callbackInfo.getFirstArg<QNapi::Object>("onProgressChange");
+                    webComponentListener->onProgressChanged(
+                        onProgressChangeEvent.get<QNapi::Number>("newProgress"));
+                }
+            },
+            {
+                "onTitleReceive",
+                [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
+                    auto onTitleReceivedEvent = callbackInfo.getFirstArg<QNapi::Object>("onTitleReceive");
+                    webComponentListener->onTitleReceived(
+                        onTitleReceivedEvent.get<QNapi::String>("title"));
+                }
+            },
         });
 }
 
