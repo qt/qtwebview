@@ -70,6 +70,7 @@ protected:
 
 private:
     void emitLoadingChangeSignalAndUpdateLoadStatus(const QWebViewLoadingInfo &loadingInfo);
+    void emitSyntheticLoadFailure(const QUrl &url, const QString &errorMessage);
 
     QPointer<QWindow> m_webViewWindow;
     std::shared_ptr<QOhosWebViewController> m_webViewController;
@@ -210,6 +211,8 @@ void QOhosWebViewPrivate::setUrl(const QUrl &url)
 
     if (!m_webViewController->tryLoadUrl(controllerUrl)) {
         qOhosWarning(QtForOhos) << Q_FUNC_INFO << "Failed to set url:" << controllerUrl.c_str();
+        emitSyntheticLoadFailure(
+            url, QStringLiteral("Failed to load: %1").arg(url.toString()));
     }
 }
 
@@ -396,6 +399,23 @@ void QOhosWebViewPrivate::emitLoadingChangeSignalAndUpdateLoadStatus(
 {
     m_loadStatus = loadingInfo.status();
     Q_EMIT q_ptr->loadingChanged(loadingInfo);
+}
+
+void QOhosWebViewPrivate::emitSyntheticLoadFailure(const QUrl &url, const QString &errorMessage)
+{
+    QMetaObject::invokeMethod(
+        this,
+        [this, url, errorMessage]() {
+            m_url = url.toString();
+            Q_EMIT q_ptr->urlChanged(url);
+            emitLoadingChangeSignalAndUpdateLoadStatus(
+                QWebViewFactory::LoadingInfo::create(
+                    url, QWebViewLoadingInfo::LoadStatus::Started, QString()));
+            emitLoadingChangeSignalAndUpdateLoadStatus(
+                QWebViewFactory::LoadingInfo::create(
+                    url, QWebViewLoadingInfo::LoadStatus::Failed, errorMessage));
+        },
+        Qt::QueuedConnection);
 }
 
 QOhosWebComponentListenerImpl::QOhosWebComponentListenerImpl(QPointer<QOhosWebViewPrivate> webViewPrivate)
