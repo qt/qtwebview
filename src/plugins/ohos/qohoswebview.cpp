@@ -79,6 +79,7 @@ private:
     int m_loadProgress = 0;
     QWebViewLoadingInfo::LoadStatus m_loadStatus = QWebViewLoadingInfo::LoadStatus::Stopped;
     QString m_url;
+    bool m_loadFailed = false;
 };
 
 class QOhosWebComponentListenerImpl : public QOhosWebComponentListener
@@ -355,6 +356,7 @@ void QOhosWebViewPrivate::onErrorReceived(const QString &url, const WebResourceE
 
     qOhosCritical(QtForOhos) << Q_FUNC_INFO << "Received onErrorReceive for main page:" << errorMessage;
 
+    m_loadFailed = true;
     emitLoadingChangeSignalAndUpdateLoadStatus(
         QWebViewFactory::LoadingInfo::create(QUrl(m_url), QWebViewLoadingInfo::LoadStatus::Failed, errorMessage));
 }
@@ -362,6 +364,7 @@ void QOhosWebViewPrivate::onErrorReceived(const QString &url, const WebResourceE
 void QOhosWebViewPrivate::onPageBegan(const QString &url)
 {
     m_url = url;
+    m_loadFailed = false;
 
     Q_EMIT q_ptr->urlChanged(QUrl(url));
     emitLoadingChangeSignalAndUpdateLoadStatus(
@@ -371,6 +374,13 @@ void QOhosWebViewPrivate::onPageBegan(const QString &url)
 
 void QOhosWebViewPrivate::onPageEnded(const QString &url)
 {
+    if (m_loadFailed) {
+        qOhosWarning(QtForOhos)
+            << Q_FUNC_INFO
+            << "Skipping LoadSucceededStatus; load already failed, url:" << url;
+        return;
+    }
+
     if (m_url != url) {
         qOhosWarning(QtForOhos) << Q_FUNC_INFO << "Received onPageEnd event from other url:" << url;
         return;
