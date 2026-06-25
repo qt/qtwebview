@@ -21,6 +21,7 @@ qt_internal_add_plugin(QOhosWebViewPlugin
         ace_napi.z
         uv
         hilog_ndk.z
+        ohweb
         Qt::Core
         Qt::Gui
         Qt::WebViewPrivate

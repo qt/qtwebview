@@ -25,6 +25,11 @@ public:
         qOhosDebug(QtForOhos) << Q_FUNC_INFO << key;
         return (key == QLatin1String("webview")) ? makeOhosWebView(view) : nullptr;
     }
+
+    void prepare() const override
+    {
+        prepareOhosWebView();
+    }
 };
 
 QT_END_NAMESPACE

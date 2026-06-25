@@ -2,5 +2,6 @@
     "Keys": [
         "native",
         "ohos"
-    ]
+    ],
+    "RequiresInit": true
 }

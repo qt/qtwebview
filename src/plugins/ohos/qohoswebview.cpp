@@ -175,6 +175,7 @@ QOhosWebViewPrivate::QOhosWebViewPrivate(QWebView *view)
     m_webComponentListener = std::make_shared<QOhosWebComponentListenerImpl>(this);
     m_webViewWindow = createEmbeddedWebViewWindow(m_webViewController, m_webComponentListener, this);
     if (m_webViewWindow) {
+        m_webViewController->bindQrcSchemeHandler();
         m_webViewWindow->setParent(view);
         connect(view, &QWindow::widthChanged, m_webViewWindow.data(), &QWindow::setWidth);
         connect(view, &QWindow::heightChanged, m_webViewWindow.data(), &QWindow::setHeight);
@@ -461,6 +462,11 @@ void QOhosWebComponentListenerImpl::onTitleReceived(const std::string &title)
 QWebViewPrivate *makeOhosWebView(QWebView *view)
 {
     return new QOhosWebViewPrivate(view);
+}
+
+void prepareOhosWebView()
+{
+    initializeOhosWebEngine();
 }
 
 QT_END_NAMESPACE

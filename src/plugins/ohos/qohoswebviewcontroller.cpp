@@ -5,11 +5,25 @@
 #include "qohoswebviewcontroller.h"
 #include <QtCore/private/qnapi_p.h>
 #include <QtCore/private/qohoslogger_p.h>
+#include <QtCore/QByteArray>
+#include <QtCore/QMimeDatabase>
+#include <QtCore/QResource>
+#include <QtCore/QUrl>
 #include <arkui/native_node_napi.h>
 #include <arkui/native_type.h>
+#include <web/arkweb_net_error_list.h>
+#include <web/arkweb_scheme_handler.h>
 #include <cstdlib>
 
 QT_BEGIN_NAMESPACE
+
+#define QT_OHOS_ARKWEB_CHECK(call) \
+    do { \
+        const int32_t arkwebRc_ = (call); \
+        if (arkwebRc_ != ARKWEB_NET_OK) \
+            qOhosPrintfError("%s: %s failed with error: %d", \
+                             Q_FUNC_INFO, #call, arkwebRc_); \
+    } while (false)
 
 namespace {
 
@@ -50,6 +64,8 @@ public:
     bool tryClearAllCookies() override;
     std::vector<std::pair<std::string, std::string>> fetchAllCookies() override;
 
+    void bindQrcSchemeHandler() override;
+
 private:
     using WebAttribute = QWebViewSettings::WebAttribute;
 
@@ -76,6 +92,8 @@ private:
 
     std::shared_ptr<JsScopeData> m_jsScopeData;
     std::shared_ptr<QOhosWebComponentListener> m_webComponentListener;
+    std::shared_ptr<void> m_qrcSchemeHandlerBinding;
+    std::string m_webTag;
 };
 
 QNapi::Object createEmbeddedWebComponent(
@@ -115,16 +133,128 @@ std::string localDirectoryForTarget(const std::string &target)
     return path;
 }
 
+std::optional<std::string> tryGetResourceRequestUrl(const ArkWeb_ResourceRequest *resourceRequest)
+{
+    char *rawUrl = nullptr;
+    ::OH_ArkWebResourceRequest_GetUrl(resourceRequest, &rawUrl);
+    if (!rawUrl) {
+        qOhosPrintfError("%s: OH_ArkWebResourceRequest_GetUrl returned no URL", Q_FUNC_INFO);
+        return std::nullopt;
+    }
+    std::string url = rawUrl;
+    ::OH_ArkWeb_ReleaseString(rawUrl);
+    return url;
+}
+
+std::shared_ptr<::ArkWeb_Response> createArkWebResponseOrNull()
+{
+    ArkWeb_Response *response = nullptr;
+    ::OH_ArkWeb_CreateResponse(&response);
+    if (!response) {
+        qOhosPrintfError("%s: OH_ArkWeb_CreateResponse failed", Q_FUNC_INFO);
+        return nullptr;
+    }
+    return std::shared_ptr<::ArkWeb_Response>(response, ::OH_ArkWeb_DestroyResponse);
+}
+
+void onQrcRequestStart(const ArkWeb_SchemeHandler *,
+                       ArkWeb_ResourceRequest *resourceRequest,
+                       const ArkWeb_ResourceHandler *resourceHandler,
+                       bool *intercept)
+{
+    *intercept = true;
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceRequest_SetUserData(
+        resourceRequest, const_cast<ArkWeb_ResourceHandler *>(resourceHandler)));
+
+    auto optRequestUrl = tryGetResourceRequestUrl(resourceRequest);
+    if (!optRequestUrl) {
+        QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceHandler_DidFailWithErrorV2(
+            resourceHandler, ARKWEB_ERR_FAILED, true));
+        return;
+    }
+    const QUrl url(QString::fromUtf8(*optRequestUrl));
+
+    // qrc:/path/file  ->  ":/path/file"
+    QResource resource(QStringLiteral(":") + url.path());
+    if (!resource.isValid()) {
+        QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceHandler_DidFailWithErrorV2(
+            resourceHandler, ARKWEB_ERR_FILE_NOT_FOUND, true));
+        return;
+    }
+
+    const QByteArray body = resource.uncompressedData();
+    const QByteArray mimeType =
+        QMimeDatabase().mimeTypeForFileNameAndData(url.fileName(), body).name().toUtf8();
+
+    const std::shared_ptr<::ArkWeb_Response> response = createArkWebResponseOrNull();
+    if (!response) {
+        QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceHandler_DidFailWithErrorV2(
+            resourceHandler, ARKWEB_ERR_FAILED, true));
+        return;
+    }
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResponse_SetStatus(response.get(), 200));
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResponse_SetMimeType(response.get(), mimeType.constData()));
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResponse_SetCharset(response.get(), "UTF-8"));
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResponse_SetHeaderByName(
+        response.get(), "content-length", QByteArray::number(body.size()).constData(), false));
+
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceHandler_DidReceiveResponse(resourceHandler, response.get()));
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceHandler_DidReceiveData(
+        resourceHandler, reinterpret_cast<const uint8_t *>(body.constData()), body.size()));
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceHandler_DidFinish(resourceHandler));
+}
+
+void onQrcRequestStop(const ArkWeb_SchemeHandler *,
+                      const ArkWeb_ResourceRequest *resourceRequest)
+{
+    auto *resourceHandler = static_cast<ArkWeb_ResourceHandler *>(
+        ::OH_ArkWebResourceRequest_GetUserData(resourceRequest));
+    if (resourceHandler)
+        QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceHandler_Destroy(resourceHandler));
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebResourceRequest_Destroy(resourceRequest));
+}
+
+std::shared_ptr<::ArkWeb_SchemeHandler> createQrcSchemeHandlerOrNull()
+{
+    ArkWeb_SchemeHandler *schemeHandler = nullptr;
+    ::OH_ArkWeb_CreateSchemeHandler(&schemeHandler);
+    if (!schemeHandler) {
+        qOhosPrintfError("%s: OH_ArkWeb_CreateSchemeHandler failed", Q_FUNC_INFO);
+        return nullptr;
+    }
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebSchemeHandler_SetOnRequestStart(schemeHandler, onQrcRequestStart));
+    QT_OHOS_ARKWEB_CHECK(::OH_ArkWebSchemeHandler_SetOnRequestStop(schemeHandler, onQrcRequestStop));
+    return std::shared_ptr<::ArkWeb_SchemeHandler>(schemeHandler, ::OH_ArkWeb_DestroySchemeHandler);
+}
+
+std::shared_ptr<::ArkWeb_SchemeHandler> sharedQrcSchemeHandlerOrNull()
+{
+    static std::weak_ptr<::ArkWeb_SchemeHandler> weakHandler;
+    auto handler = weakHandler.lock();
+    if (!handler) {
+        handler = createQrcSchemeHandlerOrNull();
+        weakHandler = handler;
+    }
+    return handler;
+}
+
+std::string makeUniqueWebViewTag()
+{
+    static unsigned s_webTagCounter = 0;
+    return "qtwebview_" + std::to_string(s_webTagCounter++);
+}
+
 QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
     : QOhosWebViewController()
+    , m_webTag(makeUniqueWebViewTag())
 {
     m_jsScopeData = QOhosJsThreadGateway::eval(
-        [](QOhosJsState &jsState) {
+        [&](QOhosJsState &jsState) {
             return QtOhos::makeProxyWithJsThreadDeleter(
                 QtOhos::moveToSharedPtr(
                     JsScopeData{
                         .jsWebViewController = QNapi::Reference<>::makePersistentFrom(
-                            jsState.eval<QNapi::Object>("@ohos.web.webview.WebviewController<new>()")),
+                            jsState.eval<QNapi::Object>("@ohos.web.webview.WebviewController<new>(*)", {m_webTag})),
                     }));
         });
 }
@@ -371,6 +501,32 @@ std::vector<std::pair<std::string, std::string>> QOhosWebViewControllerImpl::fet
         });
 }
 
+void QOhosWebViewControllerImpl::bindQrcSchemeHandler()
+{
+    m_qrcSchemeHandlerBinding = QOhosJsThreadGateway::eval(
+        [&](QOhosJsState &) -> std::shared_ptr<void> {
+            auto schemeHandler = sharedQrcSchemeHandlerOrNull();
+            if (!schemeHandler)
+                return nullptr;
+
+            if (!::OH_ArkWeb_SetSchemeHandler("qrc", m_webTag.c_str(), schemeHandler.get())) {
+                qOhosPrintfError(
+                    "%s: OH_ArkWeb_SetSchemeHandler(\"qrc\", \"%s\") failed.",
+                    Q_FUNC_INFO, m_webTag.c_str());
+                return nullptr;
+            }
+
+            return QtOhos::makeProxyWithJsThreadDeleter(
+                QtOhos::makeDestroyNotifier(
+                    [webTag = m_webTag, schemeHandler] {
+                        if (::OH_ArkWeb_ClearSchemeHandlers(webTag.c_str()) != 0)
+                            qOhosPrintfError(
+                                "%s: OH_ArkWeb_ClearSchemeHandlers(\"%s\") failed.",
+                                Q_FUNC_INFO, webTag.c_str());
+                    }));
+        });
+}
+
 QNapi::Object QOhosWebViewControllerImpl::makeWebComponentAttributes(
     QOhosJsState &jsState,
     const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const
@@ -478,6 +634,19 @@ QOhosWebViewController::~QOhosWebViewController() = default;
 std::shared_ptr<QOhosWebViewController> makeOhosWebViewController()
 {
     return std::make_shared<QOhosWebViewControllerImpl>();
+}
+
+void initializeOhosWebEngine()
+{
+    QOhosJsThreadGateway::runAndWait([](QOhosJsState &jsState) {
+        const int32_t opt = ARKWEB_SCHEME_OPTION_STANDARD | ARKWEB_SCHEME_OPTION_SECURE
+                            | ARKWEB_SCHEME_OPTION_CORS_ENABLED | ARKWEB_SCHEME_OPTION_FETCH_ENABLED;
+        if (::OH_ArkWeb_RegisterCustomSchemes("qrc", opt) != 0) {
+            qOhosPrintfError("%s: RegisterCustomSchemes(\"qrc\") failed", Q_FUNC_INFO);
+            return;
+        }
+        jsState.eval("@ohos.web.webview.WebviewController.initializeWebEngine()");
+    });
 }
 
 QT_END_NAMESPACE
