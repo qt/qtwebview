@@ -55,11 +55,14 @@ public:
     virtual bool tryClearAllCookies() = 0;
     virtual std::vector<std::pair<std::string, std::string>> fetchAllCookies() = 0;
 
+    virtual void bindQrcSchemeHandler() = 0;
+
 protected:
     QOhosWebViewController();
 };
 
 std::shared_ptr<QOhosWebViewController> makeOhosWebViewController();
+void initializeOhosWebEngine();
 
 QT_END_NAMESPACE
 

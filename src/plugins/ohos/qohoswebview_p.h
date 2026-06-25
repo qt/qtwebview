@@ -20,6 +20,7 @@
 QT_BEGIN_NAMESPACE
 
 QWebViewPrivate *makeOhosWebView(QWebView *view);
+void prepareOhosWebView();
 
 QT_END_NAMESPACE
 
