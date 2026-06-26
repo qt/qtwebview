@@ -64,6 +64,8 @@ public:
 
     void bindQrcSchemeHandler() override;
 
+    bool trySetCustomUserAgent(const std::string &userAgent) override;
+
 private:
     using WebAttribute = QWebViewSettings::WebAttribute;
 
@@ -516,6 +518,19 @@ void QOhosWebViewControllerImpl::bindQrcSchemeHandler()
                                 Q_FUNC_INFO, webTag.c_str());
                     }));
         });
+}
+
+bool QOhosWebViewControllerImpl::trySetCustomUserAgent(const std::string &userAgent)
+{
+    return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
+        try {
+            m_jsScopeData->jsWebViewController.eval("setCustomUserAgent(*)", {userAgent});
+            return true;
+        } catch (const Napi::Error &error) {
+            qOhosPrintfError("%s: setCustomUserAgent() failed: %s", Q_FUNC_INFO, error.what());
+            return false;
+        }
+    });
 }
 
 QNapi::Object QOhosWebViewControllerImpl::makeWebComponentAttributes(
