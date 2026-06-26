@@ -55,6 +55,8 @@ public:
 
     virtual void bindQrcSchemeHandler() = 0;
 
+    virtual bool trySetCustomUserAgent(const std::string &userAgent) = 0;
+
 protected:
     QOhosWebViewController();
 };

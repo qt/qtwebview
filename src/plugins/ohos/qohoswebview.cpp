@@ -189,12 +189,14 @@ QOhosWebViewPrivate::~QOhosWebViewPrivate() = default;
 
 QString QOhosWebViewPrivate::httpUserAgent() const
 {
-    return QString();
+    return convertJavaScriptResultToQVariantOrNull(
+        m_webViewController->tryRunJavaScript("navigator.userAgent")).toString();
 }
 
 void QOhosWebViewPrivate::setHttpUserAgent(const QString &httpUserAgent)
 {
-    Q_UNUSED(httpUserAgent);
+    if (m_webViewController->trySetCustomUserAgent(httpUserAgent.toStdString()))
+        Q_EMIT q_ptr->httpUserAgentStringChanged(httpUserAgent);
 }
 
 QUrl QOhosWebViewPrivate::url() const
