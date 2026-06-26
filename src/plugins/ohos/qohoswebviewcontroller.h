@@ -43,8 +43,6 @@ public:
     virtual void refresh() = 0;
     virtual void stop() = 0;
 
-    virtual std::string getTitle() = 0;
-
     virtual std::optional<std::string> tryRunJavaScript(const std::string &script) = 0;
 
     virtual void setAttribute(QWebViewSettings::WebAttribute attribute, bool enabled) = 0;

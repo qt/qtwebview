@@ -52,8 +52,6 @@ public:
     void refresh() override;
     void stop() override;
 
-    std::string getTitle() override;
-
     std::optional<std::string> tryRunJavaScript(const std::string &script) override;
 
     void setAttribute(QWebViewSettings::WebAttribute attribute, bool enabled) override;
@@ -382,13 +380,6 @@ void QOhosWebViewControllerImpl::stop()
     });
 }
 
-std::string QOhosWebViewControllerImpl::getTitle()
-{
-    return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsScopeData->jsWebViewController.call<QNapi::String>("getTitle").Utf8Value();
-    });
-}
-
 std::optional<std::string> QOhosWebViewControllerImpl::tryRunJavaScript(const std::string &script)
 {
     return QOhosJsThreadGateway::evalWithConsumer<std::optional<std::string>>(
@@ -576,8 +567,11 @@ QNapi::Object QOhosWebViewControllerImpl::makeWebComponentAttributes(
                 "onTitleReceive",
                 [webComponentListener](const QNapi::CallbackInfo &callbackInfo) {
                     auto onTitleReceivedEvent = callbackInfo.getFirstArg<QNapi::Object>("onTitleReceive");
+                    auto isRealTitleValue =
+                        QNapi::getOptionalPropOrEmpty<QNapi::Boolean>(onTitleReceivedEvent, "isRealTitle");
                     webComponentListener->onTitleReceived(
-                        onTitleReceivedEvent.get<QNapi::String>("title"));
+                        onTitleReceivedEvent.get<QNapi::String>("title"),
+                        !isRealTitleValue.IsEmpty() && isRealTitleValue.Value());
                 }
             },
         });

@@ -18,7 +18,7 @@ public:
     virtual void onPageBegan(const std::string &url) = 0;
     virtual void onPageEnded(const std::string &url) = 0;
     virtual void onProgressChanged(int progress) = 0;
-    virtual void onTitleReceived(const std::string &title) = 0;
+    virtual void onTitleReceived(const std::string &title, bool isRealTitle) = 0;
 
 protected:
     QOhosWebComponentListener();

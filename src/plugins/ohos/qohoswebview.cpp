@@ -54,7 +54,7 @@ public:
     void onPageBegan(const QString &url);
     void onPageEnded(const QString &url);
     void onProgressChanged(int progress);
-    void onTitleUpdated(const QString &title);
+    void onTitleUpdated(const QString &title, bool isRealTitle);
 
 public Q_SLOTS:
     void goBack() override;
@@ -79,6 +79,7 @@ private:
     int m_loadProgress = 0;
     QWebViewLoadingInfo::LoadStatus m_loadStatus = QWebViewLoadingInfo::LoadStatus::Stopped;
     QString m_url;
+    QString m_title;
     bool m_loadFailed = false;
 };
 
@@ -92,7 +93,7 @@ public:
     void onPageBegan(const std::string &url) override;
     void onPageEnded(const std::string &url) override;
     void onProgressChanged(int progress) override;
-    void onTitleReceived(const std::string &title) override;
+    void onTitleReceived(const std::string &title, bool isRealTitle) override;
 
 private:
     QPointer<QOhosWebViewPrivate> m_webViewPrivate;
@@ -262,7 +263,7 @@ void QOhosWebViewPrivate::reload()
 
 QString QOhosWebViewPrivate::title() const
 {
-    return QString::fromStdString(m_webViewController->getTitle());
+    return m_title;
 }
 
 void QOhosWebViewPrivate::runJavaScript(const QString &script,
@@ -400,8 +401,17 @@ void QOhosWebViewPrivate::onProgressChanged(int progress)
     Q_EMIT q_ptr->loadProgressChanged(progress);
 }
 
-void QOhosWebViewPrivate::onTitleUpdated(const QString &title)
+void QOhosWebViewPrivate::onTitleUpdated(const QString &title, bool isRealTitle)
 {
+    if (!isRealTitle) {
+        qOhosDebug(QtForOhos) << Q_FUNC_INFO << "Ignoring URL-generated title:" << title;
+        return;
+    }
+
+    if (m_title == title)
+        return;
+
+    m_title = title;
     Q_EMIT q_ptr->titleChanged(title);
 }
 
@@ -461,10 +471,10 @@ void QOhosWebComponentListenerImpl::onProgressChanged(int progress)
         m_webViewPrivate->onProgressChanged(progress);
 }
 
-void QOhosWebComponentListenerImpl::onTitleReceived(const std::string &title)
+void QOhosWebComponentListenerImpl::onTitleReceived(const std::string &title, bool isRealTitle)
 {
     if (m_webViewPrivate)
-        m_webViewPrivate->onTitleUpdated(QString::fromStdString(title));
+        m_webViewPrivate->onTitleUpdated(QString::fromStdString(title), isRealTitle);
 }
 
 }
