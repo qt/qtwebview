@@ -47,7 +47,12 @@ private:
         QOhosJsState &jsState,
         QNapi::Object webViewController, const std::shared_ptr<QOhosWebComponentListener> &webComponentListener) const;
 
-    std::shared_ptr<QNapi::Reference<QNapi::Object>> m_jsWebViewController;
+    struct JsScopeData
+    {
+        QNapi::Reference<QNapi::Object> jsWebViewController;
+    };
+
+    std::shared_ptr<JsScopeData> m_jsScopeData;
 };
 
 QNapi::Object createEmbeddedWebComponent(
@@ -65,12 +70,15 @@ QNapi::Object createEmbeddedWebComponent(
 QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
     : QOhosWebViewController()
 {
-    m_jsWebViewController = QOhosJsThreadGateway::eval([](QOhosJsState &jsState) {
-        return QtOhos::makeProxyWithJsThreadDeleter(
-            QtOhos::moveToSharedPtr(
-                QNapi::Reference<>::makePersistentFrom(
-                    jsState.eval<QNapi::Object>("@ohos.web.webview.WebviewController<new>()"))));
-    });
+    m_jsScopeData = QOhosJsThreadGateway::eval(
+        [](QOhosJsState &jsState) {
+            return QtOhos::makeProxyWithJsThreadDeleter(
+                QtOhos::moveToSharedPtr(
+                    JsScopeData{
+                        .jsWebViewController = QNapi::Reference<>::makePersistentFrom(
+                            jsState.eval<QNapi::Object>("@ohos.web.webview.WebviewController<new>()")),
+                    }));
+        });
 }
 
 ::ArkUI_NodeHandle QOhosWebViewControllerImpl::createEmbeddedWebComponentNodeOrFail(
@@ -90,7 +98,7 @@ QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
         auto embeddedWebComponent = createEmbeddedWebComponent(
             jsState, optWindowStage,
             makeWebComponentAttributes(
-                jsState, m_jsWebViewController->Value(),
+                jsState, m_jsScopeData->jsWebViewController.Value(),
                 webComponentListenerExecutingInContextThread));
 
         ::ArkUI_NodeHandle handle = nullptr;
@@ -111,7 +119,7 @@ bool QOhosWebViewControllerImpl::tryLoadUrl(const std::string &url)
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
         try {
-            m_jsWebViewController->call("loadUrl", {url});
+            m_jsScopeData->jsWebViewController.call("loadUrl", {url});
             return true;
         } catch (const Napi::Error &error) {
             qOhosPrintfError(
@@ -125,7 +133,7 @@ bool QOhosWebViewControllerImpl::tryLoadUrl(const std::string &url)
 std::string QOhosWebViewControllerImpl::getUrl()
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsWebViewController->call<QNapi::String>("getUrl").Utf8Value();
+        return m_jsScopeData->jsWebViewController.call<QNapi::String>("getUrl").Utf8Value();
     });
 }
 
@@ -136,9 +144,9 @@ bool QOhosWebViewControllerImpl::tryLoadHtml(const std::string &data, const std:
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
         try {
             if (baseUrl.empty())
-                m_jsWebViewController->call("loadData", {data, mimeType, encoding});
+                m_jsScopeData->jsWebViewController.call("loadData", {data, mimeType, encoding});
             else
-                m_jsWebViewController->call("loadData", {data, mimeType, encoding, baseUrl, historyUrl});
+                m_jsScopeData->jsWebViewController.call("loadData", {data, mimeType, encoding, baseUrl, historyUrl});
             return true;
         } catch (const Napi::Error &error) {
             qOhosPrintfError(
@@ -151,49 +159,49 @@ bool QOhosWebViewControllerImpl::tryLoadHtml(const std::string &data, const std:
 bool QOhosWebViewControllerImpl::canGoBack()
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsWebViewController->call<QNapi::Boolean>("accessBackward").Value();
+        return m_jsScopeData->jsWebViewController.call<QNapi::Boolean>("accessBackward").Value();
     });
 }
 
 bool QOhosWebViewControllerImpl::canGoForward()
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsWebViewController->call<QNapi::Boolean>("accessForward").Value();
+        return m_jsScopeData->jsWebViewController.call<QNapi::Boolean>("accessForward").Value();
     });
 }
 
 void QOhosWebViewControllerImpl::goBack()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsWebViewController->call("backward");
+        m_jsScopeData->jsWebViewController.call("backward");
     });
 }
 
 void QOhosWebViewControllerImpl::goForward()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsWebViewController->call("forward");
+        m_jsScopeData->jsWebViewController.call("forward");
     });
 }
 
 void QOhosWebViewControllerImpl::refresh()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsWebViewController->call("refresh");
+        m_jsScopeData->jsWebViewController.call("refresh");
     });
 }
 
 void QOhosWebViewControllerImpl::stop()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsWebViewController->call("stop");
+        m_jsScopeData->jsWebViewController.call("stop");
     });
 }
 
 std::string QOhosWebViewControllerImpl::getTitle()
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsWebViewController->call<QNapi::String>("getTitle").Utf8Value();
+        return m_jsScopeData->jsWebViewController.call<QNapi::String>("getTitle").Utf8Value();
     });
 }
 
@@ -201,7 +209,7 @@ std::optional<std::string> QOhosWebViewControllerImpl::tryRunJavaScript(const st
 {
     return QOhosJsThreadGateway::evalWithConsumer<std::optional<std::string>>(
         [&](QOhosJsState &, auto javaScriptResultConsumer) {
-            m_jsWebViewController->evalToPromiseOrRejectOnThrow("runJavaScript(*)", {script})
+            m_jsScopeData->jsWebViewController.evalToPromiseOrRejectOnThrow("runJavaScript(*)", {script})
             .withContext(std::move(javaScriptResultConsumer))
             .onThenWithContext(
                 [](const QOhosCallbackInfo &cbInfo, auto &javaScriptResultConsumer) {
