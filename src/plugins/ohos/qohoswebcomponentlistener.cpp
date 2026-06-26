@@ -17,7 +17,7 @@ public:
     void onPageBegan(const std::string &url) override;
     void onPageEnded(const std::string &url) override;
     void onProgressChanged(int progress) override;
-    void onTitleReceived(const std::string &title) override;
+    void onTitleReceived(const std::string &title, bool isRealTitle) override;
 
 private:
     void visitBaseListenerInItsThreadIfAlive(
@@ -66,10 +66,10 @@ void QOhosWebComponentListenerExecutingInContextThread::onProgressChanged(int pr
     });
 }
 
-void QOhosWebComponentListenerExecutingInContextThread::onTitleReceived(const std::string &title)
+void QOhosWebComponentListenerExecutingInContextThread::onTitleReceived(const std::string &title, bool isRealTitle)
 {
-    visitBaseListenerInItsThreadIfAlive([title](auto &baseListener) {
-        baseListener.onTitleReceived(title);
+    visitBaseListenerInItsThreadIfAlive([title, isRealTitle](auto &baseListener) {
+        baseListener.onTitleReceived(title, isRealTitle);
     });
 }
 
