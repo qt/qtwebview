@@ -301,7 +301,7 @@ bool QOhosWebViewControllerImpl::tryLoadUrl(const std::string &url)
         m_jsScopeData->universalAccessPath = localDirectoryForTarget(url);
         applyUniversalAccessPath(jsState);
         try {
-            m_jsScopeData->jsWebViewController.call("loadUrl", {url});
+            m_jsScopeData->jsWebViewController.eval("loadUrl(*)", {url});
             return true;
         } catch (const Napi::Error &error) {
             qOhosPrintfError(
@@ -315,7 +315,7 @@ bool QOhosWebViewControllerImpl::tryLoadUrl(const std::string &url)
 std::string QOhosWebViewControllerImpl::getUrl()
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsScopeData->jsWebViewController.call<QNapi::String>("getUrl").Utf8Value();
+        return m_jsScopeData->jsWebViewController.eval<QNapi::String>("getUrl()").Utf8Value();
     });
 }
 
@@ -328,9 +328,9 @@ bool QOhosWebViewControllerImpl::tryLoadHtml(const std::string &data, const std:
         applyUniversalAccessPath(jsState);
         try {
             if (baseUrl.empty())
-                m_jsScopeData->jsWebViewController.call("loadData", {data, mimeType, encoding});
+                m_jsScopeData->jsWebViewController.eval("loadData(*)", {data, mimeType, encoding});
             else
-                m_jsScopeData->jsWebViewController.call("loadData", {data, mimeType, encoding, baseUrl, historyUrl});
+                m_jsScopeData->jsWebViewController.eval("loadData(*)", {data, mimeType, encoding, baseUrl, historyUrl});
             return true;
         } catch (const Napi::Error &error) {
             qOhosPrintfError(
@@ -343,42 +343,42 @@ bool QOhosWebViewControllerImpl::tryLoadHtml(const std::string &data, const std:
 bool QOhosWebViewControllerImpl::canGoBack()
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsScopeData->jsWebViewController.call<QNapi::Boolean>("accessBackward").Value();
+        return m_jsScopeData->jsWebViewController.eval<QNapi::Boolean>("accessBackward()").Value();
     });
 }
 
 bool QOhosWebViewControllerImpl::canGoForward()
 {
     return QOhosJsThreadGateway::eval([&](QOhosJsState &) {
-        return m_jsScopeData->jsWebViewController.call<QNapi::Boolean>("accessForward").Value();
+        return m_jsScopeData->jsWebViewController.eval<QNapi::Boolean>("accessForward()").Value();
     });
 }
 
 void QOhosWebViewControllerImpl::goBack()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsScopeData->jsWebViewController.call("backward");
+        m_jsScopeData->jsWebViewController.eval("backward()");
     });
 }
 
 void QOhosWebViewControllerImpl::goForward()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsScopeData->jsWebViewController.call("forward");
+        m_jsScopeData->jsWebViewController.eval("forward()");
     });
 }
 
 void QOhosWebViewControllerImpl::refresh()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsScopeData->jsWebViewController.call("refresh");
+        m_jsScopeData->jsWebViewController.eval("refresh()");
     });
 }
 
 void QOhosWebViewControllerImpl::stop()
 {
     QOhosJsThreadGateway::runAndWait([&](QOhosJsState &) {
-        m_jsScopeData->jsWebViewController.call("stop");
+        m_jsScopeData->jsWebViewController.eval("stop()");
     });
 }
 

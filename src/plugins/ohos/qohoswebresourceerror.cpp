@@ -6,8 +6,8 @@
 WebResourceError WebResourceError::makeFromJsObject(QNapi::Object jsWebResourceErrorObject)
 {
     return WebResourceError(
-        jsWebResourceErrorObject.call<QNapi::Number>("getErrorCode"),
-        jsWebResourceErrorObject.call<QNapi::String>("getErrorInfo"));
+        jsWebResourceErrorObject.eval<QNapi::Number>("getErrorCode()"),
+        jsWebResourceErrorObject.eval<QNapi::String>("getErrorInfo()"));
 }
 
 WebResourceError::WebResourceError(int errorCode, const std::string &errorInfo)
