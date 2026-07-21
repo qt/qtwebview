@@ -16,9 +16,9 @@ QT_BEGIN_NAMESPACE
     \value JavaScriptEnabled
            Enables the running of JavaScript programs.
     \value AllowFileAccess
-           Allows locally loaded documents to access other local URLs.
-    \value LocalContentCanAccessFileUrls
            Enables the WebView to load file URLs.
+    \value LocalContentCanAccessFileUrls
+           Allows locally loaded documents to access other local URLs.
 */
 
 /*!
