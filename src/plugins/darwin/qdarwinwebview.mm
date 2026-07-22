@@ -372,7 +372,16 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
         if (url.isLocalFile()) {
             // NOTE: Check if the file exists before attempting to load it, we follow the same
             // asynchronous pattern as expected to not break the tests (Started + Failed).
-            if (!QFile::exists(url.toLocalFile())) {
+            bool exists = QFile::exists(url.toLocalFile());
+
+            // We need to pass local files via loadFileURL and the read access should cover
+            // the directory that the file is in, to facilitate loading referenced images etc
+            if (exists && m_settings->allowFileAccess()) {
+                if (m_settings->localContentCanAccessFileUrls())
+                    [wkWebView loadFileURL:url.toNSURL() allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
+                else
+                    [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
+            } else {
                 QMetaObject::invokeMethod(
                         q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
                         QWebViewFactory::LoadingInfo::create(url, QWebViewLoadingInfo::LoadStatus::Started,
@@ -380,16 +389,10 @@ void QDarwinWebViewPrivate::setUrl(const QUrl &url)
                 QMetaObject::invokeMethod(
                         q_ptr, &QWebView::loadingChanged, Qt::QueuedConnection,
                         QWebViewFactory::LoadingInfo::create(url, QWebViewLoadingInfo::LoadStatus::Failed,
-                                            QStringLiteral("File does not exist")));
+                                            exists
+                                            ? QStringLiteral("Permission denied")
+                                            : QStringLiteral("File does not exist")));
                 return;
-            }
-            // We need to pass local files via loadFileURL and the read access should cover
-            // the directory that the file is in, to facilitate loading referenced images etc
-            if (m_settings->allowFileAccess()) {
-                if (m_settings->localContentCanAccessFileUrls())
-                    [wkWebView loadFileURL:url.toNSURL() allowingReadAccessToURL:QUrl(url.toString(QUrl::RemoveFilename)).toNSURL()];
-                else
-                    [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
             }
         } else {
             [wkWebView loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
