@@ -36,8 +36,8 @@ qt_feature("webview-ohos-plugin" PUBLIC
     CONDITION OHOS
 )
 qt_feature("webview-darwin-plugin" PUBLIC
-    LABEL "Darwin WebKit (MacOS and IOS only)"
-    PURPOSE "Provides Darwin Webkit plugin for Qt WebView."
+    LABEL "Apple WebKit (Apple platforms only)"
+    PURPOSE "Provides Apple Webkit plugin for Qt WebView."
     CONDITION MACOS OR IOS
 )
 qt_feature("webview-wasm-plugin" PUBLIC
