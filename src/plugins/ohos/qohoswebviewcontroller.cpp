@@ -255,6 +255,9 @@ QOhosWebViewControllerImpl::QOhosWebViewControllerImpl()
                     JsScopeData{
                         .jsWebViewController = QNapi::Reference<>::makePersistentFrom(
                             jsState.eval<QNapi::Object>("@ohos.web.webview.WebviewController<new>(*)", {m_webTag})),
+                        .jsComponentContent = {},
+                        .attributes = {},
+                        .universalAccessPath = {},
                     }));
         });
 }
