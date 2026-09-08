@@ -387,21 +387,22 @@ void QOhosWebViewControllerImpl::stop()
 
 std::optional<std::string> QOhosWebViewControllerImpl::tryRunJavaScript(const std::string &script)
 {
-    return QOhosJsThreadGateway::evalWithConsumer<std::optional<std::string>>(
-        [&](QOhosJsState &, auto javaScriptResultConsumer) {
+    return QOhosJsThreadGateway::evalWithPromise<std::optional<std::string>>(
+        [&](QOhosJsState &, auto javaScriptResultPromise) {
+            auto thenCatchPromises = std::move(javaScriptResultPromise).makeThenCatchBranches(Q_FUNC_INFO);
             m_jsScopeData->jsWebViewController.evalToPromiseOrRejectOnThrow("runJavaScript(*)", {script})
-            .withContext(std::move(javaScriptResultConsumer))
-            .onThenWithContext(
-                [](const QOhosCallbackInfo &cbInfo, auto &javaScriptResultConsumer) {
+            .onThen(
+                [thenPromise = std::move(thenCatchPromises.first)](const QOhosCallbackInfo &cbInfo) {
                     std::string javaScriptResult = cbInfo.getFirstArg<QNapi::String>(Q_FUNC_INFO);
-                    javaScriptResultConsumer(javaScriptResult);
+                    thenPromise(javaScriptResult);
                 })
-            .onCatchWithContext(
-                [](const QOhosCallbackInfo &cbInfo, auto &javaScriptResultConsumer) {
+            .onCatch(
+                [catchPromise = std::move(thenCatchPromises.second)](const QOhosCallbackInfo &cbInfo) {
                     QtOhos::logJsCallbackError(cbInfo, "@ohos.web.webview.WebviewController.runJavaScript() failed");
-                    javaScriptResultConsumer({});
+                    catchPromise({});
                 });
-        });
+        },
+        Q_FUNC_INFO);
 }
 
 void QOhosWebViewControllerImpl::setAttribute(WebAttribute attribute, bool enabled)
@@ -469,16 +470,16 @@ bool QOhosWebViewControllerImpl::tryClearAllCookies()
 std::vector<std::pair<std::string, std::string>> QOhosWebViewControllerImpl::fetchAllCookies()
 {
     using CookieList = std::vector<std::pair<std::string, std::string>>;
-    return QOhosJsThreadGateway::evalWithConsumer<CookieList>(
-        [&](QOhosJsState &jsState, auto cookieListConsumer) {
+    return QOhosJsThreadGateway::evalWithPromise<CookieList>(
+        [&](QOhosJsState &jsState, auto cookieListPromise) {
             constexpr bool incognitoMode = false;
+            auto thenCatchPromises = std::move(cookieListPromise).makeThenCatchBranches(Q_FUNC_INFO);
             jsState.evalToPromiseOrRejectOnThrow(
                 "@ohos.web.webview.WebCookieManager.fetchAllCookies(*)", {incognitoMode})
-                .withContext(std::move(cookieListConsumer))
-                .onThenWithContext(
-                    [](const QOhosCallbackInfo &cbInfo, auto &cookieListConsumer) {
+                .onThen(
+                    [thenPromise = std::move(thenCatchPromises.first)](const QOhosCallbackInfo &cbInfo) {
                         auto cookies = cbInfo.getFirstArg<QNapi::Array>(Q_FUNC_INFO);
-                        cookieListConsumer(
+                        thenPromise(
                             QNapi::getArrayElements<CookieList, QNapi::Object>(
                                 cookies,
                                 [](const QNapi::Object &cookie) -> std::pair<std::string, std::string> {
@@ -488,13 +489,14 @@ std::vector<std::pair<std::string, std::string>> QOhosWebViewControllerImpl::fet
                                     };
                                 }));
                     })
-                .onCatchWithContext(
-                    [](const QOhosCallbackInfo &cbInfo, auto &cookieListConsumer) {
+                .onCatch(
+                    [catchPromise = std::move(thenCatchPromises.second)](const QOhosCallbackInfo &cbInfo) {
                         QtOhos::logJsCallbackError(
                             cbInfo, "@ohos.web.webview.WebCookieManager.fetchAllCookies() failed");
-                        cookieListConsumer({});
+                        catchPromise({});
                     });
-        });
+        },
+        Q_FUNC_INFO);
 }
 
 void QOhosWebViewControllerImpl::bindQrcSchemeHandler()
