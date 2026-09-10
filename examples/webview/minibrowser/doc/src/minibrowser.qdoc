@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \title Qt WebView Examples - Minibrowser
+    \title Qt WebView Examples - A minimal example for a web view in Qt Quick
     \example minibrowser
-    \brief Minibrowser example demonstrates how to use the Qt WebView module with Qt Quick.
+    \brief This example demonstrates how to use the Qt WebView module with Qt Quick.
     \image webview-example.jpg {Web view displaying the Qt website on an Android device}
     \ingroup qtwebview-examples
     \examplecategory {Web Technologies}
