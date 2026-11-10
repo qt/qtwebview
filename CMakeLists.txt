@@ -17,6 +17,9 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS BuildInternals)
 # defined.
 qt_internal_project_setup()
 
+option(BUILD_ONLY_WEBENGINE_PLUGIN
+    "Build Qt WebView with the Qt WebEngine plugin as the only plugin" OFF)
+
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS Core)
 find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS Gui Qml Quick
     WebEngineCore WebEngineQuick)

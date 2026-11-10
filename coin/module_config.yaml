@@ -9,6 +9,12 @@ instructions:
     - type: EnvironmentVariable
       variableName: VERIFY_SOURCE_SBOM
       variableValue: "ON"
+    - type: AppendToEnvironmentVariable
+      variableName: COMMON_NON_QTBASE_CMAKE_ARGS
+      variableValue: " -DBUILD_ONLY_WEBENGINE_PLUGIN=ON"
+    - type: AppendToEnvironmentVariable
+      variableName: COMMON_NON_QTBASE_TARGET_CMAKE_ARGS
+      variableValue: " -DBUILD_ONLY_WEBENGINE_PLUGIN=ON"
     - !include "{{qt/qtbase}}/coin_module_build_template_v2.yaml"
 
   Test:

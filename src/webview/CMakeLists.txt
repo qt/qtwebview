@@ -29,7 +29,7 @@ qt_internal_add_module(WebView
     NO_GENERATE_CPP_EXPORTS
 )
 
-if(ANDROID)
+if(QT_FEATURE_webview_android_plugin)
     set_property(TARGET WebView APPEND PROPERTY QT_ANDROID_BUNDLED_JAR_DEPENDENCIES
         jar/Qt${QtWebView_VERSION_MAJOR}AndroidWebView.jar
     )

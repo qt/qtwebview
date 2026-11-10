@@ -4,6 +4,6 @@
 add_subdirectory(webview)
 add_subdirectory(quick)
 add_subdirectory(plugins)
-if(ANDROID)
+if(QT_FEATURE_webview_android_plugin)
     add_subdirectory(jar)
 endif()

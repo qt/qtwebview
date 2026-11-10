@@ -18,7 +18,7 @@ endif()
 qt_feature("webview-webview2-plugin" PUBLIC
     LABEL "WebView2 (Windows only)"
     PURPOSE "Provides native Microsoft Edge WebView2 control as a plugin for Qt WebView."
-    CONDITION WIN32 AND MSVC AND WebView2_FOUND
+    CONDITION (WIN32 AND MSVC AND WebView2_FOUND) AND NOT BUILD_ONLY_WEBENGINE_PLUGIN
 )
 qt_feature("webview-webengine-plugin" PUBLIC
     LABEL "WebEngine"
@@ -28,22 +28,22 @@ qt_feature("webview-webengine-plugin" PUBLIC
 qt_feature("webview-android-plugin" PUBLIC
     LABEL "Android WebView (Android only)"
     PURPOSE "Provides Android WebView plugin for Qt WebView."
-    CONDITION ANDROID
+    CONDITION ANDROID AND NOT BUILD_ONLY_WEBENGINE_PLUGIN
 )
 qt_feature("webview-ohos-plugin" PUBLIC
     LABEL "HarmonyOS WebView (HarmonyOS only)"
     PURPOSE "Provides HarmonyOS WebView plugin for Qt WebView."
-    CONDITION OHOS
+    CONDITION OHOS AND NOT BUILD_ONLY_WEBENGINE_PLUGIN
 )
 qt_feature("webview-darwin-plugin" PUBLIC
     LABEL "Apple WebKit (Apple platforms only)"
     PURPOSE "Provides Apple Webkit plugin for Qt WebView."
-    CONDITION MACOS OR IOS
+    CONDITION (MACOS OR IOS) AND NOT BUILD_ONLY_WEBENGINE_PLUGIN
 )
 qt_feature("webview-wasm-plugin" PUBLIC
     LABEL "Wasm Webview (Web Assembly only)"
     PURPOSE "Provides Wasm WebView plugin for Qt WebView."
-    CONDITION WASM
+    CONDITION WASM AND NOT BUILD_ONLY_WEBENGINE_PLUGIN
 )
 
 qt_configure_add_summary_section(NAME "Qt WebView plugins")
@@ -60,4 +60,11 @@ qt_configure_add_report_entry(
     MESSAGE "No WebView2 SDK found, compiling QtWebView without WebView2 plugin.\n
     Please set WEBVIEW2_SDK_ROOT to point to WebView2 SDK directory."
     CONDITION WIN32 AND MSVC AND NOT QT_FEATURE_webview_webview2_plugin
+        AND NOT BUILD_ONLY_WEBENGINE_PLUGIN
+)
+
+qt_configure_add_report_entry(
+    TYPE WARNING
+    MESSAGE "BUILD_ONLY_WEBENGINE_PLUGIN is set, but the Qt WebEngine plugin cannot be built."
+    CONDITION BUILD_ONLY_WEBENGINE_PLUGIN AND NOT QT_FEATURE_webview_webengine_plugin
 )

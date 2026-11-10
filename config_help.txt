@@ -3,3 +3,7 @@ WebView options:
   -webview2-sdk path .... Set WebView 2 SDK root path
                           [$WEBVIEW2_SDK_ROOT, Setting this enables building of
                           WebView2 plugin for Qt WebView.] (Windows only)
+
+  -webview-webengine-plugin-only
+                          Build Qt WebView with the Qt WebEngine plugin as
+                          the only plugin
